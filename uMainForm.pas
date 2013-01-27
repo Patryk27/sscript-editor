@@ -105,6 +105,7 @@ type
   private
    Procedure RecentlyOpened_Click(Sender: TObject);
   public
+   Procedure UpdateRecentlyOpened;
   end;
 
  Const sVersion = '0.2 nightly';
@@ -208,24 +209,46 @@ Begin
     Project := TProject.Create;
    End;
 
-  // open a new project
+  // open the project
   if (Project.Open(TMenuItem(Sender).Caption)) Then
   Begin
    setMainMenu(stEnabled);
-  End Else
+  End Else // failed to open
   Begin
    With RecentlyOpened Do
     Delete(IndexOf(TMenuItem(Sender).Caption)); // remove invalid file from the list
    setRecentlyOpened(RecentlyOpened);
    Application.MessageBox('Nie można było otworzyć pliku projektu!', 'Błąd', MB_IconError);
-   Project.Free;
+
+   //if (Project <> nil) Then
+   // Project.Free;
+  End;
+ End;
+End;
+
+Procedure TMainForm.UpdateRecentlyOpened;
+Var Str     : String;
+    MenuItem: TMenuItem;
+Begin
+ if (RecentlyOpened <> nil) Then // free previous instance
+  RecentlyOpened.Free;
+
+ RecentlyOpened := getRecentlyOpened; // get new list
+
+ oRecentlyOpened.Clear;
+ For Str in RecentlyOpened Do // update MainMenu's items
+ Begin
+  With oRecentlyOpened do
+  Begin
+   MenuItem         := TMenuItem.Create(oRecentlyOpened);
+   MenuItem.Caption := Str;
+   MenuItem.OnClick := @RecentlyOpened_Click;
+   oRecentlyOpened.Add(MenuItem);
   End;
  End;
 End;
 
 procedure TMainForm.FormCreate(Sender: TObject);
-Var Str     : String;
-    MenuItem: TMenuItem;
 begin
  // set some values
  DefaultFormatSettings.DecimalSeparator := '.';
@@ -242,18 +265,7 @@ begin
  if (Splitter1Factor = 0) Then // we don't want to divide by zero...
   Splitter1Factor := 1;
 
- RecentlyOpened := getRecentlyOpened;
-
- For Str in RecentlyOpened Do
- Begin
-  With oRecentlyOpened do
-  Begin
-   MenuItem         := TMenuItem.Create(oRecentlyOpened);
-   MenuItem.Caption := Str;
-   MenuItem.OnClick := @RecentlyOpened_Click;
-   oRecentlyOpened.Add(MenuItem);
-  End;
- End;
+ UpdateRecentlyOpened;
 end;
 
 procedure TMainForm.FormDropFiles(Sender: TObject;

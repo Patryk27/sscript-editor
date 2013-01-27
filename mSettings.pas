@@ -82,7 +82,7 @@ Unit mSettings;
  Procedure setBoolean(S: TSetting; Value: Boolean);
 
  Implementation
-Uses IniFiles, SysUtils, TypInfo;
+Uses uMainForm, IniFiles, SysUtils, TypInfo;
 Var Ini: TIniFile = nil;
 
 // s2b
@@ -283,6 +283,8 @@ Begin
   Delete(Save, Length(Save), 1);
 
  setString(sRecentlyOpened, Save);
+
+ MainForm.UpdateRecentlyOpened;
 End;
 
 { setBoolean }

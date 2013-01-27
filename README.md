@@ -1,2 +1,1 @@
-SScript-Editor
-==============
+SScript Editor

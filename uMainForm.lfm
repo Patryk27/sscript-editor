@@ -619,7 +619,6 @@ object MainForm: TMainForm
     object menuProject: TMenuItem
       Caption = 'Projekt'
       object oNewProject: TMenuItem
-        Tag = 2
         Caption = 'Nowy'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100

@@ -1,6 +1,6 @@
 @("stdlib\\stdio.ss")
 
-// I used 'float' in code, because it is more accuracy than normal 'int'
+// I used 'float' in code, because it has more accuracy than normal 'int'
 function<float> fib(int n)
 {
  var<float> a=1, b=1, c;

@@ -1,7 +1,7 @@
 object EvSettingsForm: TEvSettingsForm
-  Left = 249
+  Left = 282
   Height = 435
-  Top = 106
+  Top = 142
   Width = 640
   BorderStyle = bsToolWindow
   Caption = 'Ustawienia środowiska'
@@ -24,10 +24,11 @@ object EvSettingsForm: TEvSettingsForm
       F9FFFFFF020002000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF010000000000
       0000010B000000456479746F72206B6F647500000000FFFFFFFFFFFFFFFFFFFF
       FFFF000000000000000000140000004B6F6C6F726F77616E696520736BC58261
-      646E69FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0200000000000000010B000000
+      646E6904000000FFFFFFFFFFFFFFFFFFFFFFFF0300000000000000010B000000
       C59A726F646F7769736B6F01000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000
       0000000009000000C59A636965C5BC6B6902000000FFFFFFFFFFFFFFFFFFFFFF
-      FF0000000000000000000B000000506F7769C4857A616E6961
+      FF0000000000000000000B000000506F7769C4857A616E696103000000FFFFFF
+      FFFFFFFFFFFFFFFFFF00000000000000000004000000496E6E65
     }
   end
   object Bevel1: TBevel
@@ -59,7 +60,7 @@ object EvSettingsForm: TEvSettingsForm
     Height = 400
     Top = 0
     Width = 398
-    PageIndex = 0
+    PageIndex = 3
     TabOrder = 3
     TabStop = True
     object p_1: TPage
@@ -802,6 +803,32 @@ object EvSettingsForm: TEvSettingsForm
         Caption = 'btnExtLink'
         OnClick = btnExtLinkClick
         TabOrder = 0
+      end
+    end
+    object p_4: TPage
+      object cScrollPastEOL: TCheckBox
+        Left = 8
+        Height = 19
+        Top = 8
+        Width = 258
+        Caption = 'Umożliwiaj kursorowi wychodzenie poza linię'
+        TabOrder = 0
+      end
+      object cOpenRecentProject: TCheckBox
+        Left = 8
+        Height = 19
+        Top = 32
+        Width = 373
+        Caption = 'Otwieraj ostatnio otworzony projekt przy uruchamianiu środowiska'
+        TabOrder = 1
+      end
+      object cAddBrackets: TCheckBox
+        Left = 8
+        Height = 19
+        Top = 55
+        Width = 245
+        Caption = 'Automatycznie dodawaj nawiasy kończące'
+        TabOrder = 2
       end
     end
   end

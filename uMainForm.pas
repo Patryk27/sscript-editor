@@ -5,8 +5,8 @@ unit uMainForm;
 interface
 
 uses
-  Windows, Classes, SysUtils, FileUtil, SynEdit, ExtendedNotebook, Forms,
-  Controls, Graphics, Dialogs, Menus, ExtCtrls, ComCtrls, mSettings;
+  Classes, SysUtils, FileUtil, SynEdit, ExtendedNotebook, Forms,
+  Controls, Graphics, Dialogs, Menus, ExtCtrls, ComCtrls, mSettings, LCLType;
 
 Const SaveProjectFilter = 'Project SScript Editor (*.ssp)|*.ssp';
       OpenProjectFilter = SaveProjectFilter;
@@ -107,7 +107,7 @@ type
   public
   end;
 
- Const sVersion = '0.1a';
+ Const sVersion = '0.2 nightly';
        sCaption = 'SScript Editor v'+sVersion;
  Var MainForm      : TMainForm;
      RecentlyOpened: TStringList = nil;
@@ -311,14 +311,25 @@ begin
  SetCurrentDir(ExtractFilePath(Application.ExeName));
 
  FileName := ParamStr(1);
- if (FileExists(FileName)) and (CompareText(ExtractFileExt(FileName), '.ssp') = 0) Then
+ if (FileExists(FileName)) and (CompareText(ExtractFileExt(FileName), '.ssp') = 0) Then // check for file existence, and also check the file extension
  Begin
   Project := TProject.Create;
-  if (not Project.Open(FileName)) Then
+  if (not Project.Open(FileName)) Then // try to open
   Begin
    Application.MessageBox(PChar('Nie można było otworzyć pliku projektu:'#13#10+FileName), 'Błąd', MB_IconError);
    Project.Free;
   End Else
+   setMainMenu(stEnabled);
+ End Else
+
+ // open recent project
+ if (getBoolean(sOpenRecentProject)) Then
+ Begin
+  FileName := getString(sRecentProject);
+  Project  := TProject.Create;
+
+  if (not Project.Open(FileName)) Then // try to open
+   Project.Free Else
    setMainMenu(stEnabled);
  End;
 end;
@@ -461,6 +472,11 @@ end;
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
  CanClose := SaveProject;
+
+ // save current project as a "Recent" (if it's possible)
+ if (CanClose) and (Project <> nil) Then
+  if (Project.Named) Then
+   setString(sRecentProject, Project.FileName);
 end;
 
 procedure TMainForm.CompileStatusClick(Sender:TObject);

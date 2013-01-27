@@ -12,7 +12,7 @@ Unit mSettings;
  Type TSetting = (sSplitter1, sCompilerFile, sVMFile, sIdentFormat, sKeywordFormat,
                   sNumberFormat, sStringFormat, sCommentFormat, sMacroFormat, sPrimaryTypesFormat,
                   sOtherFormat, sEditorBackground, sEditorForeground, sEditorFont,
-                  sRecentlyOpened);
+                  sRecentlyOpened, sScrollPastEOL, sOpenRecentProject, sRecentProject);
 
  { TSyntaxFormat }
  Type TSyntaxFormat = Packed Record
@@ -32,8 +32,8 @@ Unit mSettings;
  (
   '4.8',
   {$IFDEF NOT_PRODUCTION}
-  '..\compiler\compiler.exe',
-  '..\vm\vm.exe',
+  '..\SScript-Compiler\compiler.exe',
+  '..\SScript-VM\vm.exe',
   {$ELSE}
   'compiler\compiler.exe',
   'compiler\vm.exe',
@@ -49,6 +49,9 @@ Unit mSettings;
   '16777215',
   '0',
   'Courier New,10,false,false,false',
+  '',
+  'true',
+  'false',
   ''
  );
 
@@ -66,6 +69,7 @@ Unit mSettings;
  Function getFont(S: TSetting): TFont;
  Function getColor(S: TSetting): TColor;
  Function getRecentlyOpened: TStringList;
+ Function getBoolean(S: TSetting): Boolean;
 
  Procedure setString(S: TSetting; Value: String);
  Procedure setInteger(S: TSetting; Value: Integer);
@@ -74,6 +78,7 @@ Unit mSettings;
  Procedure setFont(S: TSetting; Value: TFont);
  Procedure setColor(S: TSetting; Value: TColor);
  Procedure setRecentlyOpened(S: TStringList);
+ Procedure setBoolean(S: TSetting; Value: Boolean);
 
  Implementation
 Uses IniFiles, SysUtils, TypInfo;
@@ -215,6 +220,12 @@ Begin
  ExtractStrings([','], [], PChar(getString(sRecentlyOpened)), Result);
 End;
 
+{ getBoolean }
+Function getBoolean(S: TSetting): Boolean;
+Begin
+ Result := s2b(getString(S));
+End;
+
 { setString }
 Procedure setString(S: TSetting; Value: String);
 Begin
@@ -271,6 +282,12 @@ Begin
   Delete(Save, Length(Save), 1);
 
  setString(sRecentlyOpened, Save);
+End;
+
+{ setBoolean }
+Procedure setBoolean(S: TSetting; Value: Boolean);
+Begin
+ setString(S, b2s(Value));
 End;
 
 initialization

@@ -14,6 +14,7 @@ type
 
   TProjectSettingsForm = class(TForm)
     Bevel1: TBevel;
+    btnGetPathsFromEV:TButton;
     eHeaderFile: TEdit;
     eBytecodeOutput: TEdit;
     Label7: TLabel;
@@ -49,6 +50,7 @@ type
     Pages: TNotebook;
     Setting: TTreeView;
     procedure btnCancelClick(Sender: TObject);
+    procedure btnGetPathsFromEVClick(Sender:TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure CompilerFile_SelectClick(Sender: TObject);
     procedure eCompilerFileChange(Sender: TObject);
@@ -66,7 +68,7 @@ var
   ProjectSettingsForm: TProjectSettingsForm;
 
 implementation
-Uses uMainForm, mProject;
+Uses uMainForm, mProject, mSettings;
 Var CheckTime: Integer = 0;
 
 {$R *.lfm}
@@ -86,7 +88,7 @@ Begin
   eBytecodeOutput.Text := BytecodeOutput;
   eHeaderFile.Text     := HeaderFile;
 
-  { read compiler switches }
+  { read compiler paths and switches }
   eCompilerSwitches.Text := OtherCompilerSwitches;
   eIncludePath.Text      := IncludePath;
 
@@ -133,7 +135,7 @@ begin
   BytecodeOutput := eBytecodeOutput.Text;
   HeaderFile     := eHeaderFile.Text;
 
-  { save compiler switches }
+  { save compiler paths and switches }
   OtherCompilerSwitches := eCompilerSwitches.Text;
   IncludePath           := eIncludePath.Text;
 
@@ -187,6 +189,12 @@ end;
 procedure TProjectSettingsForm.btnCancelClick(Sender: TObject);
 begin
  Close;
+end;
+
+procedure TProjectSettingsForm.btnGetPathsFromEVClick(Sender:TObject);
+begin
+ eCompilerFile.Text := getString(sCompilerFile);
+ eVMFile.Text       := getString(sVMFile);
 end;
 
 end.

@@ -27,6 +27,9 @@ type
     btn_cOther: TButton;
     btnFGColor: TButton;
     btnExtLink: TButton;
+    cAddBrackets:TCheckBox;
+    cOpenRecentProject:TCheckBox;
+    cScrollPastEOL:TCheckBox;
     ColorDialog: TColorDialog;
     CompilerFile_Select: TBitBtn;
     CompilerFile_Select1: TBitBtn;
@@ -38,6 +41,7 @@ type
     FontDialog: TFontDialog;
     Label1: TLabel;
     Label2: TLabel;
+    p_4:TPage;
     p_3: TPage;
     p_2: TPage;
     Pages: TNotebook;
@@ -143,8 +147,10 @@ Begin
  UpdateSampleCode;
  UpdateExtButton;
 
- eCompilerFile.Text := getString(sCompilerFile);
- eVMFile.Text       := getString(sVMFile);
+ eCompilerFile.Text         := getString(sCompilerFile);
+ eVMFile.Text               := getString(sVMFile);
+ cScrollPastEOL.Checked     := getBoolean(sScrollPastEOL);
+ cOpenRecentProject.Checked := getBoolean(sOpenRecentProject);
 
  CheckTime := 0;
  FileTimer.OnTimer(FileTimer);
@@ -157,6 +163,8 @@ procedure TEvSettingsForm.btnSaveClick(Sender: TObject);
 begin
  setString(sCompilerFile, eCompilerFile.Text);
  setString(sVMFile, eVMFile.Text);
+ setBoolean(sScrollPastEOL, cScrollPastEOL.Checked);
+ setBoolean(sOpenRecentProject, cOpenRecentProject.Checked);
 
  if (uMainForm.getProjectPnt <> nil) Then // is any project opened?
   TProject(uMainForm.getProjectPnt).RefreshControls;

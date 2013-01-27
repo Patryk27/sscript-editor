@@ -80,6 +80,7 @@
         <Filename Value="uAboutForm.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="AboutForm"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uAboutForm"/>
       </Unit4>

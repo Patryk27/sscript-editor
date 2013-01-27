@@ -9,6 +9,8 @@ Unit mProject;
  Type TProjectType = (ptApplication, ptLibrary);
 
  { TCard }
+ Type TCardSaveReason = (csrClosingCard);
+
  Type TCard = Class
                Private
                 isMain, Named    : Boolean;
@@ -31,6 +33,7 @@ Unit mProject;
                 Destructor Destroy; override;
 
                 Function Save(const fFileName: String=''): Boolean;
+                Function Save(const Reason: TCardSaveReason): Boolean;
 
                 Procedure Update;
                 Procedure RefreshControls;
@@ -193,7 +196,7 @@ Begin
   Highlighter := THighlighter.Create(SynEdit);
   Parent      := Tab;
   Align       := alClient;
- // PopupMenu := MainForm.Editor_popup;
+ // PopupMenu := MainForm.Editor_popup; @TODO
 
   OnKeyPress          := @Editor_OnKeyPress;
   OnKeyDown           := @Editor_OnKeyDown;
@@ -260,9 +263,31 @@ Begin
  Exit(True);
 End;
 
+{ TCard.Save }
+Function TCard.Save(const Reason: TCardSaveReason): Boolean;
+Begin
+ Case MessageDlg('Zamykanie karty', 'Zamierzasz zamknąć niezapisaną kartę.'#13#10'Zapisać?', mtWarning, mbYesNoCancel, '') of
+  { yes }
+  mrYes:
+  Begin
+   Save();
+   Exit(True);
+  End;
+
+  { no }
+  mrNo: Exit(True);
+
+  { cancel }
+  mrCancel: Exit(False);
+ End;
+
+ Exit(True);
+End;
+
 { TCard.Update }
 Procedure TCard.Update;
 Begin
+ // update card's caption
  if (SynEdit.Modified) Then
   Tab.Caption := '* '+Caption Else
   Tab.Caption := Caption;
@@ -273,8 +298,17 @@ Procedure TCard.RefreshControls;
 Begin
  With SynEdit do
  Begin
+  // recreate highlighter
   Highlighter.Free;
   Highlighter := THighlighter.Create(SynEdit);
+
+  // update SynEdit
+  With SynEdit do
+  Begin
+   if (mSettings.getBoolean(sScrollPastEOL)) Then
+    Options := Options + [eoScrollPastEOL] Else
+    Options := Options - [eoScrollPastEOL];
+  End;
  End;
 End;
 
@@ -581,6 +615,9 @@ Begin
  self.Saved := True;
  FileName   := MakeFullPath(FileName);
 
+ if (CompareText(ExtractFileExt(FileName), '.ssp') <> 0) Then
+  FileName += '.ssp';
+
  Try
   Doc := TXMLDocument.Create;
 
@@ -835,17 +872,24 @@ End;
 { TProject.CloseCard }
 Procedure TProject.CloseCard(ID: Integer);
 Begin
+ // is the only opened card?
  if (CardList.Count <= 1) Then
  Begin
   Application.MessageBox('Nie możesz zamknąć ostatniej karty!', 'Informacja', MB_IconInformation);
   Exit;
  End;
 
+ // is main?
  if (CardList[ID].isMain) Then
  Begin
   Application.MessageBox('Nie możesz zamknąć głównej karty!', 'Informacja', MB_IconInformation);
   Exit;
  End;
+
+ // is modified?
+ if (CardList[ID].SynEdit.Modified) Then
+  if (not CardList[ID].Save(csrClosingCard)) Then
+   Exit;
 
  CardList.Delete(ID);
  MainForm.Tabs.Pages[ID].Free;
@@ -864,7 +908,22 @@ Begin
  Repeat
   Card := CardList[I];
 
-  if (Card <> Current) and (not Card.isMain) Then
+  // is main?
+  if (Card.isMain) Then
+  Begin
+   Inc(I);
+   Continue;
+  End;
+
+  // is modified?
+  if (Card.SynEdit.Modified) Then
+   if (not Card.Save(csrClosingCard)) Then
+   Begin
+    Inc(I);
+    Continue;
+   End;
+
+  if (Card <> Current) Then
   Begin
    CardList.Remove(Card);
    Card.Free;

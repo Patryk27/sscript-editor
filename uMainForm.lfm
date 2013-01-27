@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 276
+  Left = 303
   Height = 471
-  Top = 109
+  Top = 148
   Width = 824
   AllowDropFiles = True
   Caption = 'SScript Editor'
@@ -350,6 +350,7 @@ object MainForm: TMainForm
           FF00FFFFFF00FFFFFF006360F80AFFFFFF00FFFFFF00FFFFFF00
         }
         ShortCut = 16499
+        ShortCutKey2 = 16471
         OnClick = oCloseCurrentCardClick
       end
       object oCloseProject: TMenuItem
@@ -1046,6 +1047,7 @@ object MainForm: TMainForm
         FF00FFFFFF00FFFFFF006360F80AFFFFFF00FFFFFF00FFFFFF00
       }
       ShortCut = 16499
+      ShortCutKey2 = 16471
       OnClick = opCloseCardClick
     end
     object opCloseAll: TMenuItem

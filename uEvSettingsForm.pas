@@ -151,6 +151,7 @@ Begin
  eVMFile.Text               := getString(sVMFile);
  cScrollPastEOL.Checked     := getBoolean(sScrollPastEOL);
  cOpenRecentProject.Checked := getBoolean(sOpenRecentProject);
+ cAddBrackets.Checked       := getBoolean(sAddBrackets);
 
  CheckTime := 0;
  FileTimer.OnTimer(FileTimer);
@@ -165,6 +166,7 @@ begin
  setString(sVMFile, eVMFile.Text);
  setBoolean(sScrollPastEOL, cScrollPastEOL.Checked);
  setBoolean(sOpenRecentProject, cOpenRecentProject.Checked);
+ setBoolean(sAddBrackets, cAddBrackets.Checked);
 
  if (uMainForm.getProjectPnt <> nil) Then // is any project opened?
   TProject(uMainForm.getProjectPnt).RefreshControls;

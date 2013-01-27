@@ -128,7 +128,32 @@ End;
 
 { TCard.Editor_OnKeyPress }
 Procedure TCard.Editor_OnKeyPress(Sender: TObject; var Key: Char);
+Var Str: String = '';
+    cX : Integer;
 Begin
+ if (Key in ['(', '[', '<', '{']) Then
+  if (mSettings.getBoolean(sAddBrackets)) Then
+  Begin
+   Case Key of
+    '(': Str := '()';
+    '[': Str := '[]';
+    '<': Str := '<>';
+    '{': Str := '{'#13#10#13#10'}';
+   End;
+
+   cX := SynEdit.CaretX;
+   SynEdit.InsertTextAtCaret(Str);
+   SynEdit.CaretX := SynEdit.CaretX-1;
+
+   if (Key = '{') Then
+   Begin
+    SynEdit.CaretX := 1;
+    SynEdit.CaretY := SynEdit.CaretY-1;
+   End;
+
+   Key := #0;
+  End;
+
  ErrorLine := -1;
  SynEdit.Invalidate;
 End;

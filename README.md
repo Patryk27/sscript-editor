@@ -17,5 +17,7 @@ Thanks for help!
 
 ### But the code isn't readable...
 I know - some parts of code are written... weakly; and there's no documentation for code as-is.
+
 But if you're not sure about some part of code, just write a message to me and I'll try to answer.
+
 And about the documentation - if I'll find some free time, I'll try to write it.

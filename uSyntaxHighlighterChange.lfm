@@ -1,22 +1,22 @@
 object SyntaxHighlighterChange: TSyntaxHighlighterChange
-  Left = 220
+  Left = 462
   Height = 174
-  Top = 157
+  Top = 169
   Width = 246
   BorderStyle = bsToolWindow
-  Caption = 'Kolorowanie składni'
+  Caption = 'Syntax highlighter'
   ClientHeight = 174
   ClientWidth = 246
   FormStyle = fsSystemStayOnTop
   OnClose = FormClose
   Position = poScreenCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.0.4.0'
   object cBold: TCheckBox
     Left = 6
     Height = 19
     Top = 56
-    Width = 84
-    Caption = 'Pogrubienie'
+    Width = 44
+    Caption = 'Bold'
     OnChange = cBoldChange
     TabOrder = 0
   end
@@ -24,8 +24,8 @@ object SyntaxHighlighterChange: TSyntaxHighlighterChange
     Left = 6
     Height = 19
     Top = 76
-    Width = 78
-    Caption = 'Pochylenie'
+    Width = 45
+    Caption = 'Italic'
     OnChange = cItalicChange
     TabOrder = 1
   end
@@ -33,17 +33,17 @@ object SyntaxHighlighterChange: TSyntaxHighlighterChange
     Left = 6
     Height = 19
     Top = 96
-    Width = 87
-    Caption = 'Podkreślenie'
+    Width = 71
+    Caption = 'Underline'
     OnChange = cUnderlineChange
     TabOrder = 2
   end
   object btnSave: TButton
-    Left = 6
+    Left = 8
     Height = 25
     Top = 144
     Width = 75
-    Caption = 'Zapisz'
+    Caption = 'Save'
     OnClick = btnSaveClick
     TabOrder = 3
   end
@@ -52,7 +52,7 @@ object SyntaxHighlighterChange: TSyntaxHighlighterChange
     Height = 25
     Top = 144
     Width = 75
-    Caption = 'Anuluj'
+    Caption = 'Cancel'
     OnClick = btnCancelClick
     TabOrder = 4
   end
@@ -61,7 +61,7 @@ object SyntaxHighlighterChange: TSyntaxHighlighterChange
     Height = 25
     Top = 60
     Width = 112
-    Caption = 'Kolor tekstu'
+    Caption = 'Text color'
     OnClick = btnFGColorClick
     TabOrder = 5
   end
@@ -76,7 +76,7 @@ object SyntaxHighlighterChange: TSyntaxHighlighterChange
     Height = 25
     Top = 90
     Width = 112
-    Caption = 'Kolor tła'
+    Caption = 'Background color'
     OnClick = btnBGColorClick
     TabOrder = 6
   end
@@ -88,9 +88,9 @@ object SyntaxHighlighterChange: TSyntaxHighlighterChange
   end
   object lTest: TLabel
     Left = 6
-    Height = 15
+    Height = 16
     Top = 7
-    Width = 22
+    Width = 23
     Caption = 'Test'
     ParentColor = False
   end
@@ -98,8 +98,8 @@ object SyntaxHighlighterChange: TSyntaxHighlighterChange
     Left = 6
     Height = 19
     Top = 115
-    Width = 107
-    Caption = 'Posiada kolor tła'
+    Width = 146
+    Caption = 'Has a background color'
     OnChange = cBGColorChange
     TabOrder = 7
   end
@@ -127,6 +127,5 @@ object SyntaxHighlighterChange: TSyntaxHighlighterChange
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    left = 8
   end
 end

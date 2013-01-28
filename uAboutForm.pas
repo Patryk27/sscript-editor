@@ -46,7 +46,7 @@ begin
  L('~Patryk Wychowaniec (http://sscript.xorg.pl/)');
  L();
  L('');
- L('Użyte zestawy ikon:');
+ L('Used icon packs:');
  L(' http://www.famfamfam.com/lab/icons/silk/');
  L(' http://tango.freedesktop.org/Tango_Icon_Library');
 end;

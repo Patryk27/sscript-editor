@@ -5,7 +5,7 @@ unit uEvSettingsForm;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, SynEdit, Forms, Controls, Graphics, Dialogs,
+  Windows, Classes, SysUtils, FileUtil, SynEdit, Forms, Controls, Graphics, Dialogs,
   ComCtrls, ExtCtrls, StdCtrls, Buttons, Registry;
 
 type
@@ -28,6 +28,7 @@ type
     btnFGColor: TButton;
     btnExtLink: TButton;
     cAddBrackets:TCheckBox;
+    cbLanguages:TComboBox;
     cOpenRecentProject:TCheckBox;
     cScrollPastEOL:TCheckBox;
     ColorDialog: TColorDialog;
@@ -41,6 +42,8 @@ type
     FontDialog: TFontDialog;
     Label1: TLabel;
     Label2: TLabel;
+    Label3:TLabel;
+    p_5:TPage;
     p_4:TPage;
     p_3: TPage;
     p_2: TPage;
@@ -79,7 +82,7 @@ var
   EvSettingsForm: TEvSettingsForm;
 
 implementation
-Uses mSettings, mProject, SynEditSScript, uMainForm, uSyntaxHighlighterChange;
+Uses mSettings, mProject, mLanguages, SynEditSScript, uMainForm, uSyntaxHighlighterChange;
 
 Const SettingsFile       = mSettings.FileName;
       SettingsFileBackup = mSettings.FileName+'_';
@@ -128,14 +131,48 @@ Begin
  // @TODO: this is a bit lame solution, as it checks only for 'is there any program which handles this extension', but doesn't check whether it's our editor or something else
  Begin
   btnExtLink.Tag     := 2;
-  btnExtLink.Caption := 'Usuń powiązanie z rozszerzeniem: ssp';
+  btnExtLink.Caption := getLangValue('remove_ext');
  End Else
  Begin
   btnExtLink.Tag     := 1;
-  btnExtLink.Caption := 'Powiąż edytor z rozszerzeniem: ssp';
+  btnExtLink.Caption := getLangValue('add_ext');
  End;
 
  Reg.Free;
+End;
+
+{ getLanguageName }
+Function getLanguageName(FileName: String): String;
+Begin
+ Result := Copy(FileName, 1, Pos('.', FileName)-1);
+End;
+
+{ SearchLanguages }
+Procedure SearchLanguages;
+Var M: TSearchRec;
+Begin
+ With EvSettingsForm.cbLanguages do
+ Begin
+  Clear;
+  Items.Add('English');
+ End;
+
+ if (FindFirst('lang\*.lng', faAnyFile, M) <> 0) Then
+  Exit; // no files found
+
+ Repeat
+  EvSettingsForm.cbLanguages.Items.Add(getLanguageName(M.Name)); // add next file
+ Until (FindNext(M) <> 0);
+
+ FindClose(M);
+
+ With EvSettingsForm.cbLanguages do
+ Begin
+  ItemIndex := Items.IndexOf(getLanguageName(getString(sLanguage)));
+
+  if (ItemIndex = -1) Then
+   ItemIndex := 0;
+ End;
 End;
 
 { TEvSettingsForm.Run }
@@ -147,12 +184,17 @@ Begin
  UpdateSampleCode;
  UpdateExtButton;
 
+ // load config
  eCompilerFile.Text         := getString(sCompilerFile);
  eVMFile.Text               := getString(sVMFile);
  cScrollPastEOL.Checked     := getBoolean(sScrollPastEOL);
  cOpenRecentProject.Checked := getBoolean(sOpenRecentProject);
  cAddBrackets.Checked       := getBoolean(sAddBrackets);
 
+ // search for languages
+ SearchLanguages;
+
+ // show form
  CheckTime := 0;
  FileTimer.OnTimer(FileTimer);
  ShowModal;
@@ -161,13 +203,21 @@ Begin
 End;
 
 procedure TEvSettingsForm.btnSaveClick(Sender: TObject);
+Var Tmp: String;
 begin
+ // save settings
  setString(sCompilerFile, eCompilerFile.Text);
  setString(sVMFile, eVMFile.Text);
  setBoolean(sScrollPastEOL, cScrollPastEOL.Checked);
  setBoolean(sOpenRecentProject, cOpenRecentProject.Checked);
  setBoolean(sAddBrackets, cAddBrackets.Checked);
 
+ Tmp := cbLanguages.Items[cbLanguages.ItemIndex]+'.lng';
+ if (Tmp <> getString(sLanguage)) Then // has the language changed?
+  Application.MessageBox(PChar(getLangValue('msg_ev_restart')), PChar(getLangValue('msg_info')), MB_IconInformation);
+ setString(sLanguage, Tmp);
+
+ // refresh controls
  if (uMainForm.getProjectPnt <> nil) Then // is any project opened?
   TProject(uMainForm.getProjectPnt).RefreshControls;
 
@@ -273,6 +323,7 @@ end;
 
 procedure TEvSettingsForm.btnCancelClick(Sender: TObject);
 begin
+ // remove config and replace with backup
  mSettings.FreeConfig;
  mDeleteFile(SettingsFile);
  mCopyFile(SettingsFileBackup, SettingsFile);

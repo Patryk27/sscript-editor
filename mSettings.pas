@@ -12,7 +12,8 @@ Unit mSettings;
  Type TSetting = (sSplitter1, sCompilerFile, sVMFile, sIdentFormat, sKeywordFormat,
                   sNumberFormat, sStringFormat, sCommentFormat, sMacroFormat, sPrimaryTypesFormat,
                   sOtherFormat, sEditorBackground, sEditorForeground, sEditorFont,
-                  sRecentlyOpened, sScrollPastEOL, sOpenRecentProject, sRecentProject, sAddBrackets);
+                  sRecentlyOpened, sScrollPastEOL, sOpenRecentProject, sRecentProject, sAddBrackets,
+                  sLanguage);
 
  { TSyntaxFormat }
  Type TSyntaxFormat = Packed Record
@@ -53,7 +54,8 @@ Unit mSettings;
   'true',
   'false',
   '',
-  'false'
+  'false',
+  ''
  );
 
  Procedure ReloadConfig;

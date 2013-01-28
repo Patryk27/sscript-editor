@@ -8,16 +8,6 @@ uses
   Classes, SysUtils, FileUtil, SynEdit, ExtendedNotebook, Forms,
   Controls, Graphics, Dialogs, Menus, ExtCtrls, ComCtrls, mSettings, LCLType;
 
-Const SaveProjectFilter = 'Project SScript Editor (*.ssp)|*.ssp';
-      OpenProjectFilter = SaveProjectFilter;
-
-      SaveModuleFilter = 'Plik kodu SScript (*.ss)|*.ss';
-      OpenModuleFilter = SaveModuleFilter;
-
-      AnyFileFilter = 'Wszystkie pliki (*.*)|*.*';
-
-      OpenFileFilter = OpenProjectFilter+'|'+OpenModuleFilter+'|'+AnyFileFilter;
-
 type
   { TMainForm }
   TMainForm = class(TForm)
@@ -87,6 +77,7 @@ type
     procedure oOpenProjectClick(Sender: TObject);
     procedure oCompileAndRunClick(Sender: TObject);
     procedure oNewModuleClick(Sender: TObject);
+    procedure opSaveMessagesClick(Sender:TObject);
     procedure oSaveAllClick(Sender: TObject);
     procedure oSaveAsClick(Sender: TObject);
     procedure oSaveClick(Sender: TObject);
@@ -116,7 +107,7 @@ type
  Function getProjectPnt: Pointer;
 
  Implementation
-Uses mProject, uProjectSettings, uEvSettingsForm, uAboutForm{, LCLStrConsts};
+Uses mProject, mLanguages, uProjectSettings, uEvSettingsForm, uAboutForm{, LCLStrConsts};
 Var Project        : TProject = nil; // currently opened project
     Splitter1Factor: Extended = 1;
 
@@ -168,7 +159,7 @@ Begin
   Begin
    { ask user }
    Save := False;
-   Case MessageDlg('Zapis projektu', 'Nie wszystkie pliki z Twojego projektu są zapisane, możesz utracić dane.'#13#10'Zapisać?', mtConfirmation, mbYesNoCancel, '') of
+   Case MessageDlg(getLangValue('project_saving'), getLangValue('msg_unsaved_files'), mtConfirmation, mbYesNoCancel, '') of
     mrYes   : Save := True;
     mrNo    : Save := False;
     mrCancel: Exit(False);
@@ -183,7 +174,7 @@ Begin
 
  { ask user }
  Save := False;
- Case MessageDlg('Zapis projektu', 'Twój aktualny projekt nie jest zapisany, możesz utracić dane.'#13#10'Zapisać projekt?', mtConfirmation, mbYesNoCancel, '') of
+ Case MessageDlg(getLangValue('project_saving'), getLangValue('msg_unsaved_project'), mtConfirmation, mbYesNoCancel, '') of
   mrYes   : Save := True;
   mrNo    : Save := False;
   mrCancel: Exit(False);
@@ -218,7 +209,7 @@ Begin
    With RecentlyOpened Do
     Delete(IndexOf(TMenuItem(Sender).Caption)); // remove invalid file from the list
    setRecentlyOpened(RecentlyOpened);
-   Application.MessageBox('Nie można było otworzyć pliku projektu!', 'Błąd', MB_IconError);
+   Application.MessageBox(PChar(getLangValue('msg_project_open_failed')), PChar(getLangValue('msg_err')), MB_IconError);
 
    //if (Project <> nil) Then
    // Project.Free;
@@ -283,7 +274,7 @@ begin
   Project := TProject.Create;
   if (not Project.Open(FileNames[0])) Then
   Begin
-   Application.MessageBox(PChar('Nie można było otworzyć pliku projektu: '+FileNames[0]), 'Błąd', MB_IconError);
+   Application.MessageBox(PChar(Format(getLangValue('msg_project_open_failed_ex'), [FileNames[0]])), PChar(getLangValue('msg_error')), MB_IconError);
    Exit;
   End;
 
@@ -294,7 +285,7 @@ begin
 
  // no project opened/created so far?
  if (Project = nil) Then
-  Case MessageDlg('Otwieranie pliku', 'Utworzyć nowy projekt (aplikację)?', mtConfirmation, mbYesNo, '') of
+  Case MessageDlg(getLangValue('file_opening'), getLangValue('msg_create_new_project'), mtConfirmation, mbYesNo, '') of
    mrNo: Exit;
    mrYes:
    Begin
@@ -317,7 +308,7 @@ begin
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
-Var FileName: String;
+Var FileName, tText: String;
 begin
  // if specified in parameter, open a project
  SetCurrentDir(ExtractFilePath(Application.ExeName));
@@ -328,7 +319,8 @@ begin
   Project := TProject.Create;
   if (not Project.Open(FileName)) Then // try to open
   Begin
-   Application.MessageBox(PChar('Nie można było otworzyć pliku projektu:'#13#10+FileName), 'Błąd', MB_IconError);
+   tText := Format(getLangValue('msg_project_open_failed_ex'), [FileName]);
+   Application.MessageBox(PChar(tText), PChar(getLangValue('msg_err')), MB_IconError);
    Project.Free;
   End Else
    setMainMenu(stEnabled);
@@ -385,7 +377,7 @@ begin
   Project.NewProject(ptApplication);
   setMainMenu(stEnabled);
 
-  Caption := sCaption+' - nowa aplikacja';
+  Caption := sCaption+' - '+getLangValue('new_app');
  End;
 end;
 
@@ -403,7 +395,7 @@ begin
   Project.NewProject(ptLibrary);
   setMainMenu(stEnabled);
 
-  Caption := sCaption+' - nowa biblioteka';
+  Caption := sCaption+' - '+getLangValue('new_lib');
  End;
 end;
 
@@ -447,6 +439,21 @@ end;
 procedure TMainForm.oNewModuleClick(Sender: TObject);
 begin
  Project.NewNoNameCard;
+end;
+
+procedure TMainForm.opSaveMessagesClick(Sender:TObject);
+begin
+ // run save dialog
+ With TSaveDialog.Create(self) do
+  Try
+   Title  := getLangValue('file_saving');
+   Filter := getLangValue('filter_file');
+
+   if (Execute) Then
+    CompileStatus.SaveToFile(FileName);
+  Finally
+   Free;
+  End;
 end;
 
 procedure TMainForm.oSaveAllClick(Sender: TObject);
@@ -510,12 +517,12 @@ begin
   Try
    if (Project = nil) Then
    Begin
-    Title  := 'Otwieranie projektu';
-    Filter := OpenProjectFilter;
+    Title  := getLangValue('project_opening');
+    Filter := getLangValue('filter_project');
    End Else
    Begin
-    Title  := 'Otwieranie modułu';
-    Filter := OpenModuleFilter;
+    Title  := getLangValue('module_opening');
+    Filter := getLangValue('filter_module');
    End;
 
    Options := [ofPathMustExist, ofFileMustExist];
@@ -530,7 +537,7 @@ begin
      Project := TProject.Create;
      if (not Project.Open(FileName)) Then // failed
      Begin
-      Application.MessageBox('Nie można było otworzyć pliku projektu.', 'Błąd', MB_IconError);
+      Application.MessageBox(PChar(getLangValue('msg_project_open_failed')), PChar(getLangValue('msg_err')), MB_IconError);
       FreeAndNil(Project);
       setMainMenu(stDisabled);
      End Else
@@ -542,7 +549,7 @@ begin
     { opening a module }
     Begin
      if (not Project.OpenCard(FileName)) Then // failed
-      Application.MessageBox('Nie można było otworzyć modułu.', 'Błąd', MB_IconError);
+      Application.MessageBox(PChar(getLangValue('msg_module_open_failed')), PChar(getLangValue('msg_err')), MB_IconError);
     End;
    End;
   Finally

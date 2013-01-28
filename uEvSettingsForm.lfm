@@ -4,7 +4,7 @@ object EvSettingsForm: TEvSettingsForm
   Top = 142
   Width = 640
   BorderStyle = bsToolWindow
-  Caption = 'Ustawienia środowiska'
+  Caption = 'Environment settings'
   ClientHeight = 435
   ClientWidth = 640
   FormStyle = fsSystemStayOnTop
@@ -22,13 +22,14 @@ object EvSettingsForm: TEvSettingsForm
     Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     Items.Data = {
       F9FFFFFF020002000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF010000000000
-      0000010B000000456479746F72206B6F647500000000FFFFFFFFFFFFFFFFFFFF
-      FFFF000000000000000000140000004B6F6C6F726F77616E696520736BC58261
-      646E6904000000FFFFFFFFFFFFFFFFFFFFFFFF0300000000000000010B000000
-      C59A726F646F7769736B6F01000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000
-      0000000009000000C59A636965C5BC6B6902000000FFFFFFFFFFFFFFFFFFFFFF
-      FF0000000000000000000B000000506F7769C4857A616E696103000000FFFFFF
-      FFFFFFFFFFFFFFFFFF00000000000000000004000000496E6E65
+      00000106000000456469746F7200000000FFFFFFFFFFFFFFFFFFFFFFFF000000
+      0000000000001300000053796E74617820686967686C69676874696E67040000
+      00FFFFFFFFFFFFFFFFFFFFFFFF0400000000000000010B000000456E7669726F
+      6E6D656E7401000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000500
+      0000506174687302000000FFFFFFFFFFFFFFFFFFFFFFFF000000000000000000
+      0A000000457874656E73696F6E7304000000FFFFFFFFFFFFFFFFFFFFFFFF0000
+      00000000000000080000004C616E677561676503000000FFFFFFFFFFFFFFFFFF
+      FFFFFF000000000000000000050000004F74686572
     }
   end
   object Bevel1: TBevel
@@ -42,7 +43,7 @@ object EvSettingsForm: TEvSettingsForm
     Height = 25
     Top = 408
     Width = 75
-    Caption = 'Zapisz'
+    Caption = 'Save'
     OnClick = btnSaveClick
     TabOrder = 1
   end
@@ -51,7 +52,7 @@ object EvSettingsForm: TEvSettingsForm
     Height = 25
     Top = 408
     Width = 75
-    Caption = 'Anuluj'
+    Caption = 'Cancel'
     OnClick = btnCancelClick
     TabOrder = 2
   end
@@ -69,7 +70,7 @@ object EvSettingsForm: TEvSettingsForm
         Height = 25
         Top = 232
         Width = 104
-        Caption = 'Czcionka'
+        Caption = 'Font'
         OnClick = btnFontClick
         TabOrder = 0
       end
@@ -584,7 +585,7 @@ object EvSettingsForm: TEvSettingsForm
         Height = 25
         Top = 264
         Width = 104
-        Caption = 'Identyfikatory'
+        Caption = 'Identifiers'
         OnClick = btn_cIdentifiersClick
         TabOrder = 2
       end
@@ -593,7 +594,7 @@ object EvSettingsForm: TEvSettingsForm
         Height = 25
         Top = 288
         Width = 104
-        Caption = 'Słowa kluczowe'
+        Caption = 'Keywords'
         OnClick = btn_cKeywordsClick
         TabOrder = 3
       end
@@ -602,7 +603,7 @@ object EvSettingsForm: TEvSettingsForm
         Height = 25
         Top = 312
         Width = 104
-        Caption = 'Liczby'
+        Caption = 'Numbers'
         OnClick = btn_cNumbersClick
         TabOrder = 4
       end
@@ -611,7 +612,7 @@ object EvSettingsForm: TEvSettingsForm
         Height = 25
         Top = 336
         Width = 104
-        Caption = 'Ciągi znaków'
+        Caption = 'Strings'
         OnClick = btn_cStringsClick
         TabOrder = 5
       end
@@ -620,7 +621,7 @@ object EvSettingsForm: TEvSettingsForm
         Height = 25
         Top = 360
         Width = 104
-        Caption = 'Komentarze'
+        Caption = 'Comments'
         OnClick = btn_cCommentsClick
         TabOrder = 6
       end
@@ -629,7 +630,7 @@ object EvSettingsForm: TEvSettingsForm
         Height = 25
         Top = 312
         Width = 104
-        Caption = 'Makra'
+        Caption = 'Macros'
         OnClick = btn_cMacrosClick
         TabOrder = 7
       end
@@ -638,7 +639,7 @@ object EvSettingsForm: TEvSettingsForm
         Height = 25
         Top = 336
         Width = 104
-        Caption = 'Typy podstawowe'
+        Caption = 'Primary types'
         OnClick = btn_cPrimaryTypesClick
         TabOrder = 8
       end
@@ -647,7 +648,7 @@ object EvSettingsForm: TEvSettingsForm
         Height = 25
         Top = 360
         Width = 104
-        Caption = 'Inne'
+        Caption = 'Other'
         OnClick = btn_cOtherClick
         TabOrder = 9
       end
@@ -656,7 +657,7 @@ object EvSettingsForm: TEvSettingsForm
         Height = 25
         Top = 232
         Width = 104
-        Caption = 'Kolor tekstu'
+        Caption = 'Text color'
         OnClick = btnFGColorClick
         TabOrder = 10
       end
@@ -665,7 +666,7 @@ object EvSettingsForm: TEvSettingsForm
         Height = 25
         Top = 232
         Width = 104
-        Caption = 'Kolor tła'
+        Caption = 'Background color'
         OnClick = btnBGColorClick
         TabOrder = 11
       end
@@ -674,9 +675,9 @@ object EvSettingsForm: TEvSettingsForm
       object Label2: TLabel
         Left = 6
         Height = 16
-        Top = 40
-        Width = 102
-        Caption = 'Maszyna wirtualna:'
+        Top = 39
+        Width = 87
+        Caption = 'Virtual machine:'
         ParentColor = False
       end
       object eVMFile: TEdit
@@ -689,10 +690,10 @@ object EvSettingsForm: TEvSettingsForm
         Text = 'eVMFile'
       end
       object eCompilerFile: TEdit
-        Left = 80
+        Left = 113
         Height = 23
         Top = 8
-        Width = 287
+        Width = 254
         OnChange = eCompilerFileChange
         TabOrder = 1
         Text = 'eCompilerFile'
@@ -700,9 +701,9 @@ object EvSettingsForm: TEvSettingsForm
       object Label1: TLabel
         Left = 6
         Height = 16
-        Top = 16
-        Width = 63
-        Caption = 'Kompilator:'
+        Top = 15
+        Width = 53
+        Caption = 'Compiler:'
         ParentColor = False
       end
       object CompilerFile_Select: TBitBtn
@@ -810,25 +811,44 @@ object EvSettingsForm: TEvSettingsForm
         Left = 8
         Height = 19
         Top = 8
-        Width = 258
-        Caption = 'Umożliwiaj kursorowi wychodzenie poza linię'
+        Width = 196
+        Caption = 'Enable scrolling past End-Of-Line'
         TabOrder = 0
       end
       object cOpenRecentProject: TCheckBox
         Left = 8
         Height = 19
         Top = 32
-        Width = 373
-        Caption = 'Otwieraj ostatnio otworzony projekt przy uruchamianiu środowiska'
+        Width = 292
+        Caption = 'Open recently-opened project when opening editor'
         TabOrder = 1
       end
       object cAddBrackets: TCheckBox
         Left = 8
         Height = 19
         Top = 55
-        Width = 245
-        Caption = 'Automatycznie dodawaj nawiasy kończące'
+        Width = 306
+        Caption = 'Automatically add closing brackets when editing code'
         TabOrder = 2
+      end
+    end
+    object p_5: TPage
+      object Label3: TLabel
+        Left = 8
+        Height = 16
+        Top = 8
+        Width = 96
+        Caption = 'Current language:'
+        ParentColor = False
+      end
+      object cbLanguages: TComboBox
+        Left = 7
+        Height = 23
+        Top = 24
+        Width = 385
+        ItemHeight = 15
+        TabOrder = 0
+        Text = 'cbLanguages'
       end
     end
   end

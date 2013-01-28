@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 378
+  Left = 272
   Height = 471
-  Top = 63
+  Top = 121
   Width = 824
   AllowDropFiles = True
   Caption = 'SScript Editor'
@@ -89,10 +89,10 @@ object MainForm: TMainForm
     left = 24
     top = 8
     object menuFile: TMenuItem
-      Caption = 'Plik'
+      Caption = 'File'
       object oNewModule: TMenuItem
         Tag = 1
-        Caption = 'Nowy moduł'
+        Caption = 'New module'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000000000000000
@@ -135,7 +135,7 @@ object MainForm: TMainForm
         Caption = '-'
       end
       object oOpen: TMenuItem
-        Caption = 'Otwórz'
+        Caption = 'Open'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000514A459EA465
@@ -177,14 +177,14 @@ object MainForm: TMainForm
         OnClick = oOpenClick
       end
       object oRecentlyOpened: TMenuItem
-        Caption = 'Ostatnio otwierane'
+        Caption = 'Recently opened'
       end
       object MenuItem6: TMenuItem
         Caption = '-'
       end
       object oSave: TMenuItem
         Tag = 1
-        Caption = 'Zapisz'
+        Caption = 'Save'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           20000000000000040000640000006400000000000000000000006B706E806B70
@@ -226,7 +226,7 @@ object MainForm: TMainForm
       end
       object oSaveAs: TMenuItem
         Tag = 1
-        Caption = 'Zapisz jako'
+        Caption = 'Save as'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           20000000000000040000640000006400000000000000000000006B706E806B70
@@ -267,7 +267,7 @@ object MainForm: TMainForm
       end
       object oSaveAll: TMenuItem
         Tag = 1
-        Caption = 'Zapisz wszystko'
+        Caption = 'Save all'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           20000000000000040000640000006400000000000000000000006B706E806B70
@@ -312,7 +312,7 @@ object MainForm: TMainForm
       end
       object oCloseCurrentCard: TMenuItem
         Tag = 1
-        Caption = 'Zamknij tę kartę'
+        Caption = 'Close card'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -355,11 +355,11 @@ object MainForm: TMainForm
       end
       object oCloseProject: TMenuItem
         Tag = 1
-        Caption = 'Zamknij projekt'
+        Caption = 'Close project'
         OnClick = oCloseProjectClick
       end
       object oExit: TMenuItem
-        Caption = 'Zakończ'
+        Caption = 'Quit'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -401,10 +401,10 @@ object MainForm: TMainForm
     end
     object menuEdit: TMenuItem
       Tag = 1
-      Caption = 'Edycja'
+      Caption = 'Edit'
       object oUndo: TMenuItem
         Tag = 1
-        Caption = 'Cofnij'
+        Caption = 'Undo'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -446,7 +446,7 @@ object MainForm: TMainForm
       end
       object oRedo: TMenuItem
         Tag = 1
-        Caption = 'Powtórz'
+        Caption = 'Redo'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -491,7 +491,7 @@ object MainForm: TMainForm
       end
       object oCut: TMenuItem
         Tag = 1
-        Caption = 'Wytnij'
+        Caption = 'Cut'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000000000001A1A
@@ -533,7 +533,7 @@ object MainForm: TMainForm
       end
       object oCopy: TMenuItem
         Tag = 1
-        Caption = 'Kopiuj'
+        Caption = 'Copy'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000000000000000
@@ -575,7 +575,7 @@ object MainForm: TMainForm
       end
       object oPaste: TMenuItem
         Tag = 1
-        Caption = 'Wklej'
+        Caption = 'Paste'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000000000000143
@@ -617,9 +617,9 @@ object MainForm: TMainForm
       end
     end
     object menuProject: TMenuItem
-      Caption = 'Projekt'
+      Caption = 'Project'
       object oNewProject: TMenuItem
-        Caption = 'Nowy'
+        Caption = 'New'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000000000000000
@@ -657,7 +657,7 @@ object MainForm: TMainForm
           8CFF729F9FFF6AAEAFFF36E4ED8A09F3FF4502F3FF0F00000000
         }
         object oNewProj_App: TMenuItem
-          Caption = 'Aplikacja'
+          Caption = 'Application'
           Bitmap.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
             2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -697,7 +697,7 @@ object MainForm: TMainForm
           OnClick = oNewProj_AppClick
         end
         object oNewProj_Library: TMenuItem
-          Caption = 'Biblioteka'
+          Caption = 'Library'
           Bitmap.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
             2000000000000004000064000000640000000000000000000000FFFFFF009461
@@ -738,7 +738,7 @@ object MainForm: TMainForm
         end
       end
       object oOpenProject: TMenuItem
-        Caption = 'Otwórz projekt'
+        Caption = 'Open project'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000514A459EA465
@@ -782,7 +782,7 @@ object MainForm: TMainForm
       end
       object oProjectSettings: TMenuItem
         Tag = 1
-        Caption = 'Ustawienia projektu'
+        Caption = 'Project settings'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -825,10 +825,10 @@ object MainForm: TMainForm
     end
     object menuCompile: TMenuItem
       Tag = 1
-      Caption = 'Uruchom'
+      Caption = 'Run'
       object oCompileAndRun: TMenuItem
         Tag = 1
-        Caption = 'Kompiluj i uruchom'
+        Caption = 'Build and run'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000905B3114905B
@@ -870,7 +870,7 @@ object MainForm: TMainForm
       end
       object oBuild: TMenuItem
         Tag = 1
-        Caption = 'Buduj'
+        Caption = 'Build'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000FFFFFF00D587
@@ -912,9 +912,9 @@ object MainForm: TMainForm
       end
     end
     object MenuItem7: TMenuItem
-      Caption = 'Środowisko'
+      Caption = 'Environment'
       object oEvSettings: TMenuItem
-        Caption = 'Ustawienia'
+        Caption = 'Settings'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -955,9 +955,9 @@ object MainForm: TMainForm
       end
     end
     object MenuItem1: TMenuItem
-      Caption = 'Pomoc'
+      Caption = 'Help'
       object oAbout: TMenuItem
-        Caption = 'O programie'
+        Caption = 'About program'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -1008,7 +1008,7 @@ object MainForm: TMainForm
     left = 24
     top = 120
     object opCloseCard: TMenuItem
-      Caption = 'Zamknij kartę'
+      Caption = 'Close card'
       Bitmap.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
         2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -1050,7 +1050,7 @@ object MainForm: TMainForm
       OnClick = opCloseCardClick
     end
     object opCloseAll: TMenuItem
-      Caption = 'Zamknij wszystkie karty oprócz tej'
+      Caption = 'Close all card except this'
       OnClick = opCloseAllClick
     end
   end
@@ -1058,7 +1058,8 @@ object MainForm: TMainForm
     left = 24
     top = 176
     object opSaveMessages: TMenuItem
-      Caption = 'Zapisz do pliku'
+      Caption = 'Save to file'
+      OnClick = opSaveMessagesClick
     end
   end
   object MessagesImageList: TImageList

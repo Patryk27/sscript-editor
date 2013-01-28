@@ -8,7 +8,8 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, lazcontrols, runtimetypeinfocontrols, uMainForm, uProjectSettings,
-  uAboutForm, uEvSettingsForm, uSyntaxHighlighterChange;
+  uAboutForm, uEvSettingsForm, uSyntaxHighlighterChange,
+  mLanguages, mSettings;
 
 {$R *.res}
 
@@ -20,6 +21,9 @@ begin
   Application.CreateForm(TAboutForm, AboutForm);
   Application.CreateForm(TEvSettingsForm, EvSettingsForm);
   Application.CreateForm(TSyntaxHighlighterChange, SyntaxHighlighterChange);
+
+  LoadLanguageFile('lang\'+getString(sLanguage));
+
   Application.Run;
 end.
 

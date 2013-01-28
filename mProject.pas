@@ -113,7 +113,7 @@ Unit mProject;
  Function getSwitchName(const S: TCompilerSwitch; DeleteFirstChar: Boolean=True): String;
 
  Implementation
-Uses mSettings, Dialogs, SysUtils, Forms, DOM, XMLWrite, XMLRead, TypInfo, Process;
+Uses mSettings, mLanguages, Dialogs, SysUtils, Forms, DOM, XMLWrite, XMLRead, TypInfo, Process;
 
 Function PathIsRelative(pszPath: PChar): Boolean; stdcall; external 'shlwapi.dll' name 'PathIsRelativeA';
 
@@ -129,7 +129,6 @@ End;
 { TCard.Editor_OnKeyPress }
 Procedure TCard.Editor_OnKeyPress(Sender: TObject; var Key: Char);
 Var Str: String = '';
-    cX : Integer;
 Begin
  if (Key in ['(', '[', '<', '{']) Then
   if (mSettings.getBoolean(sAddBrackets)) Then
@@ -141,7 +140,6 @@ Begin
     '{': Str := '{'#13#10#13#10'}';
    End;
 
-   cX := SynEdit.CaretX;
    SynEdit.InsertTextAtCaret(Str);
    SynEdit.CaretX := SynEdit.CaretX-1;
 
@@ -258,8 +256,8 @@ Begin
   With TSaveDialog.Create(MainForm) do
   Begin
    Try
-    Title    := 'Zapis modułu';
-    Filter   := uMainForm.SaveModuleFilter;
+    Title    := getLangValue('module_saving');
+    Filter   := getLangValue('filter_module');
     FileName := ExtractFileName(self.FileName);
 
     if (Execute) Then
@@ -291,7 +289,7 @@ End;
 { TCard.Save }
 Function TCard.Save(const Reason: TCardSaveReason): Boolean;
 Begin
- Case MessageDlg('Zamykanie karty', 'Zamierzasz zamknąć niezapisaną kartę.'#13#10'Zapisać?', mtWarning, mbYesNoCancel, '') of
+ Case MessageDlg(getLangValue('title_card_close'), getLangValue('msg_card_close'), mtWarning, mbYesNoCancel, '') of
   { yes }
   mrYes:
   Begin
@@ -353,6 +351,7 @@ End;
 { TProject.CreateCardEx }
 Function TProject.CreateCardEx(const cFileName, cCaption: String; LoadFile: Boolean): Boolean;
 Var Card: TCard;
+    Text: String;
 Begin
  Result := False;
  Card   := TCard.Create(cFileName, cCaption);
@@ -372,7 +371,8 @@ Begin
   End Else
   Begin
    Card.Free;
-   Application.MessageBox(PChar('Następujący plik nie mógł zostać odnaleziony: '+cFileName), 'Błąd', MB_IconError);
+   Text := Format(getLangValue('msg_file_not_found'), [cFileName]);
+   Application.MessageBox(PChar(Text), PChar(getLangValue('msg_err')), MB_IconError);
    Exit;
   End;
  End Else
@@ -423,7 +423,7 @@ Begin
  End;
 
  if (Fail) Then
-  Application.MessageBox('Plik kompilatora lub maszyny wirtualnej nie został odnaleziony; sprawdź czy ścieżki w ustawieniach projektu są poprawne.', 'Ostrzeżenie', MB_IconWarning);
+  Application.MessageBox(PChar(getLangValue('msg_compiler_or_vm_not_found')), PChar(getLangValue('msg_warn')), MB_IconWarning);
 End;
 
 { TProject.SaveIfCan }
@@ -467,9 +467,6 @@ Var Directory: String;
 Begin
  Directory := ExtractFilePath(self.FileName);
 
- //if (Directory[Length(Directory)] in ['\', '/']) Then
- // Delete(Directory, Length(Directory), 1);
-
  if (PathIsRelative(PChar(FileName))) Then // path is already relative
   Result := FileName Else
   Begin
@@ -508,7 +505,7 @@ Begin
  Named := False;
  Saved := False;
 
- CompilerSwitches      := [_O1]; // `-O1` enabled by default
+ CompilerSwitches      := [_O1]; // `-O1` is enabled by default
  OtherCompilerSwitches := '';
  IncludePath           := '$file;$compiler';
  ProjectType           := Typ;
@@ -540,7 +537,7 @@ Begin
    Add('}');
   End Else
   Begin
-   Add('function<string> test()');
+   Add('public function<string> test()');
    Add('{');
    Add(' return "Hello World from a Library! :)";');
    Add('}');
@@ -603,8 +600,8 @@ Begin
   With TSaveDialog.Create(MainForm) do
   Begin
    Try
-    Title  := 'Zapis projektu';
-    Filter := SaveProjectFilter;
+    Title  := getLangValue('project_saving');
+    Filter := getLangValue('filter_project');
 
     if (Execute) Then
     Begin
@@ -681,7 +678,7 @@ Begin
    With CardList[I] do
    Begin
     if (not Save) Then
-     Case MessageDlg('Zapis modułu', 'Aby projekt został zapisany, każdy moduł musi mieć swoją nazwę oraz odpowiadający mu plik na dysku.'#13#10'Otworzyć dialog zapisywania ponownie?'#13#10'(wybierając ''Nie'' przerwiesz zapisywanie całego projektu)', mtWarning, mbYesNo, 0) of
+     Case MessageDlg(getLangValue('module_saving'), getLangValue('msg_module_saving'), mtWarning, mbYesNo, 0) of
       mrYes: if (not Save) Then
               Exit; // stop saving the project
       else Exit; // stop saving the project
@@ -900,14 +897,14 @@ Begin
  // is the only opened card?
  if (CardList.Count <= 1) Then
  Begin
-  Application.MessageBox('Nie możesz zamknąć ostatniej karty!', 'Informacja', MB_IconInformation);
+  Application.MessageBox(PChar(getLangValue('msg_close_last_card')), PChar(getLangValue('msg_info')), MB_IconInformation);
   Exit;
  End;
 
  // is main?
  if (CardList[ID].isMain) Then
  Begin
-  Application.MessageBox('Nie możesz zamknąć głównej karty!', 'Informacja', MB_IconInformation);
+  Application.MessageBox(PChar(getLangValue('msg_close_main_card')), PChar(getLangValue('msg_info')), MB_IconInformation);
   Exit;
  End;
 
@@ -1073,7 +1070,7 @@ End;
 Begin
  if (not FileExists(CompilerFile)) Then
  Begin
-  Application.MessageBox('Nie odnaleziono pliku kompilatora. Sprawdź ścieżki w ustawieniach projektu.', 'Błąd', MB_IconError);
+  Application.MessageBox(PChar(getLangValue('msg_compiler_not_found')), PChar(getLangValue('msg_err')), MB_IconError);
   Exit(False);
  End;
 
@@ -1098,7 +1095,7 @@ Begin
  With MainForm.CompileStatus.Items do
  Begin
   Clear;
-  AddText('['+TimeToStr(Time)+'] - Kompilacja rozpoczęta...');
+  AddText(Format(getLangValue('compilation_started'), [TimeToStr(Time)]));
 
   Process         := TProcess.Create(nil);
   Process.Options := [poUsePipes, poNoConsole];
@@ -1175,8 +1172,8 @@ Begin
   End;
 
   if (not AnyError) Then
-   AddText('['+TimeToStr(Time)+'] - Kompilacja zakończona powodzeniem, projekt zbudowany poprawnie ('+OutputFile+') :)') Else
-   AddText('['+TimeToStr(Time)+'] - Kompilacja przerwana błędem');
+   AddText(Format(getLangValue('compilation_finished'), [TimeToStr(Time), OutputFile])) Else
+   AddText(Format(getLangValue('compilation_stopped'), [TimeToStr(Time)]));
  End;
 
  For Card in CardList Do
@@ -1199,7 +1196,7 @@ Begin
 
  if (not FileExists(VMFile)) Then // virtual machine found?
  Begin
-  Application.MessageBox('Nie odnaleziono pliku maszyny wirtualnej. Sprawdź ścieżki w ustawieniach projektu.', 'Błąd', MB_IconError);
+  Application.MessageBox(PChar(getLangValue('msg_vm_not_found')), PChar(getLangValue('msg_err')), MB_IconError);
   Exit;
  End;
 

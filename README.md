@@ -27,3 +27,12 @@ You can contribute in 2 ways:
 
 
 Thanks for help!
+
+### License
+SScript Editor, Compiler and VM are licensed under the LGPL license.
+
+https://github.com/Piterolex/SScript-Editor
+
+https://github.com/Piterolex/SScript-Compiler
+
+https://github.com/Piterolex/SScript-VM

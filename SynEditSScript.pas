@@ -312,8 +312,8 @@ Begin
 
   { keyword }
   Case Keyword of
-   'function', 'var', 'return', 'naked', 'for', 'if', 'else', 'while', 'break', 'continue',
-   'in', 'do', 'private', 'public': Exit(fKeywordAttri);
+   'function', 'var', 'const', 'return', 'naked', 'for', 'if', 'else', 'while', 'break', 'continue',
+   'in', 'do', 'private', 'public', 'type': Exit(fKeywordAttri);
    'void', 'bool', 'char', 'int', 'float', 'string': Exit(fPrimaryTypesAttri);
   End;
 

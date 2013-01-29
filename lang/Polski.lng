@@ -175,6 +175,9 @@ Caption=Optymalizuj wyrażenia stałe (-Of)
 [ProjectSettingsForm__Op]
 Caption=Optymalizuj wygenerowany bajtkod (-Op)
 
+[ProjectSettingsForm__iconst]
+Caption=Wstawiaj stałe bezpośrednio podzas budowania wyrażenia (-iconst)
+
 [ProjectSettingsForm_Label3]
 Caption=Inne przełączniki:
 

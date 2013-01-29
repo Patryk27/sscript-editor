@@ -53,7 +53,7 @@ Unit mProject;
  Type TMessageList = specialize TFPGList<PMessage>;
 
  // TCompilerSwitches
- Type TCompilerSwitch = (_ninit, _Or, _Of, _Op, _O1, _dbg);
+ Type TCompilerSwitch = (_ninit, _Or, _Of, _Op, _O1, _dbg, _iconst);
  Type TCompilerSwitches = Set of TCompilerSwitch;
 
  // TVMSwitches

@@ -1,7 +1,7 @@
 object ProjectSettingsForm: TProjectSettingsForm
-  Left = 301
+  Left = 317
   Height = 437
-  Top = 136
+  Top = 156
   Width = 640
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
@@ -62,7 +62,7 @@ object ProjectSettingsForm: TProjectSettingsForm
     Height = 394
     Top = 0
     Width = 387
-    PageIndex = 3
+    PageIndex = 1
     TabOrder = 3
     TabStop = True
     object p_1: TPage
@@ -282,6 +282,14 @@ object ProjectSettingsForm: TProjectSettingsForm
           Caption = 'Level 1 (-O1)'
           TabOrder = 0
         end
+      end
+      object _iconst: TCheckBox
+        Left = 0
+        Height = 19
+        Top = 56
+        Width = 346
+        Caption = 'Inline constants directly when building an expression (-iconst)'
+        TabOrder = 5
       end
     end
     object p_3: TPage

@@ -143,6 +143,8 @@ Begin
    'msg_project_open_failed_ex': Result := 'Couldn''t open project file: %s';
    'msg_module_open_failed': Result := 'Couldn''t open module file';
    'msg_create_new_project': Result := 'Create a new project (application)?';
+   'msg_version_conflict_old': Result := 'This project seems to be created from older version of this editor; you may need to check project settings';
+   'msg_version_conflict_new': Result := 'This project seems to be created from newer version of this editor - it might not work correctly';
 
    'msg_info': Result := 'Information';
    'msg_warn': Result := 'Warning';
@@ -167,8 +169,10 @@ Begin
 
    'filter_project': Result := 'SScript Editor Project (*.ssp)|*.ssp';
    'filter_module': Result := 'SScript Code (*.ss)|*.ss';
-   'filter_any_file': Result := 'All files (*.*)|*.*';
+   'filter_file': Result := 'All files (*.*)|*.*';
   End;
  End;
+
+ Result := StringReplace(Result, '%newline%', #13#10, [rfReplaceAll]);
 End;
 End.

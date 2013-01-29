@@ -70,7 +70,7 @@ type
     procedure eCompilerFileChange(Sender: TObject);
     procedure eVMFileChange(Sender: TObject);
     procedure FileTimerTimer(Sender: TObject);
-    procedure SettingClick(Sender: TObject);
+    procedure SettingChange(Sender:TObject;Node:TTreeNode);
   private
    Procedure UpdateSampleCode;
    Procedure UpdateExtButton;
@@ -321,6 +321,22 @@ begin
  End;
 end;
 
+procedure TEvSettingsForm.SettingChange(Sender:TObject;Node:TTreeNode);
+Var Page: Integer;
+begin
+ With Setting do
+ Begin
+  if (Node = nil) Then
+   Exit;
+
+  if (Node.Count = 0) Then
+   Page := Node.ImageIndex Else
+   Page := Node.Items[0].ImageIndex;
+
+  Pages.PageIndex := Page;
+ End;
+end;
+
 procedure TEvSettingsForm.btnCancelClick(Sender: TObject);
 begin
  // remove config and replace with backup
@@ -393,22 +409,6 @@ begin
  if (ColorDialog.Execute) Then
   mSettings.setColor(sEditorForeground, ColorDialog.Color);
  UpdateSampleCode;
-end;
-
-procedure TEvSettingsForm.SettingClick(Sender: TObject);
-Var Page: Integer;
-begin
- With Setting do
- Begin
-  if (Selected = nil) Then
-   Exit;
-
-  if (Selected.Count = 0) Then
-   Page := Selected.ImageIndex Else
-   Page := Selected.Items[0].ImageIndex;
-
-  Pages.PageIndex := Page;
- End;
 end;
 
 end.

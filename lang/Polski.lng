@@ -1,6 +1,3 @@
-[MainForm]
-Caption=SScript Editor v0.2 nightly
-
 [MainForm_CompileStatus]
 0=
 
@@ -115,6 +112,21 @@ Caption=Zamknij wszystkie karty oprócz tej
 [MainForm_opSaveMessages]
 Caption=Zapisz do pliku
 
+[MainForm_opSaveMessagesToClipboard]
+Caption=Zapisz do schowka
+
+[MainForm_opSaveSelectedMessage]
+Caption=Zapisz wybrany komunikat do schowka
+
+[MainForm_opCut]
+Caption=Wytnij
+
+[MainForm_opCopy]
+Caption=Kopiuj
+
+[MainForm_opPaste]
+Caption=Wklej
+
 [ProjectSettingsForm]
 Caption=Ustawienia projektu
 
@@ -124,6 +136,8 @@ Caption=Ustawienia projektu
 2=Kompilator
 3=Kod
 4=Ścieżki
+5=Maszyna wirtualna
+6=Parametry
 
 [ProjectSettingsForm_btnSave]
 Caption=Zapisz
@@ -202,6 +216,15 @@ Caption=Wygenerowany plik nagłówkowy%newline%(tylko dla bibliotek; możesz zos
 
 [ProjectSettingsForm_eHeaderFile]
 Text=eHeaderFile
+
+[ProjectSettingsForm_c_wait]
+Caption=Czekaj na `enter`, gdy program skończy działanie (-wait)
+
+[ProjectSettingsForm_c_time]
+Caption=Wyświetl czas działania programu (-time)
+
+[ProjectSettingsForm_Label9]
+Caption=Inne przełączniki:
 
 [AboutForm]
 Caption=O programie
@@ -332,6 +355,8 @@ msg_project_open_failed=Nie można było otworzyć pliku projektu.
 msg_project_open_failed_ex=Nie można było otworzyć pliku projektu: %s
 msg_module_open_failed=Nie można było otworzyć pliku modułu.
 msg_create_new_project=Stworzyć nowy projekt (aplikację)?
+msg_version_conflict_old=Ten projekt został utworzony za pomocą starszego edytora niż Twój; być może niektóre ustawienia w projekcie będziesz musiał poprawić.
+msg_version_conflict_new=Ten projekt został utworzony za pomocą nowszego edytora niż Twój - nie wszystko może działać poprawnie.
 
 msg_info=Informacja
 msg_warn=Ostrzeżenie
@@ -350,6 +375,9 @@ module_opening=Otwieranie modułu
 compilation_started=[ %s ] - Kompilacja rozpoczęta
 compilation_finished=[ %s ] - Kompilacja zakończona powodzeniem; projekt zbudowany poprawnie (%s) :)
 compilation_stopped=[ %s ] - Kompilacja przerwana błędem
+
+new_app=nowa aplikacja
+new_lib=nowa biblioteka
 
 filter_project=Projekt SScript Editor (*.ssp)|*.ssp
 filter_module=Kod SScript (*.ss)|*.ss

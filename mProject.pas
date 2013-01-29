@@ -56,6 +56,10 @@ Unit mProject;
  Type TCompilerSwitch = (_ninit, _Or, _Of, _Op, _O1, _dbg);
  Type TCompilerSwitches = Set of TCompilerSwitch;
 
+ // TVMSwitches
+ Type TVMSwitch = (c_time, c_wait);
+ Type TVMSwitches = Set of TVMSwitch;
+
  { TProject }
  Type TProject = Class
                   Private
@@ -74,14 +78,26 @@ Unit mProject;
                    Procedure SaveIfCan;
 
                   Public
-                   Named, Saved                  : Boolean;
+                   // project state
+                   Named, Saved: Boolean;
+
+                   // paths and other text data
                    FileName, CompilerFile, VMFile: String;
-                   CompilerSwitches              : TCompilerSwitches;
-                   OtherCompilerSwitches         : String;
                    IncludePath, OutputFile       : String;
                    HeaderFile, BytecodeOutput    : String;
-                   ProjectType                   : TProjectType;
 
+                   // project info
+                   ProjectType: TProjectType;
+
+                   // compiler
+                   CompilerSwitches     : TCompilerSwitches;
+                   OtherCompilerSwitches: String;
+
+                   // vm
+                   VMSwitches     : TVMSwitches;
+                   OtherVMSwitches: String;
+
+                   // methods
                    Constructor Create;
                    Destructor Destroy; override;
 
@@ -111,6 +127,7 @@ Unit mProject;
                   End;
 
  Function getSwitchName(const S: TCompilerSwitch; DeleteFirstChar: Boolean=True): String;
+ Function getVMSwitchName(const S: TVMSwitch; DeleteFirstChars: Boolean=True): String;
 
  Implementation
 Uses mSettings, mLanguages, Dialogs, SysUtils, Forms, DOM, XMLWrite, XMLRead, TypInfo, Process;
@@ -124,6 +141,15 @@ Begin
 
  if (DeleteFirstChar) Then
   Delete(Result, 1, 1);
+End;
+
+{ getVMSwitchName }
+Function getVMSwitchName(const S: TVMSwitch; DeleteFirstChars: Boolean=True): String;
+Begin
+ Result := GetEnumName(TypeInfo(TVMSwitch), Integer(S));
+
+ if (DeleteFirstChars) Then
+  Delete(Result, 1, 2);
 End;
 
 { TCard.Editor_OnKeyPress }
@@ -219,7 +245,7 @@ Begin
   Highlighter := THighlighter.Create(SynEdit);
   Parent      := Tab;
   Align       := alClient;
- // PopupMenu := MainForm.Editor_popup; @TODO
+  PopupMenu   := MainForm.SynEditPopup;
 
   OnKeyPress          := @Editor_OnKeyPress;
   OnKeyDown           := @Editor_OnKeyDown;
@@ -507,11 +533,15 @@ Begin
 
  CompilerSwitches      := [_O1]; // `-O1` is enabled by default
  OtherCompilerSwitches := '';
- IncludePath           := '$file;$compiler';
- ProjectType           := Typ;
- OutputFile            := '';
- HeaderFile            := '';
- BytecodeOutput        := '';
+
+ VMSwitches      := [c_wait]; // `-wait` is switched by default
+ OtherVMSwitches := '';
+
+ IncludePath    := '$file;$compiler';
+ ProjectType    := Typ;
+ OutputFile     := '';
+ HeaderFile     := '';
+ BytecodeOutput := '';
 
  CardList.Clear;
  MessageList.Clear;
@@ -572,7 +602,8 @@ Var Doc               : TXMLDocument;
     Root, Parent, Node: TDOMNode;
     I                 : Integer;
 
-    Switch: TCompilerSwitch;
+    Switch  : TCompilerSwitch;
+    VMSwitch: TVMSwitch;
 
 // WriteValue
 Procedure WriteValue(const Root: TDomNode; sName, sValue: String);
@@ -589,6 +620,12 @@ End;
 Procedure WriteValue(const Root: TDomNode; Name: String; Value: Integer);
 Begin
  WriteValue(Root, Name, IntToStr(Value));
+End;
+
+// WriteValue
+Procedure WriteValue(const Root: TDomNode; Name: String; Value: Extended);
+Begin
+ WriteValue(Root, Name, FloatToStr(Value));
 End;
 
 Begin
@@ -651,6 +688,7 @@ Begin
   { save config }
   Parent := Doc.CreateElement('config');
 
+  WriteValue(Parent, 'version', uMainForm.iVersion);
   WriteValue(Parent, 'project_type', ord(ProjectType));
   WriteValue(Parent, 'compiler', CompilerFile);
   WriteValue(Parent, 'vm', VMFile);
@@ -670,6 +708,16 @@ Begin
 
   For Switch in TCompilerSwitches Do
    WriteValue(Parent, getSwitchName(Switch, False), Integer(Switch in CompilerSwitches));
+
+  Root.AppendChild(Parent);
+
+  { save vm data }
+  Parent := Doc.CreateElement('vm');
+
+  WriteValue(Parent, 'switches', OtherVMSwitches);
+
+  For VMSwitch in TVMSwitches Do
+   WriteValue(Parent, getVMSwitchName(VMSwitch, False), Integer(VMSwitch in VMSwitches));
 
   Root.AppendChild(Parent);
 
@@ -736,12 +784,16 @@ Var Doc         : TXMLDocument;
     Root, Parent: TDOMNode;
     CardCount, I: Integer;
 
-    Switch: TCompilerSwitch;
+    Switch  : TCompilerSwitch;
+    VMSwitch: TVMSwitch;
 
     OpenedCard      : Integer;
     cCaption, cFile : String;
     cIsMain         : Boolean;
 
+    Version: Extended;
+
+// ReadStringValue
 Function ReadStringValue(Node: TDOMNode; Name: String): String;
 Begin
  if (Node = nil) Then // parent node does not exist
@@ -755,12 +807,23 @@ Begin
  Result := Node.TextContent;
 End;
 
+// ReadIntegerValue
 Function ReadIntegerValue(Node: TDOMNode; Name: String): Integer;
 Var Tmp: String;
 Begin
  Tmp := ReadStringValue(Node, Name);
 
  if (not TryStrToInt(Tmp, Result)) Then
+  Result := 0;
+End;
+
+// ReadFloatValue
+Function ReadFloatValue(Node: TDOMNode; Name: String): Extended;
+Var Tmp: String;
+Begin
+ Tmp := ReadStringValue(Node, Name);
+
+ if (not TryStrToFloat(Tmp, Result)) Then
   Result := 0;
 End;
 
@@ -780,6 +843,7 @@ Begin
    { read config }
    Parent := Root.FindNode('config');
 
+   Version        := ReadFloatValue(Parent, 'version');
    ProjectType    := TProjectType(ReadIntegerValue(Parent, 'project_type'));
    CompilerFile   := ReadStringValue(Parent, 'compiler');
    VMFile         := ReadStringValue(Parent, 'vm');
@@ -789,7 +853,7 @@ Begin
    HeaderFile     := ReadStringValue(Parent, 'header_file');
    BytecodeOutput := ReadStringValue(Parent, 'bytecode_output');
 
-   { read compiler switches }
+   { read compiler data }
    Parent := Root.FindNode('compiler');
 
    OtherCompilerSwitches := ReadStringValue(Parent, 'switches');
@@ -799,6 +863,16 @@ Begin
    For Switch in TCompilerSwitches Do
     if (ReadIntegerValue(Parent, getSwitchName(Switch, False)) = 1) Then
      CompilerSwitches += [Switch];
+
+   { read vm data }
+   Parent := Root.FindNode('vm');
+
+   OtherVMSwitches := ReadStringValue(Parent, 'switches');
+
+   VMSwitches := [];
+   For VMSwitch in TVMSwitches Do
+    if (ReadIntegerValue(Parent, getVMSwitchName(VMSwitch, False)) = 1) Then
+     VMSwitches += [VMSwitch];
 
    { read cards }
    For I := 0 To CardCount-1 Do
@@ -835,19 +909,17 @@ Begin
  End;
 
  // add new file to the recently-opened list
- With uMainForm.RecentlyOpened do
- Begin
-  if (IndexOf(FileName) = -1) Then // don't duplicate
-  Begin
-   Add(FileName);
-   While (Count > 8) Do
-    Delete(0);
-  End Else
-  Begin
-   Exchange(IndexOf(FileName), 0); // move at the beginning
-  End;
- End;
- setRecentlyOpened(RecentlyOpened);
+ uMainForm.AddRecentlyOpened(FileName);
+
+ // version check
+ if (Version = 0) Then
+  Version := 0.1;
+
+ if (Version < iVersion) Then
+  Application.MessageBox(PChar(getLangValue('msg_version_conflict_old')), PChar(getLangValue('msg_warn')), MB_IconWarning);
+
+ if (Version > iVersion) Then
+  Application.MessageBox(PChar(getLangValue('msg_version_conflict_new')), PChar(getLangValue('msg_warn')), MB_IconWarning);
 
  // ... and do some other things
  MainForm.Tabs.ActivePageIndex := OpenedCard;
@@ -1109,7 +1181,7 @@ Begin
 
   if (ProjectType = ptLibrary) Then
   Begin
-   CommandLine += ' -module';
+   CommandLine += ' -Clib';
    if (HeaderFile <> '') Then
     CommandLine += ' -h "'+MakeFullPath(HeaderFile)+'"';
   End;
@@ -1189,7 +1261,8 @@ End;
 
 { TProject.Run }
 Procedure TProject.Run;
-Var sOutputFile: String;
+Var sOutputFile, CommandLine: String;
+    Switch                  : TVMSwitch;
 Begin
  if (ProjectType = ptLibrary) Then // cannot run a library
   Exit;
@@ -1200,10 +1273,21 @@ Begin
   Exit;
  End;
 
+ { check path }
  if (PathIsRelative(PChar(OutputFile))) Then
   sOutputFile := ExtractFilePath(FileName)+OutputFile Else
   sOutputFile := OutputFile;
- ExecuteProcess(VMFile, '"'+sOutputFile+'" -wait', []);
+
+ { generate command line }
+ CommandLine := '"'+sOutputFile+'" ';
+
+ For Switch in VMSwitches Do
+  CommandLine += ' -'+getVMSwitchName(Switch, True);
+
+ CommandLine += ' '+OtherVMSwitches;
+
+ { run program }
+ ExecuteProcess(VMFile, CommandLine, []);
 End;
 
 { TProject.isEverythingSaved }

@@ -5,12 +5,17 @@ unit uMainForm;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, SynEdit, ExtendedNotebook, Forms,
+  Windows, Classes, SysUtils, FileUtil, SynEdit, ExtendedNotebook, Forms,
   Controls, Graphics, Dialogs, Menus, ExtCtrls, ComCtrls, mSettings, LCLType;
 
 type
   { TMainForm }
   TMainForm = class(TForm)
+  opPaste:TMenuItem;
+  opCopy:TMenuItem;
+  opCut:TMenuItem;
+  opSaveSelectedMessage:TMenuItem;
+  opSaveMessagesToClipboard:TMenuItem;
   oCloseProject:TMenuItem;
   oCloseCurrentCard:TMenuItem;
   MessagesImageList:TImageList;
@@ -24,7 +29,8 @@ type
     oEvSettings: TMenuItem;
     oAbout: TMenuItem;
     opCloseCard: TMenuItem;
-    MessagesPopup:TPopupMenu;
+    CompileStatusPopup:TPopupMenu;
+    SynEditPopup:TPopupMenu;
     TabsPopup: TPopupMenu;
     Splitter1: TSplitter;
     Tabs: TExtendedNotebook;
@@ -72,12 +78,17 @@ type
     procedure oNewProj_LibraryClick(Sender: TObject);
     procedure opCloseAllClick(Sender:TObject);
     procedure opCloseCardClick(Sender: TObject);
+    procedure opCopyClick(Sender:TObject);
+    procedure opCutClick(Sender:TObject);
+    procedure opPasteClick(Sender:TObject);
     procedure oProjectSettingsClick(Sender: TObject);
     procedure oExitClick(Sender: TObject);
     procedure oOpenProjectClick(Sender: TObject);
     procedure oCompileAndRunClick(Sender: TObject);
     procedure oNewModuleClick(Sender: TObject);
     procedure opSaveMessagesClick(Sender:TObject);
+    procedure opSaveMessagesToClipboardClick(Sender:TObject);
+    procedure opSaveSelectedMessageClick(Sender:TObject);
     procedure oSaveAllClick(Sender: TObject);
     procedure oSaveAsClick(Sender: TObject);
     procedure oSaveClick(Sender: TObject);
@@ -99,21 +110,43 @@ type
    Procedure UpdateRecentlyOpened;
   end;
 
- Const sVersion = '0.2 nightly';
+ // consts
+ Const iVersion = 0.2;
+       sVersion = '0.2 nightly';
        sCaption = 'SScript Editor v'+sVersion;
+
+ // variables
  Var MainForm      : TMainForm;
      RecentlyOpened: TStringList = nil;
 
+ // procedures
+ Procedure AddRecentlyOpened(const FileName: String);
  Function getProjectPnt: Pointer;
 
  Implementation
-Uses mProject, mLanguages, uProjectSettings, uEvSettingsForm, uAboutForm{, LCLStrConsts};
+Uses mProject, mLanguages, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm{, LCLStrConsts};
 Var Project        : TProject = nil; // currently opened project
     Splitter1Factor: Extended = 1;
 
 {$R *.lfm}
 
 Type TState = (stEnabled, stDisabled);
+
+{ AddRecentlyOpened }
+Procedure AddRecentlyOpened(const FileName: String);
+Begin
+ With RecentlyOpened do
+ Begin
+  if (IndexOf(FileName) = -1) Then // don't duplicate
+  Begin
+   Add(FileName);
+   While (Count > 8) Do
+    Delete(0);
+  End Else
+   Exchange(IndexOf(FileName), 0); // move at the beginning
+ End;
+ setRecentlyOpened(RecentlyOpened);
+End;
 
 { getProjectPnt }
 Function getProjectPnt: Pointer;
@@ -336,6 +369,8 @@ begin
    Project.Free Else
    setMainMenu(stEnabled);
  End;
+
+ ShowWindow(Handle, SW_SHOWMAXIMIZED);
 end;
 
 procedure TMainForm.oAboutClick(Sender: TObject);
@@ -409,6 +444,21 @@ begin
  Project.CloseCard(Tabs.ActivePageIndex); // close current card
 end;
 
+procedure TMainForm.opCopyClick(Sender:TObject);
+begin
+ Project.getCurrentEditor.CopyToClipboard;
+end;
+
+procedure TMainForm.opCutClick(Sender:TObject);
+begin
+ Project.getCurrentEditor.CutToClipboard;
+end;
+
+procedure TMainForm.opPasteClick(Sender:TObject);
+begin
+ Project.getCurrentEditor.PasteFromClipboard;
+end;
+
 procedure TMainForm.oProjectSettingsClick(Sender: TObject);
 begin
  ProjectSettingsForm.Run;
@@ -456,6 +506,23 @@ begin
   End;
 end;
 
+procedure TMainForm.opSaveMessagesToClipboardClick(Sender:TObject);
+Var Stream: TStringStream;
+begin
+ Stream := TStringStream.Create('');
+ CompileStatus.SaveToStream(Stream);
+ Clipboard.SetTextBuf(PChar(Stream.DataString));
+ Stream.Free;
+end;
+
+procedure TMainForm.opSaveSelectedMessageClick(Sender:TObject);
+begin
+ if (CompileStatus.Selected = nil) Then
+  Exit;
+
+ Clipboard.SetTextBuf(PChar(CompileStatus.Selected.Text));
+end;
+
 procedure TMainForm.oSaveAllClick(Sender: TObject);
 begin
  Project.Save;
@@ -492,10 +559,13 @@ procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
  CanClose := SaveProject;
 
- // save current project as a "Recent" (if it's possible)
+ // save current project as a "Recent" and add it into the "Recently opened" list (if it's possible)
  if (CanClose) and (Project <> nil) Then
   if (Project.Named) Then
+  Begin
    setString(sRecentProject, Project.FileName);
+   AddRecentlyOpened(Project.FileName);
+  End;
 end;
 
 procedure TMainForm.CompileStatusClick(Sender:TObject);

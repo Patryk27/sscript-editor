@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   <config>
+    <version>0.2</version>
     <project_type>0</project_type>
     <compiler>..\compiler\compiler.exe</compiler>
-    <vm>..\vm\vm.exe</vm>
+    <vm>..\compiler\vm.exe</vm>
     <card_count>1</card_count>
     <opened_card>0</opened_card>
     <output_file>project.ssc</output_file>
@@ -20,6 +21,11 @@
     <_O1>1</_O1>
     <_dbg>0</_dbg>
   </compiler>
+  <vm>
+    <switches></switches>
+    <c_time>0</c_time>
+    <c_wait>1</c_wait>
+  </vm>
   <card_0>
     <caption>main.ss</caption>
     <file>.\main.ss</file>

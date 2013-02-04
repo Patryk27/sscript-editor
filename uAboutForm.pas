@@ -43,12 +43,16 @@ begin
  mText.Text := '';
 
  L('SScript Editor v.'+uMainForm.sVersion);
- L('~Patryk Wychowaniec (http://sscript.xorg.pl/)');
+ L('~Patryk Wychowaniec (http://github.com/Piterolex, http://sscript.xorg.pl/)');
  L();
  L('');
  L('Used icon packs:');
  L(' http://www.famfamfam.com/lab/icons/silk/');
  L(' http://tango.freedesktop.org/Tango_Icon_Library');
+
+ L; L; L; L; L; L;
+ L('... GLaDOS is still alive...');
+ L('... PS: don''t turn around...');
 end;
 
 end.

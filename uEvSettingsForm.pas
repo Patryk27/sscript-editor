@@ -131,11 +131,11 @@ Begin
  // @TODO: this is a bit lame solution, as it checks only for 'is there any program which handles this extension', but doesn't check whether it's our editor or something else
  Begin
   btnExtLink.Tag     := 2;
-  btnExtLink.Caption := getLangValue('remove_ext');
+  btnExtLink.Caption := getLangValue(ls_remove_ext);
  End Else
  Begin
   btnExtLink.Tag     := 1;
-  btnExtLink.Caption := getLangValue('add_ext');
+  btnExtLink.Caption := getLangValue(ls_add_ext);
  End;
 
  Reg.Free;
@@ -147,8 +147,8 @@ Begin
  Result := Copy(FileName, 1, Pos('.', FileName)-1);
 End;
 
-{ SearchLanguages }
-Procedure SearchLanguages;
+{ FindLanguages }
+Procedure FindLanguages;
 Var M: TSearchRec;
 Begin
  With EvSettingsForm.cbLanguages do
@@ -192,35 +192,41 @@ Begin
  cAddBrackets.Checked       := getBoolean(sAddBrackets);
 
  // search for languages
- SearchLanguages;
+ FindLanguages;
 
  // show form
  CheckTime := 0;
  FileTimer.OnTimer(FileTimer);
  ShowModal;
 
+ // delete backup file
  mDeleteFile(SettingsFileBackup);
 End;
 
 procedure TEvSettingsForm.btnSaveClick(Sender: TObject);
 Var Tmp: String;
 begin
- // save settings
+ { save new settings }
  setString(sCompilerFile, eCompilerFile.Text);
  setString(sVMFile, eVMFile.Text);
  setBoolean(sScrollPastEOL, cScrollPastEOL.Checked);
  setBoolean(sOpenRecentProject, cOpenRecentProject.Checked);
  setBoolean(sAddBrackets, cAddBrackets.Checked);
 
- Tmp := cbLanguages.Items[cbLanguages.ItemIndex]+'.lng';
- if (Tmp <> getString(sLanguage)) Then // has the language changed?
-  Application.MessageBox(PChar(getLangValue('msg_ev_restart')), PChar(getLangValue('msg_info')), MB_IconInformation);
+ { has the language changed? }
+ if (cbLanguages.ItemIndex = 0) Then // `English` (default) language
+  Tmp := '' { `English` language doesn't have its corresponding language file } Else
+  Tmp := cbLanguages.Items[cbLanguages.ItemIndex]+'.lng';
+
+ if (Tmp <> getString(sLanguage)) Then
+  Application.MessageBox(PChar(getLangValue(ls_msg_env_restart)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
  setString(sLanguage, Tmp);
 
- // refresh controls
+ { refresh controls }
  if (uMainForm.getProjectPnt <> nil) Then // is any project opened?
   TProject(uMainForm.getProjectPnt).RefreshControls;
 
+ { close form }
  Close;
 end;
 
@@ -228,7 +234,7 @@ procedure TEvSettingsForm.btnFontClick(Sender: TObject);
 begin
  FontDialog.Font := FetchFont(getFont(sEditorFont));
 
- // run font dialog
+ { run font dialog }
  if (FontDialog.Execute) Then
   mSettings.setFont(sEditorFont, CreateFont(FontDialog.Font));
 
@@ -309,6 +315,7 @@ procedure TEvSettingsForm.FileTimerTimer(Sender: TObject);
 begin
  Dec(CheckTime);
 
+ { update file status }
  if (CheckTime < 0) Then
  Begin
   if (not FileExists(eCompilerFile.Text)) Then
@@ -364,13 +371,13 @@ begin
     Reg.WriteString('', Ext+'file');
     Reg.CloseKey;
     Reg.OpenKey(Ext+'file', True);
-    Reg.WriteString('', 'Program MLang');
+    Reg.WriteString('', 'SScript Project');
     Reg.CloseKey;
     Reg.OpenKey(Ext+'file\DefaultIcon', True);
     Reg.WriteString('', Application.ExeName+',0');
     Reg.CloseKey;
     Reg.OpenKey(Ext+'file\shell\open', True);
-    Reg.WriteString('', '&Otwórz w MLang Editor');
+    Reg.WriteString('', '&SScript Editor');
     Reg.CloseKey;
     Reg.OpenKey(Ext+'file\shell\open\command', True);
     Reg.WriteString('', Application.ExeName+' "%1"');

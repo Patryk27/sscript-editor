@@ -1,10 +1,31 @@
 Unit mLanguages;
 
  Interface
+ Type LString =
+ (
+  ls_title_card_close,
+
+  ls_msg_card_close, ls_msg_env_restart, ls_msg_file_not_found, ls_msg_module_saving, ls_msg_compiler_or_vm_not_found,
+  ls_msg_close_last_card, ls_msg_close_main_card, ls_msg_compiler_not_found, ls_msg_vm_not_found, ls_msg_unsaved_files,
+  ls_msg_unsaved_project, ls_msg_project_open_failed, ls_msg_project_open_failed_ex, ls_msg_module_open_failed, ls_msg_create_new_project,
+  ls_msg_version_conflict_older, ls_msg_version_conflict_newer,
+
+  ls_msg_info, ls_msg_warn, ls_msg_error,
+
+  ls_remove_ext, ls_add_ext,
+
+  ls_file_saving, ls_file_opening, ls_module_saving, ls_module_opening, ls_project_saving, ls_project_opening,
+
+  ls_compilation_started, ls_compilation_finished, ls_compilation_stopped,
+
+  ls_new_app, ls_new_lib,
+
+  ls_filter_project, ls_filter_module, ls_filter_any_file
+ );
 
  Procedure SaveLanguageFile(const FileName: String);
  Procedure LoadLanguageFile(const FileName: String);
- Function getLangValue(const Name: String): String;
+ Function getLangValue(const Name: LString): String;
 
  Implementation
 Uses mSettings, Forms, Classes, TypInfo, IniFiles, SysUtils, Dialogs, ComCtrls;
@@ -115,61 +136,72 @@ Begin
  Ini.Free;
 End;
 
+{ getLStringName }
+Function getLStringName(const Name: LString): String;
+Begin
+ Result := GetEnumName(TypeInfo(LString), Integer(Name));
+
+ Delete(Result, 1, 3); // remove `ls_`
+End;
+
 { getLangValue }
-Function getLangValue(const Name: String): String;
+Function getLangValue(const Name: LString): String;
 Var Ini: TIniFile;
 Begin
  Ini    := TIniFile.Create('lang\'+getString(sLanguage));
- Result := Ini.ReadString('Strings', Name, '');
+ Result := Ini.ReadString('Strings', getLStringName(Name), '');
  Ini.Free;
 
  if (Result = '') Then // text not found
  Begin
   Case Name of
-   'title_card_close': Result := 'Closing card';
+   ls_title_card_close: Result := 'Closing card';
 
-   'msg_ev_restart': Result := 'You must restart the environment to see the changes.';
-   'msg_card_close': Result := 'You''re about to close an unsaved card.'#13#10'Save it?';
-   'msg_file_not_found': Result := 'Cannot find file: %s';
-   'msg_module_saving': Result := 'To save a project, each module has to be named and has to have a corresponding file on disk.'#13#10'Open the save dialog again?'#13#10'(if you choose `No`, you''ll stop saving the project)';
-   'msg_compiler_or_vm_not_found': Result := 'The compiler or virtual machine file cannot be found.';
-   'msg_close_last_card': Result := 'You cannot close the last card!';
-   'msg_close_main_card': Result := 'You cannot close the main card!';
-   'msg_compiler_not_found': Result := 'Compiler file not found!';
-   'msg_vm_not_found': Result := 'Virtual machine file not found!';
-   'msg_unsaved_files': Result := 'There are unsaved files in your project.'#13#10'Save them?';
-   'msg_unsaved_project': Result := 'Your project isn''t saved; you may lose data.'#13#10'Save it?';
-   'msg_project_open_failed': Result := 'Couldn''t open project file';
-   'msg_project_open_failed_ex': Result := 'Couldn''t open project file: %s';
-   'msg_module_open_failed': Result := 'Couldn''t open module file';
-   'msg_create_new_project': Result := 'Create a new project (application)?';
-   'msg_version_conflict_old': Result := 'This project seems to be created from older version of this editor; you may need to check project settings';
-   'msg_version_conflict_new': Result := 'This project seems to be created from newer version of this editor - it might not work correctly';
+   ls_msg_env_restart: Result := 'You must restart the environment to see the changes.';
+   ls_msg_card_close: Result := 'You''re about to close an unsaved card.'#13#10'Save it?';
+   ls_msg_file_not_found: Result := 'Cannot find file: %s';
+   ls_msg_module_saving: Result := 'To save a project, each module has to be named and has to have a corresponding file on disk.'#13#10'Open the save dialog again?'#13#10'(if you choose `No`, you''ll stop saving the project)';
+   ls_msg_compiler_or_vm_not_found: Result := 'The compiler or virtual machine file cannot be found.';
+   ls_msg_close_last_card: Result := 'You cannot close the last card!';
+   ls_msg_close_main_card: Result := 'You cannot close the main card!';
+   ls_msg_compiler_not_found: Result := 'Compiler file not found!';
+   ls_msg_vm_not_found: Result := 'Virtual machine file not found!';
+   ls_msg_unsaved_files: Result := 'There are unsaved files in your project.'#13#10'Save them?';
+   ls_msg_unsaved_project: Result := 'Your project isn''t saved; you may lose data.'#13#10'Save it?';
+   ls_msg_project_open_failed: Result := 'Couldn''t open project file';
+   ls_msg_project_open_failed_ex: Result := 'Couldn''t open project file: %s';
+   ls_msg_module_open_failed: Result := 'Couldn''t open module file';
+   ls_msg_create_new_project: Result := 'Create a new project (application)?';
+   ls_msg_version_conflict_older: Result := 'This project seems to be created from older version of this editor; you may need to check project settings';
+   ls_msg_version_conflict_newer: Result := 'This project seems to be created from newer version of this editor - it might not work correctly';
 
-   'msg_info': Result := 'Information';
-   'msg_warn': Result := 'Warning';
-   'msg_err': Result := 'Error';
+   ls_msg_info: Result := 'Information';
+   ls_msg_warn: Result := 'Warning';
+   ls_msg_error: Result := 'Error';
 
-   'remove_ext': Result := 'Remove opening *.ssp by a double click';
-   'add_ext': Result := 'Open when double click *.ssp file';
+   ls_remove_ext: Result := 'Remove opening *.ssp by a double click';
+   ls_add_ext: Result := 'Open when double click *.ssp file';
 
-   'file_saving': Result := 'Saving file';
-   'file_opening': Result := 'Opening file';
-   'project_saving': Result := 'Saving project';
-   'project_opening': Result := 'Opening project';
-   'module_saving': Result := 'Saving module';
-   'module_opening': Result := 'Opening module';
+   ls_file_saving: Result := 'Saving file';
+   ls_file_opening: Result := 'Opening file';
+   ls_project_saving: Result := 'Saving project';
+   ls_project_opening: Result := 'Opening project';
+   ls_module_saving: Result := 'Saving module';
+   ls_module_opening: Result := 'Opening module';
 
-   'compilation_started': Result := '[ %s ] - Compilation started...';
-   'compilation_finished': Result := '[ %s ] - Compilation successfully finished; project built (%s) :)';
-   'compilation_stopped': Result := '[ %s ] - Compilation interrupted by error';
+   ls_compilation_started: Result := '[ %s ] - Compilation started...';
+   ls_compilation_finished: Result := '[ %s ] - Compilation successfully finished; project built (%s) :)';
+   ls_compilation_stopped: Result := '[ %s ] - Compilation interrupted by error';
 
-   'new_app': Result := 'new application';
-   'new_lib': Result := 'new library';
+   ls_new_app: Result := 'new application';
+   ls_new_lib: Result := 'new library';
 
-   'filter_project': Result := 'SScript Editor Project (*.ssp)|*.ssp';
-   'filter_module': Result := 'SScript Code (*.ss)|*.ss';
-   'filter_file': Result := 'All files (*.*)|*.*';
+   ls_filter_project: Result := 'SScript Editor Project (*.ssp)|*.ssp';
+   ls_filter_module: Result := 'SScript Code (*.ss)|*.ss';
+   ls_filter_any_file: Result := 'All files (*.*)|*.*';
+
+   else
+    Exit('<unknown string>');
   End;
  End;
 

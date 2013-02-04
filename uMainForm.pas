@@ -8,6 +8,9 @@ uses
   Windows, Classes, SysUtils, FileUtil, SynEdit, ExtendedNotebook, Forms,
   Controls, Graphics, Dialogs, Menus, ExtCtrls, ComCtrls, mSettings, LCLType;
 
+ // types
+ Type TState = (stEnabled, stDisabled);
+
 type
   { TMainForm }
   TMainForm = class(TForm)
@@ -104,15 +107,18 @@ type
     procedure TabsTabDragDropEx(Sender, Source: TObject; OldIndex,
       NewIndex: Integer; CopyDrag: Boolean; var Done: Boolean);
     procedure TabsUpdateTimer(Sender: TObject);
+
   private
    Procedure RecentlyOpened_Click(Sender: TObject);
+
   public
+   Procedure setMainMenu(State: TState);
    Procedure UpdateRecentlyOpened;
   end;
 
  // consts
  Const iVersion = 0.2;
-       sVersion = '0.2 nightly';
+       sVersion = '0.2';
        sCaption = 'SScript Editor v'+sVersion;
 
  // variables
@@ -129,8 +135,6 @@ Var Project        : TProject = nil; // currently opened project
     Splitter1Factor: Extended = 1;
 
 {$R *.lfm}
-
-Type TState = (stEnabled, stDisabled);
 
 { AddRecentlyOpened }
 Procedure AddRecentlyOpened(const FileName: String);
@@ -154,29 +158,6 @@ Begin
  Result := Project;
 End;
 
-{ setMainMenu }
-Procedure setMainMenu(State: TState);
-Var B: Boolean;
-    C: Integer;
-Begin
- B := (State = stEnabled);
-
- With MainForm do
- Begin
-  For C := 0 To ComponentCount-1 Do // iterate each component
-  Begin
-   if (Components[C] is TMenuItem) Then
-    With Components[C] as TMenuItem do
-    Begin
-     Case Tag of
-      1: Enabled := B;
-      2: Enabled := not B;
-     End;
-    End;
-  End;
- End;
-End;
-
 { SaveProject }
 Function SaveProject: Boolean;
 Var Save: Boolean;
@@ -192,7 +173,7 @@ Begin
   Begin
    { ask user }
    Save := False;
-   Case MessageDlg(getLangValue('project_saving'), getLangValue('msg_unsaved_files'), mtConfirmation, mbYesNoCancel, '') of
+   Case MessageDlg(getLangValue(ls_project_saving), getLangValue(ls_msg_unsaved_files), mtConfirmation, mbYesNoCancel, '') of
     mrYes   : Save := True;
     mrNo    : Save := False;
     mrCancel: Exit(False);
@@ -207,7 +188,7 @@ Begin
 
  { ask user }
  Save := False;
- Case MessageDlg(getLangValue('project_saving'), getLangValue('msg_unsaved_project'), mtConfirmation, mbYesNoCancel, '') of
+ Case MessageDlg(getLangValue(ls_project_saving), getLangValue(ls_msg_unsaved_project), mtConfirmation, mbYesNoCancel, '') of
   mrYes   : Save := True;
   mrNo    : Save := False;
   mrCancel: Exit(False);
@@ -219,12 +200,11 @@ End;
 
 (* ===== TMainForm ===== *)
 
+{ RecentlyOpened_Click }
 Procedure TMainForm.RecentlyOpened_Click(Sender: TObject);
 Begin
  if (SaveProject) Then
  Begin
-  setMainMenu(stDisabled);
-
   // close current project
   if (Project = nil) Then
    Project := TProject.Create Else
@@ -234,22 +214,38 @@ Begin
    End;
 
   // open the project
-  if (Project.Open(TMenuItem(Sender).Caption)) Then
-  Begin
-   setMainMenu(stEnabled);
-  End Else // failed to open
+  if (not Project.Open(TMenuItem(Sender).Caption)) Then // if failed
   Begin
    With RecentlyOpened Do
-    Delete(IndexOf(TMenuItem(Sender).Caption)); // remove invalid file from the list
+    Delete(IndexOf(TMenuItem(Sender).Caption)); // remove not-existing file from the list
    setRecentlyOpened(RecentlyOpened);
-   Application.MessageBox(PChar(getLangValue('msg_project_open_failed')), PChar(getLangValue('msg_err')), MB_IconError);
 
-   //if (Project <> nil) Then
-   // Project.Free;
+   Application.MessageBox(PChar(getLangValue(ls_msg_project_open_failed)), PChar(getLangValue(ls_msg_error)), MB_IconError);
   End;
  End;
 End;
 
+{ setMainMenu }
+Procedure TMainForm.setMainMenu(State: TState);
+Var B: Boolean;
+    C: Integer;
+Begin
+ B := (State = stEnabled);
+
+ For C := 0 To ComponentCount-1 Do // iterate each component
+ Begin
+  if (Components[C] is TMenuItem) Then
+   With Components[C] as TMenuItem do
+   Begin
+    Case Tag of
+     1: Enabled := B;
+     2: Enabled := not B;
+    End;
+   End;
+ End;
+End;
+
+{ UpdateRecentlyOpened }
 Procedure TMainForm.UpdateRecentlyOpened;
 Var Str     : String;
     MenuItem: TMenuItem;
@@ -305,26 +301,24 @@ begin
   if (Project <> nil) Then
    Project.Free;
   Project := TProject.Create;
-  if (not Project.Open(FileNames[0])) Then
+
+  if (not Project.Open(FileNames[0])) Then // failed
   Begin
-   Application.MessageBox(PChar(Format(getLangValue('msg_project_open_failed_ex'), [FileNames[0]])), PChar(getLangValue('msg_error')), MB_IconError);
+   Application.MessageBox(PChar(Format(getLangValue(ls_msg_project_open_failed_ex), [FileNames[0]])), PChar(getLangValue(ls_msg_error)), MB_IconError);
    Exit;
   End;
-
-  setMainMenu(stEnabled);
 
   Inc(I); // do not open project's file as a module file
  End;
 
  // no project opened/created so far?
  if (Project = nil) Then
-  Case MessageDlg(getLangValue('file_opening'), getLangValue('msg_create_new_project'), mtConfirmation, mbYesNo, '') of
+  Case MessageDlg(getLangValue(ls_file_opening), getLangValue(ls_msg_create_new_project), mtConfirmation, mbYesNo, '') of
    mrNo: Exit;
    mrYes:
    Begin
     Project := TProject.Create;
     Project.NewProject(ptApplication);
-    setMainMenu(stEnabled);
    End;
   End;
 
@@ -343,31 +337,29 @@ end;
 procedure TMainForm.FormShow(Sender: TObject);
 Var FileName, tText: String;
 begin
- // if specified in parameter, open a project
+ { if specified in parameter, try to open a project }
  SetCurrentDir(ExtractFilePath(Application.ExeName));
 
  FileName := ParamStr(1);
  if (FileExists(FileName)) and (CompareText(ExtractFileExt(FileName), '.ssp') = 0) Then // check for file existence, and also check the file extension
  Begin
   Project := TProject.Create;
-  if (not Project.Open(FileName)) Then // try to open
+  if (not Project.Open(FileName)) Then // is failed to open
   Begin
-   tText := Format(getLangValue('msg_project_open_failed_ex'), [FileName]);
-   Application.MessageBox(PChar(tText), PChar(getLangValue('msg_err')), MB_IconError);
+   tText := Format(getLangValue(ls_msg_project_open_failed_ex), [FileName]);
+   Application.MessageBox(PChar(tText), PChar(getLangValue(ls_msg_error)), MB_IconError);
    Project.Free;
-  End Else
-   setMainMenu(stEnabled);
+  End;
  End Else
 
- // open recent project
+ { open recent project }
  if (getBoolean(sOpenRecentProject)) Then
  Begin
   FileName := getString(sRecentProject);
   Project  := TProject.Create;
 
   if (not Project.Open(FileName)) Then // try to open
-   Project.Free Else
-   setMainMenu(stEnabled);
+   Project.Free;
  End;
 
  ShowWindow(Handle, SW_SHOWMAXIMIZED);
@@ -386,11 +378,8 @@ end;
 procedure TMainForm.oCloseProjectClick(Sender:TObject);
 begin
  if (SaveProject) Then
- Begin
   if (Project <> nil) Then
    FreeAndNil(Project);
-  setMainMenu(stDisabled);
- End;
 end;
 
 procedure TMainForm.oEvSettingsClick(Sender: TObject);
@@ -410,9 +399,8 @@ begin
    End;
 
   Project.NewProject(ptApplication);
-  setMainMenu(stEnabled);
 
-  Caption := sCaption+' - '+getLangValue('new_app');
+  Caption := sCaption+' - '+getLangValue(ls_new_app);
  End;
 end;
 
@@ -428,9 +416,8 @@ begin
    End;
 
   Project.NewProject(ptLibrary);
-  setMainMenu(stEnabled);
 
-  Caption := sCaption+' - '+getLangValue('new_lib');
+  Caption := sCaption+' - '+getLangValue(ls_new_lib);
  End;
 end;
 
@@ -496,8 +483,8 @@ begin
  // run save dialog
  With TSaveDialog.Create(self) do
   Try
-   Title  := getLangValue('file_saving');
-   Filter := getLangValue('filter_file');
+   Title  := getLangValue(ls_file_saving);
+   Filter := getLangValue(ls_filter_any_file);
 
    if (Execute) Then
     CompileStatus.SaveToFile(FileName);
@@ -509,6 +496,7 @@ end;
 procedure TMainForm.opSaveMessagesToClipboardClick(Sender:TObject);
 Var Stream: TStringStream;
 begin
+ // copy to the clipboard
  Stream := TStringStream.Create('');
  CompileStatus.SaveToStream(Stream);
  Clipboard.SetTextBuf(PChar(Stream.DataString));
@@ -517,10 +505,10 @@ end;
 
 procedure TMainForm.opSaveSelectedMessageClick(Sender:TObject);
 begin
- if (CompileStatus.Selected = nil) Then
+ if (CompileStatus.Selected = nil) Then // anything selected?
   Exit;
 
- Clipboard.SetTextBuf(PChar(CompileStatus.Selected.Text));
+ Clipboard.SetTextBuf(PChar(CompileStatus.Selected.Text)); // copy to the clipboard
 end;
 
 procedure TMainForm.oSaveAllClick(Sender: TObject);
@@ -575,7 +563,7 @@ begin
   Exit;
 
  Data := Integer(CompileStatus.Selected.Data);
- if (Data > 0) Then
+ if (Data > 0) Then // when `Data == 0`, it's just a editor's message, not a compiler error, warning or hint
   Project.RaiseMessage(Data-1);
 end;
 
@@ -585,14 +573,14 @@ begin
  With TOpenDialog.Create(MainForm) do
  Begin
   Try
-   if (Project = nil) Then
+   if (Project = nil) Then // no project opened - show project opening dialog
    Begin
-    Title  := getLangValue('project_opening');
-    Filter := getLangValue('filter_project');
+    Title  := getLangValue(ls_project_opening);
+    Filter := getLangValue(ls_filter_project);
    End Else
-   Begin
-    Title  := getLangValue('module_opening');
-    Filter := getLangValue('filter_module');
+   Begin // in other case - show module opening dialog
+    Title  := getLangValue(ls_module_opening);
+    Filter := getLangValue(ls_filter_module);
    End;
 
    Options := [ofPathMustExist, ofFileMustExist];
@@ -607,19 +595,15 @@ begin
      Project := TProject.Create;
      if (not Project.Open(FileName)) Then // failed
      Begin
-      Application.MessageBox(PChar(getLangValue('msg_project_open_failed')), PChar(getLangValue('msg_err')), MB_IconError);
+      Application.MessageBox(PChar(getLangValue(ls_msg_project_open_failed)), PChar(getLangValue(ls_msg_error)), MB_IconError);
       FreeAndNil(Project);
-      setMainMenu(stDisabled);
-     End Else
-     Begin
-      setMainMenu(stEnabled);
      End;
     End Else
 
     { opening a module }
     Begin
      if (not Project.OpenCard(FileName)) Then // failed
-      Application.MessageBox(PChar(getLangValue('msg_module_open_failed')), PChar(getLangValue('msg_err')), MB_IconError);
+      Application.MessageBox(PChar(getLangValue(ls_msg_module_open_failed)), PChar(getLangValue(ls_msg_error)), MB_IconError);
     End;
    End;
   Finally
@@ -659,10 +643,10 @@ end;
 
 procedure TMainForm.TabsUpdateTimer(Sender: TObject);
 begin
- if (Project = nil) Then
+ if (Project = nil) Then // no project created?
   Exit;
 
- if (Project.getCurrentCard = nil) Then
+ if (Project.getCurrentCard = nil) Then // no card opened (shouldn't happen, in fact...)?
   Exit;
 
  Project.UpdateCards;

@@ -126,6 +126,8 @@ Const AlNum = ['_', 'a'..'z', 'A'..'Z', '0'..'9'];
 Var Len              : Integer;
     StringOpened, Dot: Boolean;
 
+(* ReadString *)
+// Term - terminator char ( ' or " )
 Function ReadString(const Term: Char): Boolean;
 Begin
  Result := False;
@@ -239,7 +241,8 @@ Begin
   Begin
    if (fLineText[fTokenEnd] in ['"', '''']) Then // skip string
     if (not ReadString(fLineText[fTokenEnd])) Then
-     Break;
+     Break Else
+     Dec(fTokenEnd);
    Inc(fTokenEnd);
   End;
   Inc(fTokenEnd);

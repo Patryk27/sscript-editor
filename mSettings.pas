@@ -1,7 +1,7 @@
 {$H+}
 {$MODE DELPHI}
 
-{$DEFINE NOT_PRODUCTION}
+{.$DEFINE NOT_PRODUCTION}
 
 Unit mSettings;
 

@@ -20,6 +20,7 @@
     <_Op>0</_Op>
     <_O1>1</_O1>
     <_dbg>0</_dbg>
+    <_iconst>0</_iconst>
   </compiler>
   <vm>
     <switches></switches>
@@ -29,8 +30,8 @@
   <card_0>
     <caption>main.ss</caption>
     <file>.\main.ss</file>
-    <caret_x>55</caret_x>
-    <caret_y>3</caret_y>
+    <caret_x>112</caret_x>
+    <caret_y>8</caret_y>
     <is_main>1</is_main>
   </card_0>
 </project>

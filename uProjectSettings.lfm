@@ -291,6 +291,14 @@ object ProjectSettingsForm: TProjectSettingsForm
         Caption = 'Inline constants directly when building an expression (-iconst)'
         TabOrder = 5
       end
+      object _sconst: TCheckBox
+        Left = 0
+        Height = 19
+        Top = 79
+        Width = 297
+        Caption = 'Enable special constants like `__self`, `__line` (-sconst)'
+        TabOrder = 6
+      end
     end
     object p_3: TPage
       object Label4: TLabel

@@ -53,7 +53,7 @@ Unit mProject;
  Type TMessageList = specialize TFPGList<PMessage>;
 
  // TCompilerSwitches
- Type TCompilerSwitch = (_ninit, _Or, _Of, _Op, _O1, _dbg, _iconst);
+ Type TCompilerSwitch = (_ninit, _Or, _Of, _Op, _O1, _dbg, _iconst, _sconst);
  Type TCompilerSwitches = Set of TCompilerSwitch;
 
  // TVMSwitches
@@ -261,6 +261,7 @@ Begin
  With MainForm.Tabs do
   ActivePageIndex := PageCount-1;
 
+ RefreshControls;
  SynEdit.SetFocus;
 End;
 
@@ -282,8 +283,8 @@ Begin
   With TSaveDialog.Create(MainForm) do
   Begin
    Try
-    Title    := getLangValue('module_saving');
-    Filter   := getLangValue('filter_module');
+    Title    := getLangValue(ls_module_saving);
+    Filter   := getLangValue(ls_filter_module);
     FileName := ExtractFileName(self.FileName);
 
     if (Execute) Then
@@ -315,7 +316,7 @@ End;
 { TCard.Save }
 Function TCard.Save(const Reason: TCardSaveReason): Boolean;
 Begin
- Case MessageDlg(getLangValue('title_card_close'), getLangValue('msg_card_close'), mtWarning, mbYesNoCancel, '') of
+ Case MessageDlg(getLangValue(ls_title_card_close), getLangValue(ls_msg_card_close), mtWarning, mbYesNoCancel, '') of
   { yes }
   mrYes:
   Begin
@@ -397,8 +398,8 @@ Begin
   End Else
   Begin
    Card.Free;
-   Text := Format(getLangValue('msg_file_not_found'), [cFileName]);
-   Application.MessageBox(PChar(Text), PChar(getLangValue('msg_err')), MB_IconError);
+   Text := Format(getLangValue(ls_msg_file_not_found), [cFileName]);
+   Application.MessageBox(PChar(Text), PChar(getLangValue(ls_msg_error)), MB_IconError);
    Exit;
   End;
  End Else
@@ -449,7 +450,7 @@ Begin
  End;
 
  if (Fail) Then
-  Application.MessageBox(PChar(getLangValue('msg_compiler_or_vm_not_found')), PChar(getLangValue('msg_warn')), MB_IconWarning);
+  Application.MessageBox(PChar(getLangValue(ls_msg_compiler_or_vm_not_found)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
 End;
 
 { TProject.SaveIfCan }
@@ -504,6 +505,8 @@ End;
 { TProject.Create }
 Constructor TProject.Create;
 Begin
+ MainForm.setMainMenu(stDisabled);
+
  CardList    := TCardList.Create;
  MessageList := TMessageList.Create;
  ProjectType := ptApplication;
@@ -513,6 +516,8 @@ End;
 Destructor TProject.Destroy;
 Var Card: TCard;
 Begin
+ MainForm.setMainMenu(stDisabled);
+
  For Card in CardList Do
   With Card do
   Begin
@@ -528,10 +533,12 @@ End;
 { TProject.NewProject }
 Procedure TProject.NewProject(const Typ: TProjectType);
 Begin
+ MainForm.setMainMenu(stEnabled);
+
  Named := False;
  Saved := False;
 
- CompilerSwitches      := [_O1]; // `-O1` is enabled by default
+ CompilerSwitches      := [_O1, _SCONST]; // `-O1` is enabled by default
  OtherCompilerSwitches := '';
 
  VMSwitches      := [c_wait]; // `-wait` is switched by default
@@ -574,10 +581,8 @@ Begin
   End;
  End;
 
- With getCurrentCard do
- Begin
+ With getCurrentCard do // this card is main card
   isMain := True;
- End;
 End;
 
 { TProject.NewNoNameCard }
@@ -637,8 +642,8 @@ Begin
   With TSaveDialog.Create(MainForm) do
   Begin
    Try
-    Title  := getLangValue('project_saving');
-    Filter := getLangValue('filter_project');
+    Title  := getLangValue(ls_project_saving);
+    Filter := getLangValue(ls_filter_project);
 
     if (Execute) Then
     Begin
@@ -726,7 +731,7 @@ Begin
    With CardList[I] do
    Begin
     if (not Save) Then
-     Case MessageDlg(getLangValue('module_saving'), getLangValue('msg_module_saving'), mtWarning, mbYesNo, 0) of
+     Case MessageDlg(getLangValue(ls_module_saving), getLangValue(ls_msg_module_saving), mtWarning, mbYesNo, 0) of
       mrYes: if (not Save) Then
               Exit; // stop saving the project
       else Exit; // stop saving the project
@@ -834,6 +839,8 @@ Begin
  Named    := True;
  Saved    := True;
 
+ MainForm.setMainMenu(stDisabled);
+
  Try
   Try
    { open and parse file }
@@ -908,25 +915,30 @@ Begin
   Exit(False);
  End;
 
- // add new file to the recently-opened list
+ { add new file to the recently-opened list }
  uMainForm.AddRecentlyOpened(FileName);
 
- // version check
+ { version check }
  if (Version = 0) Then
   Version := 0.1;
 
- if (Version < iVersion) Then
-  Application.MessageBox(PChar(getLangValue('msg_version_conflict_old')), PChar(getLangValue('msg_warn')), MB_IconWarning);
+ if (Version < iVersion) Then // older than ours?
+  Application.MessageBox(PChar(getLangValue(ls_msg_version_conflict_older)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
 
- if (Version > iVersion) Then
-  Application.MessageBox(PChar(getLangValue('msg_version_conflict_new')), PChar(getLangValue('msg_warn')), MB_IconWarning);
+ if (Version > iVersion) Then // newer than ours?
+  Application.MessageBox(PChar(getLangValue(ls_msg_version_conflict_newer)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
 
- // ... and do some other things
- MainForm.Tabs.ActivePageIndex := OpenedCard;
+ { ... and do some other things }
+ With MainForm do
+ Begin
+  setMainMenu(stEnabled);
+
+  Tabs.ActivePageIndex := OpenedCard;
+  Caption              := uMainForm.sCaption+' - '+FileName;
+ End;
 
  CheckPaths;
 
- MainForm.Caption := uMainForm.sCaption+' - '+FileName;
  Exit(True);
 End;
 
@@ -969,14 +981,14 @@ Begin
  // is the only opened card?
  if (CardList.Count <= 1) Then
  Begin
-  Application.MessageBox(PChar(getLangValue('msg_close_last_card')), PChar(getLangValue('msg_info')), MB_IconInformation);
+  Application.MessageBox(PChar(getLangValue(ls_msg_close_last_card)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
   Exit;
  End;
 
  // is main?
  if (CardList[ID].isMain) Then
  Begin
-  Application.MessageBox(PChar(getLangValue('msg_close_main_card')), PChar(getLangValue('msg_info')), MB_IconInformation);
+  Application.MessageBox(PChar(getLangValue(ls_msg_close_main_card)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
   Exit;
  End;
 
@@ -1142,7 +1154,7 @@ End;
 Begin
  if (not FileExists(CompilerFile)) Then
  Begin
-  Application.MessageBox(PChar(getLangValue('msg_compiler_not_found')), PChar(getLangValue('msg_err')), MB_IconError);
+  Application.MessageBox(PChar(getLangValue(ls_msg_compiler_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
   Exit(False);
  End;
 
@@ -1167,7 +1179,7 @@ Begin
  With MainForm.CompileStatus.Items do
  Begin
   Clear;
-  AddText(Format(getLangValue('compilation_started'), [TimeToStr(Time)]));
+  AddText(Format(getLangValue(ls_compilation_started), [TimeToStr(Time)]));
 
   Process         := TProcess.Create(nil);
   Process.Options := [poUsePipes, poNoConsole];
@@ -1179,6 +1191,7 @@ Begin
   ' -includepath "'+IncludePath+'"'+
   ' -o "'+sOutputFile+'"';
 
+  // if library
   if (ProjectType = ptLibrary) Then
   Begin
    CommandLine += ' -Clib';
@@ -1186,21 +1199,23 @@ Begin
     CommandLine += ' -h "'+MakeFullPath(HeaderFile)+'"';
   End;
 
+  // generate bytecode?
   if (BytecodeOutput <> '') Then
    CommandLine += ' -s "'+MakeFullPath(BytecodeOutput)+'"';
 
+  // add compile switches
   For Switch in CompilerSwitches Do
    CommandLine += ' -'+getSwitchName(Switch);
   CommandLine += ' '+OtherCompilerSwitches;
 
   { run compiler }
   Process.CommandLine := CommandLine;
-
   Process.Execute;
 
   MemStream := TMemoryStream.Create;
   BytesRead := 0;
 
+  { read output }
   While (Process.Running) Do
   Begin
    MemStream.SetSize(BytesRead + READ_BYTES);
@@ -1220,7 +1235,7 @@ Begin
 
   Process.Free;
 
-  { parse results }
+  { parse compiler output }
   Output := TStringList.Create;
   Output.LoadFromStream(MemStream);
 
@@ -1243,9 +1258,14 @@ Begin
    End;
   End;
 
+  { check output file }
+  if (not FileExists(sOutputFile)) Then
+   AnyError := True; // ;<
+
+  { finishing message }
   if (not AnyError) Then
-   AddText(Format(getLangValue('compilation_finished'), [TimeToStr(Time), OutputFile])) Else
-   AddText(Format(getLangValue('compilation_stopped'), [TimeToStr(Time)]));
+   AddText(Format(getLangValue(ls_compilation_finished), [TimeToStr(Time), OutputFile])) Else
+   AddText(Format(getLangValue(ls_compilation_stopped), [TimeToStr(Time)]));
  End;
 
  For Card in CardList Do
@@ -1263,20 +1283,31 @@ End;
 Procedure TProject.Run;
 Var sOutputFile, CommandLine: String;
     Switch                  : TVMSwitch;
+    Tries                   : Integer;
 Begin
  if (ProjectType = ptLibrary) Then // cannot run a library
   Exit;
 
- if (not FileExists(VMFile)) Then // virtual machine found?
+ if (not FileExists(VMFile)) Then // check virtual machine
  Begin
-  Application.MessageBox(PChar(getLangValue('msg_vm_not_found')), PChar(getLangValue('msg_err')), MB_IconError);
+  Application.MessageBox(PChar(getLangValue(ls_msg_vm_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
   Exit;
  End;
 
  { check path }
- if (PathIsRelative(PChar(OutputFile))) Then
-  sOutputFile := ExtractFilePath(FileName)+OutputFile Else
-  sOutputFile := OutputFile;
+ sOutputFile := MakeFullPath(OutputFile);
+
+ { wait for file }
+ Tries := 0;
+ Sleep(25);
+ While (not FileExists(sOutputFile)) Do
+ Begin
+  Inc(Tries);
+  Sleep(50);
+
+  if (Tries > 20) Then
+   Exit;
+ End;
 
  { generate command line }
  CommandLine := '"'+sOutputFile+'" ';

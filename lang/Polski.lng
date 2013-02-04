@@ -178,6 +178,9 @@ Caption=Optymalizuj wygenerowany bajtkod (-Op)
 [ProjectSettingsForm__iconst]
 Caption=Wstawiaj stałe bezpośrednio podzas budowania wyrażenia (-iconst)
 
+[ProjectSettingsForm__sconst]
+Caption=Włącz specjalne stałe, takie jak `__self`, `__line`... (-sconst)
+
 [ProjectSettingsForm_Label3]
 Caption=Inne przełączniki:
 
@@ -343,7 +346,7 @@ Caption=Posiada kolor tła
 [Strings]
 title_card_close=Zamykanie karty
 
-msg_ev_restart=Aby zobaczyć zmiany, musisz uruchomić ponownie środowisko.
+msg_env_restart=Aby zobaczyć zmiany, musisz uruchomić ponownie środowisko.
 msg_card_close=Zamierzasz zamknąć niezapisaną kartę.%newline%Zapisać?
 msg_file_not_found=Nie można odnaleźć pliku: %s
 msg_module_saving=Aby projekt został zapisany, każdy moduł musi mieć swoją nazwę oraz odpowiadający mu plik na dysku.%newline%Otworzyć dialog zapisywania ponownie?%newline%(wybierając 'Nie' przerwiesz zapisywanie całego projektu)
@@ -358,12 +361,12 @@ msg_project_open_failed=Nie można było otworzyć pliku projektu.
 msg_project_open_failed_ex=Nie można było otworzyć pliku projektu: %s
 msg_module_open_failed=Nie można było otworzyć pliku modułu.
 msg_create_new_project=Stworzyć nowy projekt (aplikację)?
-msg_version_conflict_old=Ten projekt został utworzony za pomocą starszego edytora niż Twój; być może niektóre ustawienia w projekcie będziesz musiał poprawić.
-msg_version_conflict_new=Ten projekt został utworzony za pomocą nowszego edytora niż Twój - nie wszystko może działać poprawnie.
+msg_version_conflict_older=Ten projekt został utworzony za pomocą starszego edytora niż Twój; być może niektóre ustawienia w projekcie będziesz musiał poprawić.
+msg_version_conflict_newer=Ten projekt został utworzony za pomocą nowszego edytora niż Twój - nie wszystko może działać poprawnie.
 
 msg_info=Informacja
 msg_warn=Ostrzeżenie
-msg_err=Błąd
+msg_error=Błąd
 
 remove_ext=Usuń powiązanie z rozszerzeniem *.ssp
 add_ext=Powiąż edytor z rozszerzeniem *.ssp

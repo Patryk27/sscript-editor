@@ -126,6 +126,8 @@ Const AlNum = ['_', 'a'..'z', 'A'..'Z', '0'..'9'];
 Var Len              : Integer;
     StringOpened, Dot: Boolean;
 
+(* ReadString *)
+// Term - terminator char ( ' or " )
 Function ReadString(const Term: Char): Boolean;
 Begin
  Result := False;
@@ -239,7 +241,8 @@ Begin
   Begin
    if (fLineText[fTokenEnd] in ['"', '''']) Then // skip string
     if (not ReadString(fLineText[fTokenEnd])) Then
-     Break;
+     Break Else
+     Dec(fTokenEnd);
    Inc(fTokenEnd);
   End;
   Inc(fTokenEnd);
@@ -312,8 +315,8 @@ Begin
 
   { keyword }
   Case Keyword of
-   'function', 'var', 'return', 'naked', 'for', 'if', 'else', 'while', 'break', 'continue',
-   'in', 'do', 'private', 'public': Exit(fKeywordAttri);
+   'function', 'var', 'const', 'return', 'naked', 'for', 'if', 'else', 'while', 'break', 'continue',
+   'in', 'do', 'private', 'public', 'type': Exit(fKeywordAttri);
    'void', 'bool', 'char', 'int', 'float', 'string': Exit(fPrimaryTypesAttri);
   End;
 

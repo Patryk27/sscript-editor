@@ -8,12 +8,18 @@ It's written in Pascal (Lazarus, precisely).
 
 I made it mainly out of boredom - it's nothing, comparing to eg.Lazarus, but I'm still developing and proud of it :)
 
+
+All tutorials are - as for now - written only in Polish: http://sscriptwiki.xorg.pl/wiki/Strona_g³ówna
+... but soon I'm going to translate them into English ;)
+
 ### Downloading
 There are 2 branches:
 
 -master (this is the "live" version of code - it's untested and most likely unstable; use only if you know what are you doing)
 
 -stable (this is the latest stable and tested version of code; also - it has compiled binaries)
+
+Ready-to-use, stable builds are downloadable in `/build` in `stable` branch.
 
 ### Contributing
 You want to contribute? It's great :)
@@ -27,3 +33,12 @@ You can contribute in 2 ways:
 
 
 Thanks for help!
+
+### License
+SScript Editor, Compiler and VM are licensed under the LGPL license.
+
+https://github.com/Piterolex/SScript-Editor
+
+https://github.com/Piterolex/SScript-Compiler
+
+https://github.com/Piterolex/SScript-VM

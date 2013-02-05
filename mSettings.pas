@@ -1,7 +1,7 @@
 {$H+}
 {$MODE DELPHI}
 
-{$DEFINE NOT_PRODUCTION}
+{.$DEFINE NOT_PRODUCTION}
 
 Unit mSettings;
 
@@ -255,7 +255,7 @@ End;
 { setColor }
 Procedure setColor(S: TSetting; Value: TColor);
 Begin
- Ini.WriteInteger('settings', getName(S), Value);
+ Ini.WriteInteger('settings', getName(S), Value );
 End;
 
 { setRecentlyOpened }

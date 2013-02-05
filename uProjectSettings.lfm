@@ -1,7 +1,13 @@
 object ProjectSettingsForm: TProjectSettingsForm
+<<<<<<< HEAD
   Left = 468
   Height = 437
   Top = 130
+=======
+  Left = 317
+  Height = 437
+  Top = 156
+>>>>>>> origin/master
   Width = 640
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
@@ -19,9 +25,10 @@ object ProjectSettingsForm: TProjectSettingsForm
     DefaultItemHeight = 18
     ReadOnly = True
     TabOrder = 0
-    OnClick = SettingClick
+    OnChange = SettingChange
     Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     Items.Data = {
+<<<<<<< HEAD
       F9FFFFFF020002000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF010000000000
       0000010E0000004F70636A652070726F6A656B747500000000FFFFFFFFFFFFFF
       FFFFFFFFFF00000000000000000009000000C59A636965C5BC6B69FFFFFFFFFF
@@ -29,6 +36,17 @@ object ProjectSettingsForm: TProjectSettingsForm
       6D70696C61746F726101000000FFFFFFFFFFFFFFFFFFFFFFFF00000000000000
       0000030000004B6F6402000000FFFFFFFFFFFFFFFFFFFFFFFF00000000000000
       000009000000C59A636965C5BC6B69
+=======
+      F9FFFFFF020003000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF010000000000
+      0000010700000050726F6A65637400000000FFFFFFFFFFFFFFFFFFFFFFFF0000
+      00000000000000050000005061746873FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      02000000000000000108000000436F6D70696C657201000000FFFFFFFFFFFFFF
+      FFFFFFFFFF00000000000000000004000000436F646502000000FFFFFFFFFFFF
+      FFFFFFFFFFFF000000000000000000050000005061746873FFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFF0100000000000000010F0000005669727475616C206D6163
+      68696E6503000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000A0000
+      00506172616D6574657273
+>>>>>>> origin/master
     }
   end
   object Bevel1: TBevel
@@ -60,7 +78,11 @@ object ProjectSettingsForm: TProjectSettingsForm
     Height = 394
     Top = 0
     Width = 387
+<<<<<<< HEAD
     PageIndex = 0
+=======
+    PageIndex = 1
+>>>>>>> origin/master
     TabOrder = 3
     TabStop = True
     object p_1: TPage
@@ -272,6 +294,22 @@ object ProjectSettingsForm: TProjectSettingsForm
           TabOrder = 0
         end
       end
+      object _iconst: TCheckBox
+        Left = 0
+        Height = 19
+        Top = 56
+        Width = 346
+        Caption = 'Inline constants directly when building an expression (-iconst)'
+        TabOrder = 5
+      end
+      object _sconst: TCheckBox
+        Left = 0
+        Height = 19
+        Top = 79
+        Width = 297
+        Caption = 'Enable special constants like `__self`, `__line` (-sconst)'
+        TabOrder = 6
+      end
     end
     object p_3: TPage
       object Label4: TLabel
@@ -347,6 +385,40 @@ object ProjectSettingsForm: TProjectSettingsForm
         Width = 384
         TabOrder = 3
         Text = 'eHeaderFile'
+      end
+    end
+    object p_4: TPage
+      object c_wait: TCheckBox
+        Left = 0
+        Height = 19
+        Top = 8
+        Width = 303
+        Caption = 'Wait for `enter` after program finished working (-wait)'
+        TabOrder = 0
+      end
+      object c_time: TCheckBox
+        Left = 0
+        Height = 19
+        Top = 32
+        Width = 288
+        Caption = 'Display program''s work time when finished (-time)'
+        TabOrder = 1
+      end
+      object eVMSwitches: TEdit
+        Left = 96
+        Height = 23
+        Top = 371
+        Width = 288
+        TabOrder = 2
+        Text = 'eVMSwitches'
+      end
+      object Label9: TLabel
+        Left = 0
+        Height = 16
+        Top = 376
+        Width = 82
+        Caption = 'Other switches:'
+        ParentColor = False
       end
     end
   end

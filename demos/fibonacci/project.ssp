@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   <config>
@@ -28,3 +29,43 @@
     <is_main>1</is_main>
   </card_0>
 </project>
+=======
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <config>
+    <version>0.2</version>
+    <project_type>0</project_type>
+    <compiler>compiler\compiler.exe</compiler>
+    <vm>compiler\vm.exe</vm>
+    <card_count>1</card_count>
+    <opened_card>0</opened_card>
+    <output_file>project.ssc</output_file>
+    <header_file></header_file>
+    <bytecode_output></bytecode_output>
+  </config>
+  <compiler>
+    <switches></switches>
+    <include_path>$file;$compiler</include_path>
+    <_ninit>0</_ninit>
+    <_Or>0</_Or>
+    <_Of>0</_Of>
+    <_Op>0</_Op>
+    <_O1>1</_O1>
+    <_dbg>0</_dbg>
+    <_iconst>0</_iconst>
+    <_sconst>0</_sconst>
+  </compiler>
+  <vm>
+    <switches></switches>
+    <c_time>0</c_time>
+    <c_wait>1</c_wait>
+  </vm>
+  <card_0>
+    <caption>main.ss</caption>
+    <file>.\main.ss</file>
+    <caret_x>112</caret_x>
+    <caret_y>8</caret_y>
+    <is_main>1</is_main>
+  </card_0>
+</project>
+>>>>>>> origin/master

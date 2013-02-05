@@ -18,7 +18,7 @@ object EvSettingsForm: TEvSettingsForm
     DefaultItemHeight = 18
     ReadOnly = True
     TabOrder = 0
-    OnClick = SettingClick
+    OnChange = SettingChange
     Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     Items.Data = {
       F9FFFFFF020002000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF010000000000
@@ -516,13 +516,13 @@ object EvSettingsForm: TEvSettingsForm
           '@("stdlib\\numbers.ss")'
           ''
           '/*'
-          ' Główna funkcja programu'
+          ' Long comment'
           ' */'
           'function<int> main()'
           '{'
           ' var<int> a = read_int();'
-          ' println("Wpisałeś liczbę: "+intstr(a));'
-          ' return 2+a; '
+          ' println("You wrote: "+intstr(a));'
+          ' return 2+a;  // short comment'
           '}'
         )
         VisibleSpecialChars = [vscSpace, vscTabAtLast]

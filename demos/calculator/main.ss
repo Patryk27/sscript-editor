@@ -25,7 +25,11 @@ function<int> main()
    result = n1*n2; else
 
   if (ch == '/')
-   result = n1/n2; else
+  {
+   if (n2 == 0)
+    println("You cannot divide by 0!"); else
+    result = n1/n2;
+  } else
 
    {
     println("Unknown operation: "+ch);
@@ -41,4 +45,3 @@ function<int> main()
 
  return 0;
 }
-

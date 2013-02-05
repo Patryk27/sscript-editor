@@ -50,8 +50,12 @@ Unit mProject;
  Type TMessageList = specialize TFPGList<PMessage>;
 
  // TCompilerSwitches
- Type TCompilerSwitch = (_ninit, _Or, _Of, _Op, _O1, _dbg);
+ Type TCompilerSwitch = (_ninit, _Or, _Of, _Op, _O1, _dbg, _iconst, _sconst);
  Type TCompilerSwitches = Set of TCompilerSwitch;
+
+ // TVMSwitches
+ Type TVMSwitch = (c_time, c_wait);
+ Type TVMSwitches = Set of TVMSwitch;
 
  { TProject }
  Type TProject = Class
@@ -71,14 +75,26 @@ Unit mProject;
                    Procedure SaveIfCan;
 
                   Public
-                   Named, Saved                  : Boolean;
+                   // project state
+                   Named, Saved: Boolean;
+
+                   // paths and other text data
                    FileName, CompilerFile, VMFile: String;
-                   CompilerSwitches              : TCompilerSwitches;
-                   OtherCompilerSwitches         : String;
                    IncludePath, OutputFile       : String;
                    HeaderFile, BytecodeOutput    : String;
-                   ProjectType                   : TProjectType;
 
+                   // project info
+                   ProjectType: TProjectType;
+
+                   // compiler
+                   CompilerSwitches     : TCompilerSwitches;
+                   OtherCompilerSwitches: String;
+
+                   // vm
+                   VMSwitches     : TVMSwitches;
+                   OtherVMSwitches: String;
+
+                   // methods
                    Constructor Create;
                    Destructor Destroy; override;
 
@@ -108,6 +124,7 @@ Unit mProject;
                   End;
 
  Function getSwitchName(const S: TCompilerSwitch; DeleteFirstChar: Boolean=True): String;
+ Function getVMSwitchName(const S: TVMSwitch; DeleteFirstChars: Boolean=True): String;
 
  Implementation
 Uses mSettings, Dialogs, SysUtils, Forms, DOM, XMLWrite, XMLRead, TypInfo, Process;
@@ -121,6 +138,15 @@ Begin
 
  if (DeleteFirstChar) Then
   Delete(Result, 1, 1);
+End;
+
+{ getVMSwitchName }
+Function getVMSwitchName(const S: TVMSwitch; DeleteFirstChars: Boolean=True): String;
+Begin
+ Result := GetEnumName(TypeInfo(TVMSwitch), Integer(S));
+
+ if (DeleteFirstChars) Then
+  Delete(Result, 1, 2);
 End;
 
 { TCard.Editor_OnKeyPress }
@@ -193,7 +219,11 @@ Begin
   Highlighter := THighlighter.Create(SynEdit);
   Parent      := Tab;
   Align       := alClient;
+<<<<<<< HEAD
  // PopupMenu := MainForm.Editor_popup;
+=======
+  PopupMenu   := MainForm.SynEditPopup;
+>>>>>>> origin/master
 
   OnKeyPress          := @Editor_OnKeyPress;
   OnKeyDown           := @Editor_OnKeyDown;
@@ -209,6 +239,7 @@ Begin
  With MainForm.Tabs do
   ActivePageIndex := PageCount-1;
 
+ RefreshControls;
  SynEdit.SetFocus;
 End;
 
@@ -230,8 +261,13 @@ Begin
   With TSaveDialog.Create(MainForm) do
   Begin
    Try
+<<<<<<< HEAD
     Title    := 'Zapis modułu';
     Filter   := uMainForm.SaveModuleFilter;
+=======
+    Title    := getLangValue(ls_module_saving);
+    Filter   := getLangValue(ls_filter_module);
+>>>>>>> origin/master
     FileName := ExtractFileName(self.FileName);
 
     if (Execute) Then
@@ -260,6 +296,30 @@ Begin
  Exit(True);
 End;
 
+<<<<<<< HEAD
+=======
+{ TCard.Save }
+Function TCard.Save(const Reason: TCardSaveReason): Boolean;
+Begin
+ Case MessageDlg(getLangValue(ls_title_card_close), getLangValue(ls_msg_card_close), mtWarning, mbYesNoCancel, '') of
+  { yes }
+  mrYes:
+  Begin
+   Save();
+   Exit(True);
+  End;
+
+  { no }
+  mrNo: Exit(True);
+
+  { cancel }
+  mrCancel: Exit(False);
+ End;
+
+ Exit(True);
+End;
+
+>>>>>>> origin/master
 { TCard.Update }
 Procedure TCard.Update;
 Begin
@@ -313,7 +373,12 @@ Begin
   End Else
   Begin
    Card.Free;
+<<<<<<< HEAD
    Application.MessageBox(PChar('Następujący plik nie mógł zostać odnaleziony: '+cFileName), 'Błąd', MB_IconError);
+=======
+   Text := Format(getLangValue(ls_msg_file_not_found), [cFileName]);
+   Application.MessageBox(PChar(Text), PChar(getLangValue(ls_msg_error)), MB_IconError);
+>>>>>>> origin/master
    Exit;
   End;
  End Else
@@ -364,7 +429,11 @@ Begin
  End;
 
  if (Fail) Then
+<<<<<<< HEAD
   Application.MessageBox('Plik kompilatora lub maszyny wirtualnej nie został odnaleziony; sprawdź czy ścieżki w ustawieniach projektu są poprawne.', 'Ostrzeżenie', MB_IconWarning);
+=======
+  Application.MessageBox(PChar(getLangValue(ls_msg_compiler_or_vm_not_found)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
+>>>>>>> origin/master
 End;
 
 { TProject.SaveIfCan }
@@ -422,6 +491,8 @@ End;
 { TProject.Create }
 Constructor TProject.Create;
 Begin
+ MainForm.setMainMenu(stDisabled);
+
  CardList    := TCardList.Create;
  MessageList := TMessageList.Create;
  ProjectType := ptApplication;
@@ -431,6 +502,8 @@ End;
 Destructor TProject.Destroy;
 Var Card: TCard;
 Begin
+ MainForm.setMainMenu(stDisabled);
+
  For Card in CardList Do
   With Card do
   Begin
@@ -446,16 +519,26 @@ End;
 { TProject.NewProject }
 Procedure TProject.NewProject(const Typ: TProjectType);
 Begin
+ MainForm.setMainMenu(stEnabled);
+
  Named := False;
  Saved := False;
 
+<<<<<<< HEAD
  CompilerSwitches      := [_O1]; // `-O1` enabled by default
+=======
+ CompilerSwitches      := [_O1, _SCONST]; // `-O1` is enabled by default
+>>>>>>> origin/master
  OtherCompilerSwitches := '';
- IncludePath           := '$file;$compiler';
- ProjectType           := Typ;
- OutputFile            := '';
- HeaderFile            := '';
- BytecodeOutput        := '';
+
+ VMSwitches      := [c_wait]; // `-wait` is switched by default
+ OtherVMSwitches := '';
+
+ IncludePath    := '$file;$compiler';
+ ProjectType    := Typ;
+ OutputFile     := '';
+ HeaderFile     := '';
+ BytecodeOutput := '';
 
  CardList.Clear;
  MessageList.Clear;
@@ -488,10 +571,8 @@ Begin
   End;
  End;
 
- With getCurrentCard do
- Begin
+ With getCurrentCard do // this card is main card
   isMain := True;
- End;
 End;
 
 { TProject.NewNoNameCard }
@@ -516,7 +597,8 @@ Var Doc               : TXMLDocument;
     Root, Parent, Node: TDOMNode;
     I                 : Integer;
 
-    Switch: TCompilerSwitch;
+    Switch  : TCompilerSwitch;
+    VMSwitch: TVMSwitch;
 
 // WriteValue
 Procedure WriteValue(const Root: TDomNode; sName, sValue: String);
@@ -535,6 +617,12 @@ Begin
  WriteValue(Root, Name, IntToStr(Value));
 End;
 
+// WriteValue
+Procedure WriteValue(const Root: TDomNode; Name: String; Value: Extended);
+Begin
+ WriteValue(Root, Name, FloatToStr(Value));
+End;
+
 Begin
  Result := False;
 
@@ -544,8 +632,13 @@ Begin
   With TSaveDialog.Create(MainForm) do
   Begin
    Try
+<<<<<<< HEAD
     Title  := 'Zapis projektu';
     Filter := SaveProjectFilter;
+=======
+    Title  := getLangValue(ls_project_saving);
+    Filter := getLangValue(ls_filter_project);
+>>>>>>> origin/master
 
     if (Execute) Then
     Begin
@@ -592,6 +685,7 @@ Begin
   { save config }
   Parent := Doc.CreateElement('config');
 
+  WriteValue(Parent, 'version', uMainForm.iVersion);
   WriteValue(Parent, 'project_type', ord(ProjectType));
   WriteValue(Parent, 'compiler', CompilerFile);
   WriteValue(Parent, 'vm', VMFile);
@@ -614,12 +708,26 @@ Begin
 
   Root.AppendChild(Parent);
 
+  { save vm data }
+  Parent := Doc.CreateElement('vm');
+
+  WriteValue(Parent, 'switches', OtherVMSwitches);
+
+  For VMSwitch in TVMSwitches Do
+   WriteValue(Parent, getVMSwitchName(VMSwitch, False), Integer(VMSwitch in VMSwitches));
+
+  Root.AppendChild(Parent);
+
   { save card list }
   For I := 0 To CardList.Count-1 Do
    With CardList[I] do
    Begin
     if (not Save) Then
+<<<<<<< HEAD
      Case MessageDlg('Zapis modułu', 'Aby projekt został zapisany, każdy moduł musi mieć swoją nazwę oraz odpowiadający mu plik na dysku.'#13#10'Otworzyć dialog zapisywania ponownie?'#13#10'(wybierając ''Nie'' przerwiesz zapisywanie całego projektu)', mtWarning, mbYesNo, 0) of
+=======
+     Case MessageDlg(getLangValue(ls_module_saving), getLangValue(ls_msg_module_saving), mtWarning, mbYesNo, 0) of
+>>>>>>> origin/master
       mrYes: if (not Save) Then
               Exit; // stop saving the project
       else Exit; // stop saving the project
@@ -677,12 +785,16 @@ Var Doc         : TXMLDocument;
     Root, Parent: TDOMNode;
     CardCount, I: Integer;
 
-    Switch: TCompilerSwitch;
+    Switch  : TCompilerSwitch;
+    VMSwitch: TVMSwitch;
 
     OpenedCard      : Integer;
     cCaption, cFile : String;
     cIsMain         : Boolean;
 
+    Version: Extended;
+
+// ReadStringValue
 Function ReadStringValue(Node: TDOMNode; Name: String): String;
 Begin
  if (Node = nil) Then // parent node does not exist
@@ -696,12 +808,23 @@ Begin
  Result := Node.TextContent;
 End;
 
+// ReadIntegerValue
 Function ReadIntegerValue(Node: TDOMNode; Name: String): Integer;
 Var Tmp: String;
 Begin
  Tmp := ReadStringValue(Node, Name);
 
  if (not TryStrToInt(Tmp, Result)) Then
+  Result := 0;
+End;
+
+// ReadFloatValue
+Function ReadFloatValue(Node: TDOMNode; Name: String): Extended;
+Var Tmp: String;
+Begin
+ Tmp := ReadStringValue(Node, Name);
+
+ if (not TryStrToFloat(Tmp, Result)) Then
   Result := 0;
 End;
 
@@ -712,6 +835,8 @@ Begin
  Named    := True;
  Saved    := True;
 
+ MainForm.setMainMenu(stDisabled);
+
  Try
   Try
    { open and parse file }
@@ -721,6 +846,7 @@ Begin
    { read config }
    Parent := Root.FindNode('config');
 
+   Version        := ReadFloatValue(Parent, 'version');
    ProjectType    := TProjectType(ReadIntegerValue(Parent, 'project_type'));
    CompilerFile   := ReadStringValue(Parent, 'compiler');
    VMFile         := ReadStringValue(Parent, 'vm');
@@ -730,7 +856,7 @@ Begin
    HeaderFile     := ReadStringValue(Parent, 'header_file');
    BytecodeOutput := ReadStringValue(Parent, 'bytecode_output');
 
-   { read compiler switches }
+   { read compiler data }
    Parent := Root.FindNode('compiler');
 
    OtherCompilerSwitches := ReadStringValue(Parent, 'switches');
@@ -740,6 +866,16 @@ Begin
    For Switch in TCompilerSwitches Do
     if (ReadIntegerValue(Parent, getSwitchName(Switch, False)) = 1) Then
      CompilerSwitches += [Switch];
+
+   { read vm data }
+   Parent := Root.FindNode('vm');
+
+   OtherVMSwitches := ReadStringValue(Parent, 'switches');
+
+   VMSwitches := [];
+   For VMSwitch in TVMSwitches Do
+    if (ReadIntegerValue(Parent, getVMSwitchName(VMSwitch, False)) = 1) Then
+     VMSwitches += [VMSwitch];
 
    { read cards }
    For I := 0 To CardCount-1 Do
@@ -775,27 +911,30 @@ Begin
   Exit(False);
  End;
 
- // add new file to the recently-opened list
- With uMainForm.RecentlyOpened do
- Begin
-  if (IndexOf(FileName) = -1) Then // don't duplicate
-  Begin
-   Add(FileName);
-   While (Count > 8) Do
-    Delete(0);
-  End Else
-  Begin
-   Exchange(IndexOf(FileName), 0); // move at the beginning
-  End;
- End;
- setRecentlyOpened(RecentlyOpened);
+ { add new file to the recently-opened list }
+ uMainForm.AddRecentlyOpened(FileName);
 
- // ... and do some other things
- MainForm.Tabs.ActivePageIndex := OpenedCard;
+ { version check }
+ if (Version = 0) Then
+  Version := 0.1;
+
+ if (Version < iVersion) Then // older than ours?
+  Application.MessageBox(PChar(getLangValue(ls_msg_version_conflict_older)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
+
+ if (Version > iVersion) Then // newer than ours?
+  Application.MessageBox(PChar(getLangValue(ls_msg_version_conflict_newer)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
+
+ { ... and do some other things }
+ With MainForm do
+ Begin
+  setMainMenu(stEnabled);
+
+  Tabs.ActivePageIndex := OpenedCard;
+  Caption              := uMainForm.sCaption+' - '+FileName;
+ End;
 
  CheckPaths;
 
- MainForm.Caption := uMainForm.sCaption+' - '+FileName;
  Exit(True);
 End;
 
@@ -837,13 +976,21 @@ Procedure TProject.CloseCard(ID: Integer);
 Begin
  if (CardList.Count <= 1) Then
  Begin
+<<<<<<< HEAD
   Application.MessageBox('Nie możesz zamknąć ostatniej karty!', 'Informacja', MB_IconInformation);
+=======
+  Application.MessageBox(PChar(getLangValue(ls_msg_close_last_card)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
+>>>>>>> origin/master
   Exit;
  End;
 
  if (CardList[ID].isMain) Then
  Begin
+<<<<<<< HEAD
   Application.MessageBox('Nie możesz zamknąć głównej karty!', 'Informacja', MB_IconInformation);
+=======
+  Application.MessageBox(PChar(getLangValue(ls_msg_close_main_card)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
+>>>>>>> origin/master
   Exit;
  End;
 
@@ -989,7 +1136,11 @@ End;
 Begin
  if (not FileExists(CompilerFile)) Then
  Begin
+<<<<<<< HEAD
   Application.MessageBox('Nie odnaleziono pliku kompilatora. Sprawdź ścieżki w ustawieniach projektu.', 'Błąd', MB_IconError);
+=======
+  Application.MessageBox(PChar(getLangValue(ls_msg_compiler_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
+>>>>>>> origin/master
   Exit(False);
  End;
 
@@ -1014,7 +1165,11 @@ Begin
  With MainForm.CompileStatus.Items do
  Begin
   Clear;
+<<<<<<< HEAD
   AddText('['+TimeToStr(Time)+'] - Kompilacja rozpoczęta...');
+=======
+  AddText(Format(getLangValue(ls_compilation_started), [TimeToStr(Time)]));
+>>>>>>> origin/master
 
   Process         := TProcess.Create(nil);
   Process.Options := [poUsePipes, poNoConsole];
@@ -1026,28 +1181,31 @@ Begin
   ' -includepath "'+IncludePath+'"'+
   ' -o "'+sOutputFile+'"';
 
+  // if library
   if (ProjectType = ptLibrary) Then
   Begin
-   CommandLine += ' -module';
+   CommandLine += ' -Clib';
    if (HeaderFile <> '') Then
     CommandLine += ' -h "'+MakeFullPath(HeaderFile)+'"';
   End;
 
+  // generate bytecode?
   if (BytecodeOutput <> '') Then
    CommandLine += ' -s "'+MakeFullPath(BytecodeOutput)+'"';
 
+  // add compile switches
   For Switch in CompilerSwitches Do
    CommandLine += ' -'+getSwitchName(Switch);
   CommandLine += ' '+OtherCompilerSwitches;
 
   { run compiler }
   Process.CommandLine := CommandLine;
-
   Process.Execute;
 
   MemStream := TMemoryStream.Create;
   BytesRead := 0;
 
+  { read output }
   While (Process.Running) Do
   Begin
    MemStream.SetSize(BytesRead + READ_BYTES);
@@ -1067,7 +1225,7 @@ Begin
 
   Process.Free;
 
-  { parse results }
+  { parse compiler output }
   Output := TStringList.Create;
   Output.LoadFromStream(MemStream);
 
@@ -1090,9 +1248,19 @@ Begin
    End;
   End;
 
+  { check output file }
+  if (not FileExists(sOutputFile)) Then
+   AnyError := True; // ;<
+
+  { finishing message }
   if (not AnyError) Then
+<<<<<<< HEAD
    AddText('['+TimeToStr(Time)+'] - Kompilacja zakończona powodzeniem, projekt zbudowany poprawnie ('+OutputFile+') :)') Else
    AddText('['+TimeToStr(Time)+'] - Kompilacja przerwana błędem');
+=======
+   AddText(Format(getLangValue(ls_compilation_finished), [TimeToStr(Time), OutputFile])) Else
+   AddText(Format(getLangValue(ls_compilation_stopped), [TimeToStr(Time)]));
+>>>>>>> origin/master
  End;
 
  For Card in CardList Do
@@ -1108,21 +1276,48 @@ End;
 
 { TProject.Run }
 Procedure TProject.Run;
-Var sOutputFile: String;
+Var sOutputFile, CommandLine: String;
+    Switch                  : TVMSwitch;
+    Tries                   : Integer;
 Begin
  if (ProjectType = ptLibrary) Then // cannot run a library
   Exit;
 
- if (not FileExists(VMFile)) Then // virtual machine found?
+ if (not FileExists(VMFile)) Then // check virtual machine
  Begin
+<<<<<<< HEAD
   Application.MessageBox('Nie odnaleziono pliku maszyny wirtualnej. Sprawdź ścieżki w ustawieniach projektu.', 'Błąd', MB_IconError);
+=======
+  Application.MessageBox(PChar(getLangValue(ls_msg_vm_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
+>>>>>>> origin/master
   Exit;
  End;
 
- if (PathIsRelative(PChar(OutputFile))) Then
-  sOutputFile := ExtractFilePath(FileName)+OutputFile Else
-  sOutputFile := OutputFile;
- ExecuteProcess(VMFile, '"'+sOutputFile+'" -wait', []);
+ { check path }
+ sOutputFile := MakeFullPath(OutputFile);
+
+ { wait for file }
+ Tries := 0;
+ Sleep(25);
+ While (not FileExists(sOutputFile)) Do
+ Begin
+  Inc(Tries);
+  Sleep(50);
+
+  if (Tries > 20) Then
+   Exit;
+ End;
+
+ { generate command line }
+ CommandLine := '"'+sOutputFile+'" ';
+
+ For Switch in VMSwitches Do
+  CommandLine += ' -'+getVMSwitchName(Switch, True);
+
+ CommandLine += ' '+OtherVMSwitches;
+
+ { run program }
+ ExecuteProcess(VMFile, CommandLine, []);
 End;
 
 { TProject.isEverythingSaved }

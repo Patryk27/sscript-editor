@@ -63,7 +63,7 @@ type
     procedure eCompilerFileChange(Sender: TObject);
     procedure eVMFileChange(Sender: TObject);
     procedure FileTimerTimer(Sender: TObject);
-    procedure SettingClick(Sender: TObject);
+    procedure SettingChange(Sender:TObject;Node:TTreeNode);
   private
    Procedure UpdateSampleCode;
    Procedure UpdateExtButton;
@@ -124,16 +124,61 @@ Begin
  // @TODO: this is a bit lame solution, as it checks only for 'is there any program which handles this extension', but doesn't check whether it's our editor or something else
  Begin
   btnExtLink.Tag     := 2;
+<<<<<<< HEAD
   btnExtLink.Caption := 'Usuń powiązanie z rozszerzeniem: ssp';
  End Else
  Begin
   btnExtLink.Tag     := 1;
   btnExtLink.Caption := 'Powiąż edytor z rozszerzeniem: ssp';
+=======
+  btnExtLink.Caption := getLangValue(ls_remove_ext);
+ End Else
+ Begin
+  btnExtLink.Tag     := 1;
+  btnExtLink.Caption := getLangValue(ls_add_ext);
+>>>>>>> origin/master
  End;
 
  Reg.Free;
 End;
 
+<<<<<<< HEAD
+=======
+{ getLanguageName }
+Function getLanguageName(FileName: String): String;
+Begin
+ Result := Copy(FileName, 1, Pos('.', FileName)-1);
+End;
+
+{ FindLanguages }
+Procedure FindLanguages;
+Var M: TSearchRec;
+Begin
+ With EvSettingsForm.cbLanguages do
+ Begin
+  Clear;
+  Items.Add('English');
+ End;
+
+ if (FindFirst('lang\*.lng', faAnyFile, M) <> 0) Then
+  Exit; // no files found
+
+ Repeat
+  EvSettingsForm.cbLanguages.Items.Add(getLanguageName(M.Name)); // add next file
+ Until (FindNext(M) <> 0);
+
+ FindClose(M);
+
+ With EvSettingsForm.cbLanguages do
+ Begin
+  ItemIndex := Items.IndexOf(getLanguageName(getString(sLanguage)));
+
+  if (ItemIndex = -1) Then
+   ItemIndex := 0;
+ End;
+End;
+
+>>>>>>> origin/master
 { TEvSettingsForm.Run }
 Procedure TEvSettingsForm.Run;
 Begin
@@ -146,21 +191,50 @@ Begin
  eCompilerFile.Text := getString(sCompilerFile);
  eVMFile.Text       := getString(sVMFile);
 
+<<<<<<< HEAD
+=======
+ // search for languages
+ FindLanguages;
+
+ // show form
+>>>>>>> origin/master
  CheckTime := 0;
  FileTimer.OnTimer(FileTimer);
  ShowModal;
 
+ // delete backup file
  mDeleteFile(SettingsFileBackup);
 End;
 
 procedure TEvSettingsForm.btnSaveClick(Sender: TObject);
 begin
+<<<<<<< HEAD
  setString(sCompilerFile, eCompilerFile.Text);
  setString(sVMFile, eVMFile.Text);
 
+=======
+ { save new settings }
+ setString(sCompilerFile, eCompilerFile.Text);
+ setString(sVMFile, eVMFile.Text);
+ setBoolean(sScrollPastEOL, cScrollPastEOL.Checked);
+ setBoolean(sOpenRecentProject, cOpenRecentProject.Checked);
+ setBoolean(sAddBrackets, cAddBrackets.Checked);
+
+ { has the language changed? }
+ if (cbLanguages.ItemIndex = 0) Then // `English` (default) language
+  Tmp := '' { `English` language doesn't have its corresponding language file } Else
+  Tmp := cbLanguages.Items[cbLanguages.ItemIndex]+'.lng';
+
+ if (Tmp <> getString(sLanguage)) Then
+  Application.MessageBox(PChar(getLangValue(ls_msg_env_restart)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
+ setString(sLanguage, Tmp);
+
+ { refresh controls }
+>>>>>>> origin/master
  if (uMainForm.getProjectPnt <> nil) Then // is any project opened?
   TProject(uMainForm.getProjectPnt).RefreshControls;
 
+ { close form }
  Close;
 end;
 
@@ -168,7 +242,7 @@ procedure TEvSettingsForm.btnFontClick(Sender: TObject);
 begin
  FontDialog.Font := FetchFont(getFont(sEditorFont));
 
- // run font dialog
+ { run font dialog }
  if (FontDialog.Execute) Then
   mSettings.setFont(sEditorFont, CreateFont(FontDialog.Font));
 
@@ -249,6 +323,7 @@ procedure TEvSettingsForm.FileTimerTimer(Sender: TObject);
 begin
  Dec(CheckTime);
 
+ { update file status }
  if (CheckTime < 0) Then
  Begin
   if (not FileExists(eCompilerFile.Text)) Then
@@ -258,6 +333,22 @@ begin
   if (not FileExists(eVMFile.Text)) Then
    eVMFile.Color := clRed Else
    eVMFile.Color := clWhite;
+ End;
+end;
+
+procedure TEvSettingsForm.SettingChange(Sender:TObject;Node:TTreeNode);
+Var Page: Integer;
+begin
+ With Setting do
+ Begin
+  if (Node = nil) Then
+   Exit;
+
+  if (Node.Count = 0) Then
+   Page := Node.ImageIndex Else
+   Page := Node.Items[0].ImageIndex;
+
+  Pages.PageIndex := Page;
  End;
 end;
 
@@ -287,13 +378,13 @@ begin
     Reg.WriteString('', Ext+'file');
     Reg.CloseKey;
     Reg.OpenKey(Ext+'file', True);
-    Reg.WriteString('', 'Program MLang');
+    Reg.WriteString('', 'SScript Project');
     Reg.CloseKey;
     Reg.OpenKey(Ext+'file\DefaultIcon', True);
     Reg.WriteString('', Application.ExeName+',0');
     Reg.CloseKey;
     Reg.OpenKey(Ext+'file\shell\open', True);
-    Reg.WriteString('', '&Otwórz w MLang Editor');
+    Reg.WriteString('', '&SScript Editor');
     Reg.CloseKey;
     Reg.OpenKey(Ext+'file\shell\open\command', True);
     Reg.WriteString('', Application.ExeName+' "%1"');
@@ -332,22 +423,6 @@ begin
  if (ColorDialog.Execute) Then
   mSettings.setColor(sEditorForeground, ColorDialog.Color);
  UpdateSampleCode;
-end;
-
-procedure TEvSettingsForm.SettingClick(Sender: TObject);
-Var Page: Integer;
-begin
- With Setting do
- Begin
-  if (Selected = nil) Then
-   Exit;
-
-  if (Selected.Count = 0) Then
-   Page := Selected.ImageIndex Else
-   Page := Selected.Items[0].ImageIndex;
-
-  Pages.PageIndex := Page;
- End;
 end;
 
 end.

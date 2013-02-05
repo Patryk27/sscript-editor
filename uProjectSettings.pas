@@ -14,6 +14,15 @@ type
 
   TProjectSettingsForm = class(TForm)
     Bevel1: TBevel;
+<<<<<<< HEAD
+=======
+    btnGetPathsFromEV:TButton;
+    _sconst:TCheckBox;
+    _iconst:TCheckBox;
+    c_time:TCheckBox;
+    c_wait:TCheckBox;
+    eVMSwitches:TEdit;
+>>>>>>> origin/master
     eHeaderFile: TEdit;
     eBytecodeOutput: TEdit;
     Label7: TLabel;
@@ -28,6 +37,8 @@ type
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
+    Label9:TLabel;
+    p_4:TPage;
     p_3: TPage;
     VMFile_Select: TBitBtn;
     _O1: TCheckBox;
@@ -54,7 +65,7 @@ type
     procedure eCompilerFileChange(Sender: TObject);
     procedure eVMFileChange(Sender: TObject);
     procedure FileTimerTimer(Sender: TObject);
-    procedure SettingClick(Sender: TObject);
+    procedure SettingChange(Sender:TObject;Node:TTreeNode);
     procedure VMFile_SelectClick(Sender: TObject);
   private
     { private declarations }
@@ -75,7 +86,8 @@ Var CheckTime: Integer = 0;
 
 { TProjectSettingsForm.Run }
 Procedure TProjectSettingsForm.Run;
-Var Switch: TCompilerSwitch;
+Var Switch  : TCompilerSwitch;
+    VMSwitch: TVMSwitch;
 Begin
  With TProject(getProjectPnt) do
  Begin
@@ -92,28 +104,18 @@ Begin
 
   For Switch in TCompilerSwitches Do
    TCheckBox(FindComponent(getSwitchName(Switch, False))).Checked := Switch in CompilerSwitches;
+
+  { read vm switches }
+  eVMSwitches.Text := OtherVMSwitches;
+
+  For VMSwitch in TVMSwitches Do
+   TCheckBox(FindComponent(getVMSwitchName(VMSwitch, False))).Checked := VMSwitch in VMSwitches;
  End;
 
  CheckTime := 0;
  FileTimer.OnTimer(FileTimer);
  ShowModal;
 End;
-
-procedure TProjectSettingsForm.SettingClick(Sender: TObject);
-Var Page: Integer;
-begin
- With Setting do
- Begin
-  if (Selected = nil) Then
-   Exit;
-
-  if (Selected.Count = 0) Then
-   Page := Selected.ImageIndex Else
-   Page := Selected.Items[0].ImageIndex;
-
-  Pages.PageIndex := Page;
- End;
-end;
 
 procedure TProjectSettingsForm.VMFile_SelectClick(Sender: TObject);
 begin
@@ -122,7 +124,8 @@ begin
 end;
 
 procedure TProjectSettingsForm.btnSaveClick(Sender: TObject);
-Var Switch: TCompilerSwitch;
+Var Switch  : TCompilerSwitch;
+    VMSwitch: TVMSwitch;
 begin
  With TProject(getProjectPnt) do
  Begin
@@ -141,6 +144,14 @@ begin
   For Switch in TCompilerSwitches Do
    if (TCheckBox(FindComponent(getSwitchName(Switch, False))).Checked) Then
     Include(CompilerSwitches, Switch);
+
+  { save vm switches }
+  OtherVMSwitches := eVMSwitches.Text;
+
+  VMSwitches := [];
+  For VMSwitch in TVMSwitches Do
+   if (TCheckBox(FindComponent(getVMSwitchName(VMSwitch, False))).Checked) Then
+    Include(VMSwitches, VMSwitch);
 
   Saved := False;
 
@@ -181,6 +192,22 @@ begin
   if (not FileExists(eVMFile.Text)) Then
    eVMFile.Color := clRed Else
    eVMFile.Color := clWhite;
+ End;
+end;
+
+procedure TProjectSettingsForm.SettingChange(Sender:TObject;Node:TTreeNode);
+Var Page: Integer;
+begin
+ With Setting do
+ Begin
+  if (Node = nil) Then
+   Exit;
+
+  if (Node.Count = 0) Then
+   Page := Node.ImageIndex Else
+   Page := Node.Items[0].ImageIndex;
+
+  Pages.PageIndex := Page;
  End;
 end;
 

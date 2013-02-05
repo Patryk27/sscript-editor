@@ -308,7 +308,7 @@ begin
    Exit;
   End;
 
-  Inc(I); // do not open project's file as a module file
+  Inc(I); // do not open project file as a module file
  End;
 
  // no project opened/created so far?

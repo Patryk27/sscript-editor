@@ -3,8 +3,8 @@
   <config>
     <version>0.2</version>
     <project_type>1</project_type>
-    <compiler>..\compiler\compiler.exe</compiler>
-    <vm>..\compiler\vm.exe</vm>
+    <compiler>compiler\compiler.exe</compiler>
+    <vm>compiler\vm.exe</vm>
     <card_count>1</card_count>
     <opened_card>0</opened_card>
     <output_file>library.ssm</output_file>
@@ -20,6 +20,8 @@
     <_Op>0</_Op>
     <_O1>1</_O1>
     <_dbg>0</_dbg>
+    <_iconst>0</_iconst>
+    <_sconst>0</_sconst>
   </compiler>
   <vm>
     <switches></switches>

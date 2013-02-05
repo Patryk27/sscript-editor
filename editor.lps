@@ -25,7 +25,7 @@
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
         <TopLine Value="286"/>
-        <CursorPos X="39" Y="303"/>
+        <CursorPos X="63" Y="308"/>
         <UsageCount Value="208"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -442,7 +442,7 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="29" HistoryIndex="28">
       <Position1>
         <Filename Value="mProject.pas"/>
         <Caret Line="408" Column="127" TopLine="399"/>
@@ -559,10 +559,6 @@
         <Filename Value="uMainForm.pas"/>
         <Caret Line="122" Column="46" TopLine="111"/>
       </Position29>
-      <Position30>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="117" Column="51" TopLine="122"/>
-      </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>

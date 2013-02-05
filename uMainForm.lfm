@@ -1069,6 +1069,14 @@ object MainForm: TMainForm
       Caption = 'Save selected to the clipboard'
       OnClick = opSaveSelectedMessageClick
     end
+    object opSaveMessagesToClipboard: TMenuItem
+      Caption = 'Save to the clipboard'
+      OnClick = opSaveMessagesToClipboardClick
+    end
+    object opSaveSelectedMessage: TMenuItem
+      Caption = 'Save selected to the clipboard'
+      OnClick = opSaveSelectedMessageClick
+    end
   end
   object MessagesImageList: TImageList
     left = 24

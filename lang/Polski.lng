@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [MainForm_CompileStatus]
 0=
 
@@ -387,4 +388,395 @@ new_lib=nowa biblioteka
 
 filter_project=Projekt SScript Editor (*.ssp)|*.ssp
 filter_module=Kod SScript (*.ss)|*.ss
+=======
+[MainForm_CompileStatus]
+0=
+
+[MainForm_menuFile]
+Caption=Plik
+
+[MainForm_oNewModule]
+Caption=Nowy moduł
+
+[MainForm_MenuItem4]
+Caption=-
+
+[MainForm_oOpen]
+Caption=Otwórz
+
+[MainForm_oRecentlyOpened]
+Caption=Ostatnio otwierane
+
+[MainForm_MenuItem6]
+Caption=-
+
+[MainForm_oSave]
+Caption=Zapisz
+
+[MainForm_oSaveAs]
+Caption=Zapisz jako
+
+[MainForm_oSaveAll]
+Caption=Zapisz wszystko
+
+[MainForm_MenuItem2]
+Caption=-
+
+[MainForm_oCloseCurrentCard]
+Caption=Zamknij tę kartę
+
+[MainForm_oCloseProject]
+Caption=Zamknij projekt
+
+[MainForm_oExit]
+Caption=Zakończ
+
+[MainForm_menuEdit]
+Caption=Edycja
+
+[MainForm_oUndo]
+Caption=Cofnij
+
+[MainForm_oRedo]
+Caption=Powtórz
+
+[MainForm_MenuItem5]
+Caption=-
+
+[MainForm_oCut]
+Caption=Wytnij
+
+[MainForm_oCopy]
+Caption=Kopiuj
+
+[MainForm_oPaste]
+Caption=Wklej
+
+[MainForm_menuProject]
+Caption=Projekt
+
+[MainForm_oNewProject]
+Caption=Nowy
+
+[MainForm_oNewProj_App]
+Caption=Aplikacja
+
+[MainForm_oNewProj_Library]
+Caption=Biblioteka
+
+[MainForm_oOpenProject]
+Caption=Otwórz projekt
+
+[MainForm_MenuItem3]
+Caption=-
+
+[MainForm_oProjectSettings]
+Caption=Ustawienia projektu
+
+[MainForm_menuCompile]
+Caption=Uruchom
+
+[MainForm_oCompileAndRun]
+Caption=Kompiluj i uruchom
+
+[MainForm_oBuild]
+Caption=Buduj
+
+[MainForm_MenuItem7]
+Caption=Środowisko
+
+[MainForm_oEvSettings]
+Caption=Ustawienia
+
+[MainForm_MenuItem1]
+Caption=Pomoc
+
+[MainForm_oAbout]
+Caption=O programie
+
+[MainForm_opCloseCard]
+Caption=Zamknij kartę
+
+[MainForm_opCloseAll]
+Caption=Zamknij wszystkie karty oprócz tej
+
+[MainForm_opSaveMessages]
+Caption=Zapisz do pliku
+
+[MainForm_opSaveMessagesToClipboard]
+Caption=Zapisz do schowka
+
+[MainForm_opSaveSelectedMessage]
+Caption=Zapisz wybrany komunikat do schowka
+
+[MainForm_opCut]
+Caption=Wytnij
+
+[MainForm_opCopy]
+Caption=Kopiuj
+
+[MainForm_opPaste]
+Caption=Wklej
+
+[ProjectSettingsForm]
+Caption=Ustawienia projektu
+
+[ProjectSettingsForm_Setting]
+0=Projekt
+1=Ścieżki
+2=Kompilator
+3=Kod
+4=Ścieżki
+5=Maszyna wirtualna
+6=Parametry
+
+[ProjectSettingsForm_btnSave]
+Caption=Zapisz
+
+[ProjectSettingsForm_btnCancel]
+Caption=Anuluj
+
+[ProjectSettingsForm_Label1]
+Caption=Kompilator:
+
+[ProjectSettingsForm_eCompilerFile]
+Text=eCompilerFile
+
+[ProjectSettingsForm_Label2]
+Caption=Maszyna wirtualna:
+
+[ProjectSettingsForm_eVMFile]
+Text=eVMFile
+
+[ProjectSettingsForm_btnGetPathsFromEV]
+Caption=Pobierz ścieżki z danych środowiska
+
+[ProjectSettingsForm__ninit]
+Caption=Nie dodawaj kodu startowego do programu (-ninit)
+
+[ProjectSettingsForm_GroupBox1]
+Caption=Poszczególne optymalizacje
+
+[ProjectSettingsForm__Or]
+Caption=Trzymaj niektóre zmienne w rejestrach (-Or)
+
+[ProjectSettingsForm__Of]
+Caption=Optymalizuj wyrażenia stałe (-Of)
+
+[ProjectSettingsForm__Op]
+Caption=Optymalizuj wygenerowany bajtkod (-Op)
+
+[ProjectSettingsForm__iconst]
+Caption=Wstawiaj stałe bezpośrednio podzas budowania wyrażenia (-iconst)
+
+[ProjectSettingsForm__sconst]
+Caption=Włącz specjalne stałe, takie jak `__self`, `__line`... (-sconst)
+
+[ProjectSettingsForm_Label3]
+Caption=Inne przełączniki:
+
+[ProjectSettingsForm_eCompilerSwitches]
+Text=eCompilerSwitches
+
+[ProjectSettingsForm__dbg]
+Caption=Dodaj sekcję 'debug'  (-dbg)
+
+[ProjectSettingsForm_GroupBox2]
+Caption=Optymalizacje
+
+[ProjectSettingsForm__O1]
+Caption=Poziom 1 (-O1)
+
+[ProjectSettingsForm_Label4]
+Caption=Ścieżki do modułów (`;` jest separatorem):
+
+[ProjectSettingsForm_eIncludePath]
+Text=eIncludePath
+
+[ProjectSettingsForm_Label5]
+Caption=$file -> ścieżka do aktualnego pliku; $main -> ścieżka do pliku głównego; $compiler -> ścieżka do kompilatora
+
+[ProjectSettingsForm_Label6]
+Caption=Plik wyjściowy:
+
+[ProjectSettingsForm_eOutputFile]
+Text=eOutputFile
+
+[ProjectSettingsForm_Label7]
+Caption=Plik z wyjściowym bajtkodem (zostaw puste, jeżeli pominąć):
+
+[ProjectSettingsForm_eBytecodeOutput]
+Text=eBytecodeOutput
+
+[ProjectSettingsForm_Label8]
+Caption=Wygenerowany plik nagłówkowy%newline%(tylko dla bibliotek; możesz zostawić puste, jeżeli pominąć):
+
+[ProjectSettingsForm_eHeaderFile]
+Text=eHeaderFile
+
+[ProjectSettingsForm_c_wait]
+Caption=Czekaj na `enter`, gdy program skończy działanie (-wait)
+
+[ProjectSettingsForm_c_time]
+Caption=Wyświetl czas działania programu (-time)
+
+[ProjectSettingsForm_Label9]
+Caption=Inne przełączniki:
+
+[AboutForm]
+Caption=O programie
+
+[EvSettingsForm]
+Caption=Ustawienia środowiska
+
+[EvSettingsForm_Setting]
+0=Edytor kodu
+1=Kolorowanie składni
+2=Środowisko
+3=Ścieżki
+4=Powiązania
+5=Język
+6=Inne
+
+[EvSettingsForm_btnSave]
+Caption=Zapisz
+
+[EvSettingsForm_btnCancel]
+Caption=Anuluj
+
+[EvSettingsForm_btnFont]
+Caption=Czcionka
+
+[EvSettingsForm_btn_cIdentifiers]
+Caption=Identyfikatory
+
+[EvSettingsForm_btn_cKeywords]
+Caption=Słowa kluczowe
+
+[EvSettingsForm_btn_cNumbers]
+Caption=Liczby
+
+[EvSettingsForm_btn_cStrings]
+Caption=Ciągi znaków
+
+[EvSettingsForm_btn_cComments]
+Caption=Komentarze
+
+[EvSettingsForm_btn_cMacros]
+Caption=Makra
+
+[EvSettingsForm_btn_cPrimaryTypes]
+Caption=Typy podstawowe
+
+[EvSettingsForm_btn_cOther]
+Caption=Inne
+
+[EvSettingsForm_btnFGColor]
+Caption=Kolor tekstu
+
+[EvSettingsForm_btnBGColor]
+Caption=Kolor tła
+
+[EvSettingsForm_Label2]
+Caption=Maszyna wirtualna:
+
+[EvSettingsForm_eVMFile]
+Text=eVMFile
+
+[EvSettingsForm_eCompilerFile]
+Text=eCompilerFile
+
+[EvSettingsForm_Label1]
+Caption=Kompilator:
+
+[EvSettingsForm_btnExtLink]
+Caption=btnExtLink
+
+[EvSettingsForm_cScrollPastEOL]
+Caption=Umożliwiaj kursorowi wychodzenie poza linię
+
+[EvSettingsForm_cOpenRecentProject]
+Caption=Otwieraj ostatnio otworzony projekt przy uruchamianiu środowiska
+
+[EvSettingsForm_cAddBrackets]
+Caption=Automatycznie dodawaj nawiasy zamykające
+
+[EvSettingsForm_Label3]
+Caption=Język:
+
+[SyntaxHighlighterChange]
+Caption=Kolorowanie składni
+
+[SyntaxHighlighterChange_cBold]
+Caption=Pogrubienie
+
+[SyntaxHighlighterChange_cItalic]
+Caption=Pochylenie
+
+[SyntaxHighlighterChange_cUnderline]
+Caption=Podkreślenie
+
+[SyntaxHighlighterChange_btnSave]
+Caption=Zapisz
+
+[SyntaxHighlighterChange_btnCancel]
+Caption=Anuluj
+
+[SyntaxHighlighterChange_btnFGColor]
+Caption=Kolor tekstu
+
+[SyntaxHighlighterChange_btnBGColor]
+Caption=Kolor tła
+
+[SyntaxHighlighterChange_lTest]
+Caption=Test
+
+[SyntaxHighlighterChange_cBGColor]
+Caption=Posiada kolor tła
+
+[Strings]
+title_card_close=Zamykanie karty
+
+msg_env_restart=Aby zobaczyć zmiany, musisz uruchomić ponownie środowisko.
+msg_card_close=Zamierzasz zamknąć niezapisaną kartę.%newline%Zapisać?
+msg_file_not_found=Nie można odnaleźć pliku: %s
+msg_module_saving=Aby projekt został zapisany, każdy moduł musi mieć swoją nazwę oraz odpowiadający mu plik na dysku.%newline%Otworzyć dialog zapisywania ponownie?%newline%(wybierając 'Nie' przerwiesz zapisywanie całego projektu)
+msg_compiler_or_vm_not_found=Plik kompilatora lub maszyny wirtualnej nie został odnaleziony.
+msg_close_last_card=Nie możesz zamknąć ostatniej karty!
+msg_close_main_card=Nie możesz zamknąć głównej karty!
+msg_compiler_not_found=Nie odnaleziono pliku kompilatora!
+msg_vm_not_found=Nie odnaleziono pliku maszyny wirtualnej!
+msg_unsaved_files=Niektóre z plików są niezapisane.%newline%Zapisać?
+msg_unsaved_project=Twój projekt nie jest zapisany; możesz utracić dane.%newline%Zapisać?
+msg_project_open_failed=Nie można było otworzyć pliku projektu.
+msg_project_open_failed_ex=Nie można było otworzyć pliku projektu: %s
+msg_module_open_failed=Nie można było otworzyć pliku modułu.
+msg_create_new_project=Stworzyć nowy projekt (aplikację)?
+msg_version_conflict_older=Ten projekt został utworzony za pomocą starszego edytora niż Twój; być może niektóre ustawienia w projekcie będziesz musiał poprawić.
+msg_version_conflict_newer=Ten projekt został utworzony za pomocą nowszego edytora niż Twój - nie wszystko może działać poprawnie.
+
+msg_info=Informacja
+msg_warn=Ostrzeżenie
+msg_error=Błąd
+
+remove_ext=Usuń powiązanie z rozszerzeniem *.ssp
+add_ext=Powiąż edytor z rozszerzeniem *.ssp
+
+file_saving=Zapisywanie pliku
+file_opening=Otwieranie pliku
+project_saving=Zapisywanie projektu
+project_opening=Otwieranie projektu
+module_saving=Zapisywanie modułu
+module_opening=Otwieranie modułu
+
+compilation_started=[ %s ] - Kompilacja rozpoczęta
+compilation_finished=[ %s ] - Kompilacja zakończona powodzeniem; projekt zbudowany poprawnie (%s) :)
+compilation_stopped=[ %s ] - Kompilacja przerwana błędem
+
+new_app=nowa aplikacja
+new_lib=nowa biblioteka
+
+filter_project=Projekt SScript Editor (*.ssp)|*.ssp
+filter_module=Kod SScript (*.ss)|*.ss
+>>>>>>> origin/master
 filter_any_file=Wszystkie pliki (*.*)|*.*

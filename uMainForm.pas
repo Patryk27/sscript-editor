@@ -1,5 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 unit uMainForm;
 
 {$mode objfpc}{$H+}
@@ -574,8 +573,6 @@ end;
 end.
 
 =======
-=======
->>>>>>> origin/master
 unit uMainForm;
 
 {$mode objfpc}{$H+}
@@ -1238,7 +1235,4 @@ end;
 
 end.
 
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
 >>>>>>> origin/master

@@ -1,5 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   <config>
@@ -31,8 +30,6 @@
   </card_0>
 </project>
 =======
-=======
->>>>>>> origin/master
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   <config>
@@ -71,7 +68,4 @@
     <is_main>1</is_main>
   </card_0>
 </project>
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
 >>>>>>> origin/master

@@ -125,19 +125,11 @@ Begin
  Begin
   btnExtLink.Tag     := 2;
 <<<<<<< HEAD
-<<<<<<< HEAD
   btnExtLink.Caption := 'Usuń powiązanie z rozszerzeniem: ssp';
  End Else
  Begin
   btnExtLink.Tag     := 1;
   btnExtLink.Caption := 'Powiąż edytor z rozszerzeniem: ssp';
-=======
-  btnExtLink.Caption := getLangValue(ls_remove_ext);
- End Else
- Begin
-  btnExtLink.Tag     := 1;
-  btnExtLink.Caption := getLangValue(ls_add_ext);
->>>>>>> origin/master
 =======
   btnExtLink.Caption := getLangValue(ls_remove_ext);
  End Else
@@ -217,13 +209,10 @@ End;
 procedure TEvSettingsForm.btnSaveClick(Sender: TObject);
 begin
 <<<<<<< HEAD
-<<<<<<< HEAD
  setString(sCompilerFile, eCompilerFile.Text);
  setString(sVMFile, eVMFile.Text);
 
 =======
-=======
->>>>>>> origin/master
  { save new settings }
  setString(sCompilerFile, eCompilerFile.Text);
  setString(sVMFile, eVMFile.Text);
@@ -241,9 +230,6 @@ begin
  setString(sLanguage, Tmp);
 
  { refresh controls }
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
 >>>>>>> origin/master
  if (uMainForm.getProjectPnt <> nil) Then // is any project opened?
   TProject(uMainForm.getProjectPnt).RefreshControls;

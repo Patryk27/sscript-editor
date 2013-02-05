@@ -142,19 +142,6 @@ End;
 
 { getVMSwitchName }
 Function getVMSwitchName(const S: TVMSwitch; DeleteFirstChars: Boolean=True): String;
-<<<<<<< HEAD
-=======
-Begin
- Result := GetEnumName(TypeInfo(TVMSwitch), Integer(S));
-
- if (DeleteFirstChars) Then
-  Delete(Result, 1, 2);
-End;
-
-{ TCard.Editor_OnKeyPress }
-Procedure TCard.Editor_OnKeyPress(Sender: TObject; var Key: Char);
-Var Str: String = '';
->>>>>>> origin/master
 Begin
  Result := GetEnumName(TypeInfo(TVMSwitch), Integer(S));
 
@@ -233,11 +220,7 @@ Begin
   Parent      := Tab;
   Align       := alClient;
 <<<<<<< HEAD
-<<<<<<< HEAD
  // PopupMenu := MainForm.Editor_popup;
-=======
-  PopupMenu   := MainForm.SynEditPopup;
->>>>>>> origin/master
 =======
   PopupMenu   := MainForm.SynEditPopup;
 >>>>>>> origin/master
@@ -279,13 +262,8 @@ Begin
   Begin
    Try
 <<<<<<< HEAD
-<<<<<<< HEAD
     Title    := 'Zapis modułu';
     Filter   := uMainForm.SaveModuleFilter;
-=======
-    Title    := getLangValue(ls_module_saving);
-    Filter   := getLangValue(ls_filter_module);
->>>>>>> origin/master
 =======
     Title    := getLangValue(ls_module_saving);
     Filter   := getLangValue(ls_filter_module);
@@ -396,12 +374,7 @@ Begin
   Begin
    Card.Free;
 <<<<<<< HEAD
-<<<<<<< HEAD
    Application.MessageBox(PChar('Następujący plik nie mógł zostać odnaleziony: '+cFileName), 'Błąd', MB_IconError);
-=======
-   Text := Format(getLangValue(ls_msg_file_not_found), [cFileName]);
-   Application.MessageBox(PChar(Text), PChar(getLangValue(ls_msg_error)), MB_IconError);
->>>>>>> origin/master
 =======
    Text := Format(getLangValue(ls_msg_file_not_found), [cFileName]);
    Application.MessageBox(PChar(Text), PChar(getLangValue(ls_msg_error)), MB_IconError);
@@ -457,11 +430,7 @@ Begin
 
  if (Fail) Then
 <<<<<<< HEAD
-<<<<<<< HEAD
   Application.MessageBox('Plik kompilatora lub maszyny wirtualnej nie został odnaleziony; sprawdź czy ścieżki w ustawieniach projektu są poprawne.', 'Ostrzeżenie', MB_IconWarning);
-=======
-  Application.MessageBox(PChar(getLangValue(ls_msg_compiler_or_vm_not_found)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
->>>>>>> origin/master
 =======
   Application.MessageBox(PChar(getLangValue(ls_msg_compiler_or_vm_not_found)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
 >>>>>>> origin/master
@@ -556,11 +525,7 @@ Begin
  Saved := False;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
  CompilerSwitches      := [_O1]; // `-O1` enabled by default
-=======
- CompilerSwitches      := [_O1, _SCONST]; // `-O1` is enabled by default
->>>>>>> origin/master
 =======
  CompilerSwitches      := [_O1, _SCONST]; // `-O1` is enabled by default
 >>>>>>> origin/master
@@ -668,13 +633,8 @@ Begin
   Begin
    Try
 <<<<<<< HEAD
-<<<<<<< HEAD
     Title  := 'Zapis projektu';
     Filter := SaveProjectFilter;
-=======
-    Title  := getLangValue(ls_project_saving);
-    Filter := getLangValue(ls_filter_project);
->>>>>>> origin/master
 =======
     Title  := getLangValue(ls_project_saving);
     Filter := getLangValue(ls_filter_project);
@@ -764,11 +724,7 @@ Begin
    Begin
     if (not Save) Then
 <<<<<<< HEAD
-<<<<<<< HEAD
      Case MessageDlg('Zapis modułu', 'Aby projekt został zapisany, każdy moduł musi mieć swoją nazwę oraz odpowiadający mu plik na dysku.'#13#10'Otworzyć dialog zapisywania ponownie?'#13#10'(wybierając ''Nie'' przerwiesz zapisywanie całego projektu)', mtWarning, mbYesNo, 0) of
-=======
-     Case MessageDlg(getLangValue(ls_module_saving), getLangValue(ls_msg_module_saving), mtWarning, mbYesNo, 0) of
->>>>>>> origin/master
 =======
      Case MessageDlg(getLangValue(ls_module_saving), getLangValue(ls_msg_module_saving), mtWarning, mbYesNo, 0) of
 >>>>>>> origin/master
@@ -1021,11 +977,7 @@ Begin
  if (CardList.Count <= 1) Then
  Begin
 <<<<<<< HEAD
-<<<<<<< HEAD
   Application.MessageBox('Nie możesz zamknąć ostatniej karty!', 'Informacja', MB_IconInformation);
-=======
-  Application.MessageBox(PChar(getLangValue(ls_msg_close_last_card)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
->>>>>>> origin/master
 =======
   Application.MessageBox(PChar(getLangValue(ls_msg_close_last_card)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
 >>>>>>> origin/master
@@ -1035,11 +987,7 @@ Begin
  if (CardList[ID].isMain) Then
  Begin
 <<<<<<< HEAD
-<<<<<<< HEAD
   Application.MessageBox('Nie możesz zamknąć głównej karty!', 'Informacja', MB_IconInformation);
-=======
-  Application.MessageBox(PChar(getLangValue(ls_msg_close_main_card)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
->>>>>>> origin/master
 =======
   Application.MessageBox(PChar(getLangValue(ls_msg_close_main_card)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
 >>>>>>> origin/master
@@ -1189,11 +1137,7 @@ Begin
  if (not FileExists(CompilerFile)) Then
  Begin
 <<<<<<< HEAD
-<<<<<<< HEAD
   Application.MessageBox('Nie odnaleziono pliku kompilatora. Sprawdź ścieżki w ustawieniach projektu.', 'Błąd', MB_IconError);
-=======
-  Application.MessageBox(PChar(getLangValue(ls_msg_compiler_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
->>>>>>> origin/master
 =======
   Application.MessageBox(PChar(getLangValue(ls_msg_compiler_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
 >>>>>>> origin/master
@@ -1222,11 +1166,7 @@ Begin
  Begin
   Clear;
 <<<<<<< HEAD
-<<<<<<< HEAD
   AddText('['+TimeToStr(Time)+'] - Kompilacja rozpoczęta...');
-=======
-  AddText(Format(getLangValue(ls_compilation_started), [TimeToStr(Time)]));
->>>>>>> origin/master
 =======
   AddText(Format(getLangValue(ls_compilation_started), [TimeToStr(Time)]));
 >>>>>>> origin/master
@@ -1315,13 +1255,8 @@ Begin
   { finishing message }
   if (not AnyError) Then
 <<<<<<< HEAD
-<<<<<<< HEAD
    AddText('['+TimeToStr(Time)+'] - Kompilacja zakończona powodzeniem, projekt zbudowany poprawnie ('+OutputFile+') :)') Else
    AddText('['+TimeToStr(Time)+'] - Kompilacja przerwana błędem');
-=======
-   AddText(Format(getLangValue(ls_compilation_finished), [TimeToStr(Time), OutputFile])) Else
-   AddText(Format(getLangValue(ls_compilation_stopped), [TimeToStr(Time)]));
->>>>>>> origin/master
 =======
    AddText(Format(getLangValue(ls_compilation_finished), [TimeToStr(Time), OutputFile])) Else
    AddText(Format(getLangValue(ls_compilation_stopped), [TimeToStr(Time)]));
@@ -1351,11 +1286,7 @@ Begin
  if (not FileExists(VMFile)) Then // check virtual machine
  Begin
 <<<<<<< HEAD
-<<<<<<< HEAD
   Application.MessageBox('Nie odnaleziono pliku maszyny wirtualnej. Sprawdź ścieżki w ustawieniach projektu.', 'Błąd', MB_IconError);
-=======
-  Application.MessageBox(PChar(getLangValue(ls_msg_vm_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
->>>>>>> origin/master
 =======
   Application.MessageBox(PChar(getLangValue(ls_msg_vm_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
 >>>>>>> origin/master

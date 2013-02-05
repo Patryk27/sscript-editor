@@ -1,14 +1,8 @@
 object ProjectSettingsForm: TProjectSettingsForm
 <<<<<<< HEAD
-<<<<<<< HEAD
   Left = 468
   Height = 437
   Top = 130
-=======
-  Left = 317
-  Height = 437
-  Top = 156
->>>>>>> origin/master
 =======
   Left = 317
   Height = 437
@@ -35,7 +29,6 @@ object ProjectSettingsForm: TProjectSettingsForm
     Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     Items.Data = {
 <<<<<<< HEAD
-<<<<<<< HEAD
       F9FFFFFF020002000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF010000000000
       0000010E0000004F70636A652070726F6A656B747500000000FFFFFFFFFFFFFF
       FFFFFFFFFF00000000000000000009000000C59A636965C5BC6B69FFFFFFFFFF
@@ -44,8 +37,6 @@ object ProjectSettingsForm: TProjectSettingsForm
       0000030000004B6F6402000000FFFFFFFFFFFFFFFFFFFFFFFF00000000000000
       000009000000C59A636965C5BC6B69
 =======
-=======
->>>>>>> origin/master
       F9FFFFFF020003000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF010000000000
       0000010700000050726F6A65637400000000FFFFFFFFFFFFFFFFFFFFFFFF0000
       00000000000000050000005061746873FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
@@ -55,9 +46,6 @@ object ProjectSettingsForm: TProjectSettingsForm
       FFFFFFFFFFFFFFFF0100000000000000010F0000005669727475616C206D6163
       68696E6503000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000A0000
       00506172616D6574657273
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
 >>>>>>> origin/master
     }
   end
@@ -91,11 +79,7 @@ object ProjectSettingsForm: TProjectSettingsForm
     Top = 0
     Width = 387
 <<<<<<< HEAD
-<<<<<<< HEAD
     PageIndex = 0
-=======
-    PageIndex = 1
->>>>>>> origin/master
 =======
     PageIndex = 1
 >>>>>>> origin/master

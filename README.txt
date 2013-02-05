@@ -1,4 +1,4 @@
-This is only the editor; you will most likely need also the compiler and virtual machine.
+This is only the SScript Editor; you will most likely need also the compiler and virtual machine.
 You can download them from:
 https://github.com/Piterolex/SScript-Compiler/
 https://github.com/Piterolex/SScript-VM/

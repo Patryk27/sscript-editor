@@ -22,9 +22,6 @@ type
     c_time:TCheckBox;
     c_wait:TCheckBox;
     eVMSwitches:TEdit;
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
 >>>>>>> origin/master
     eHeaderFile: TEdit;
     eBytecodeOutput: TEdit;
@@ -200,24 +197,6 @@ end;
 
 procedure TProjectSettingsForm.SettingChange(Sender:TObject;Node:TTreeNode);
 Var Page: Integer;
-<<<<<<< HEAD
-=======
-begin
- With Setting do
- Begin
-  if (Node = nil) Then
-   Exit;
-
-  if (Node.Count = 0) Then
-   Page := Node.ImageIndex Else
-   Page := Node.Items[0].ImageIndex;
-
-  Pages.PageIndex := Page;
- End;
-end;
-
-procedure TProjectSettingsForm.btnCancelClick(Sender: TObject);
->>>>>>> origin/master
 begin
  With Setting do
  Begin

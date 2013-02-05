@@ -1,5 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 <?xml version="1.0"?>
 <CONFIG>
   <ProjectSession>
@@ -484,8 +483,6 @@
   </Debugging>
 </CONFIG>
 =======
-=======
->>>>>>> origin/master
 <?xml version="1.0"?>
 <CONFIG>
   <ProjectSession>
@@ -1066,7 +1063,4 @@
     </Watches>
   </Debugging>
 </CONFIG>
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
 >>>>>>> origin/master

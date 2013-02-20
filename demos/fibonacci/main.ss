@@ -1,5 +1,7 @@
 @("stdlib\\stdio.ss")
 
+use std;
+
 // I used 'float' in code, because it is more accurate than normal 'int'
 function<float> fib(int n)
 {

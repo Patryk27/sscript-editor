@@ -15,8 +15,7 @@ type
   TProjectSettingsForm = class(TForm)
     Bevel1: TBevel;
     btnGetPathsFromEV:TButton;
-    _sconst:TCheckBox;
-    _iconst:TCheckBox;
+    _Cconst:TCheckBox;
     c_time:TCheckBox;
     c_wait:TCheckBox;
     eVMSwitches:TEdit;
@@ -40,12 +39,11 @@ type
     VMFile_Select: TBitBtn;
     _O1: TCheckBox;
     _Op: TCheckBox;
-    _dbg: TCheckBox;
     eCompilerSwitches: TEdit;
     GroupBox2: TGroupBox;
     Label3: TLabel;
     _Of: TCheckBox;
-    _ninit: TCheckBox;
+    _initcode: TCheckBox;
     _Or: TCheckBox;
     eCompilerFile: TEdit;
     eVMFile: TEdit;

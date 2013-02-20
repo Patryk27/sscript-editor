@@ -1,7 +1,7 @@
 {$H+}
 {$MODE DELPHI}
 
-{.$DEFINE NOT_PRODUCTION}
+{$DEFINE NOT_PRODUCTION} // changes compiler and VM paths in default environment settings
 
 Unit mSettings;
 

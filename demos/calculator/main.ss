@@ -1,6 +1,8 @@
 @("stdlib\\stdio.ss")
 @("stdlib\\numbers.ss")
 
+use std;
+
 function<int> main()
 {
  while (true)

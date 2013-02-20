@@ -53,7 +53,7 @@ Unit mProject;
  Type TMessageList = specialize TFPGList<PMessage>;
 
  // TCompilerSwitches
- Type TCompilerSwitch = (_ninit, _Or, _Of, _Op, _O1, _dbg, _iconst, _sconst);
+ Type TCompilerSwitch = (_initcode, _Cconst, _Or, _Of, _Op, _O1);
  Type TCompilerSwitches = Set of TCompilerSwitch;
 
  // TVMSwitches
@@ -538,7 +538,7 @@ Begin
  Named := False;
  Saved := False;
 
- CompilerSwitches      := [_O1, _SCONST]; // `-O1` is enabled by default
+ CompilerSwitches      := [_initcode, _O1, _Cconst]; // `-initcode`, `-O1`, `-Cconst` are enabled by default
  OtherCompilerSwitches := '';
 
  VMSwitches      := [c_wait]; // `-wait` is switched by default
@@ -567,6 +567,8 @@ Begin
   Begin
    Add('@("stdlib\\stdio.ss")');
    Add('');
+   Add('use std;');
+   Add('');
    Add('function<int> main()');
    Add('{');
    Add(' println("Hello World! :)");');
@@ -581,7 +583,7 @@ Begin
   End;
  End;
 
- With getCurrentCard do // this card is main card
+ With getCurrentCard do // this card is the main card
   isMain := True;
 End;
 
@@ -1151,6 +1153,54 @@ Begin
  End;
 End;
 
+// AddHint
+Procedure AddHint(Line, Char: Integer; Base, Message, FileName: String);
+Var Card: Integer;
+    Info: PMessage;
+Begin
+ { open card }
+ Card := FindCard(FileName);
+ if (Card = -1) Then
+ Begin
+  if (not CreateCard(FileName, True)) Then // failed
+   Exit;
+  Card := CardList.Count-1;
+ End;
+
+ New(Info);
+ Info^.Line     := Line;
+ Info^.Char     := Char;
+ Info^.FileName := FileName;
+ Info^.Text     := Message;
+ MessageList.Add(Info);
+
+ AddText(Base, miHint, MessageList.Count);
+End;
+
+// AddNote
+Procedure AddNote(Line, Char: Integer; Base, Message, FileName: String);
+Var Card: Integer;
+    Info: PMessage;
+Begin
+ { open card }
+ Card := FindCard(FileName);
+ if (Card = -1) Then
+ Begin
+  if (not CreateCard(FileName, True)) Then // failed
+   Exit;
+  Card := CardList.Count-1;
+ End;
+
+ New(Info);
+ Info^.Line     := Line;
+ Info^.Char     := Char;
+ Info^.FileName := FileName;
+ Info^.Text     := Message;
+ MessageList.Add(Info);
+
+ AddText(Base, miHint, MessageList.Count);
+End;
+
 Begin
  if (not FileExists(CompilerFile)) Then
  Begin
@@ -1187,21 +1237,23 @@ Begin
   { generate command line }
   CommandLine :=
   '"'+CompilerFile+'" "'+InputFile+'"'+
-  ' -quiet'+
   ' -includepath "'+IncludePath+'"'+
   ' -o "'+sOutputFile+'"';
 
   // if library
+  if (ProjectType = ptApplication) Then
+   CommandLine += ' -Cm app';
+
   if (ProjectType = ptLibrary) Then
   Begin
-   CommandLine += ' -Clib';
+   CommandLine += ' -Cm lib';
    if (HeaderFile <> '') Then
     CommandLine += ' -h "'+MakeFullPath(HeaderFile)+'"';
   End;
 
   // generate bytecode?
   if (BytecodeOutput <> '') Then
-   CommandLine += ' -s "'+MakeFullPath(BytecodeOutput)+'"';
+   CommandLine += ' -bytecode "'+MakeFullPath(BytecodeOutput)+'"';
 
   // add compile switches
   For Switch in CompilerSwitches Do
@@ -1243,6 +1295,8 @@ Begin
   Begin
    Base := Output[I];
 
+   (* @TODO: DRY!!! *)
+
    { error }
    P := Pos('Error:', Base);
    if (P > 0) Then
@@ -1255,6 +1309,34 @@ Begin
     Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
 
     AddError(Line, Char, Base, Message, mFileName);
+   End;
+
+   { hint }
+   P := Pos('Hint:', Base);
+   if (P > 0) Then
+   Begin
+    Message   := Trim(Copy(Base, P+5, Length(Base)));
+    mFileName := Trim(Copy(Base, 1, Pos('(', Base)-1));
+    Posi      := Trim(Copy(Base, Pos('(', Base)+1, Pos(')', Base)-Pos('(', Base)-1));
+
+    Line := StrToInt(Copy(Posi, 1, Pos(',', Posi)-1));
+    Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
+
+    AddHint(Line, Char, Base, Message, mFileName);
+   End;
+
+   { note }
+   P := Pos('Note:', Base);
+   if (P > 0) Then
+   Begin
+    Message   := Trim(Copy(Base, P+5, Length(Base)));
+    mFileName := Trim(Copy(Base, 1, Pos('(', Base)-1));
+    Posi      := Trim(Copy(Base, Pos('(', Base)+1, Pos(')', Base)-Pos('(', Base)-1));
+
+    Line := StrToInt(Copy(Posi, 1, Pos(',', Posi)-1));
+    Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
+
+    AddNote(Line, Char, Base, Message, mFileName);
    End;
   End;
 

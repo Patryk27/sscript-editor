@@ -199,12 +199,12 @@ object ProjectSettingsForm: TProjectSettingsForm
       end
     end
     object p_2: TPage
-      object _ninit: TCheckBox
+      object _initcode: TCheckBox
         Left = 0
         Height = 19
         Top = 8
-        Width = 244
-        Caption = 'Don''t add init code to the program (-ninit)'
+        Width = 243
+        Caption = 'Add init code into the program (-initcode)'
         TabOrder = 0
       end
       object GroupBox1: TGroupBox
@@ -220,8 +220,8 @@ object ProjectSettingsForm: TProjectSettingsForm
           Left = 6
           Height = 19
           Top = 8
-          Width = 215
-          Caption = 'Load variables into the registers (-Or)'
+          Width = 195
+          Caption = 'Load variables into registers (-Or)'
           TabOrder = 0
         end
         object _Of: TCheckBox
@@ -257,14 +257,6 @@ object ProjectSettingsForm: TProjectSettingsForm
         TabOrder = 2
         Text = 'eCompilerSwitches'
       end
-      object _dbg: TCheckBox
-        Left = 0
-        Height = 19
-        Top = 32
-        Width = 166
-        Caption = 'Add ''debug''  section (-dbg)'
-        TabOrder = 3
-      end
       object GroupBox2: TGroupBox
         Left = 0
         Height = 88
@@ -273,7 +265,7 @@ object ProjectSettingsForm: TProjectSettingsForm
         Caption = 'Optimizations'
         ClientHeight = 70
         ClientWidth = 109
-        TabOrder = 4
+        TabOrder = 3
         object _O1: TCheckBox
           Left = 3
           Height = 19
@@ -283,21 +275,13 @@ object ProjectSettingsForm: TProjectSettingsForm
           TabOrder = 0
         end
       end
-      object _iconst: TCheckBox
+      object _Cconst: TCheckBox
         Left = 0
         Height = 19
-        Top = 56
-        Width = 346
-        Caption = 'Inline constants directly when building an expression (-iconst)'
-        TabOrder = 5
-      end
-      object _sconst: TCheckBox
-        Left = 0
-        Height = 19
-        Top = 79
-        Width = 297
-        Caption = 'Enable special constants like `__self`, `__line` (-sconst)'
-        TabOrder = 6
+        Top = 32
+        Width = 300
+        Caption = 'Enable special constants like `__self`, `__line` (-Cconst)'
+        TabOrder = 4
       end
     end
     object p_3: TPage

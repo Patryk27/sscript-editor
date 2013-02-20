@@ -190,7 +190,7 @@ Begin
    ls_module_opening: Result := 'Opening module';
 
    ls_compilation_started: Result := '[ %s ] - Compilation started...';
-   ls_compilation_finished: Result := '[ %s ] - Compilation successfully finished; project built (%s) :)';
+   ls_compilation_finished: Result := '[ %s ] - Compilation successfully finished; project has been built (%s) :)';
    ls_compilation_stopped: Result := '[ %s ] - Compilation interrupted by error';
 
    ls_new_app: Result := 'new application';

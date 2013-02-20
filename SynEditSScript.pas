@@ -182,11 +182,12 @@ Begin
  fRange := rsUnknown;
 
  { one-line comment }
- if (Copy(fLineText, fTokenPos, 2) = '//') Then
+ if (Copy(fLineText, fTokenPos, 2) = '//') and (fRange <> rsCStyleComment) Then
  Begin
   fToken := tShortComment;
 
   fTokenEnd += Len-fTokenPos+1;
+
   Exit;
  End;
 
@@ -316,7 +317,7 @@ Begin
   { keyword }
   Case Keyword of
    'function', 'var', 'const', 'return', 'naked', 'for', 'if', 'else', 'while', 'break', 'continue',
-   'in', 'do', 'private', 'public', 'type': Exit(fKeywordAttri);
+   'in', 'do', 'private', 'public', 'type', 'new', 'delete', 'namespace', 'use', 'cast': Exit(fKeywordAttri);
    'void', 'bool', 'char', 'int', 'float', 'string': Exit(fPrimaryTypesAttri);
   End;
 

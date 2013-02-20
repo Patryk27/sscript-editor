@@ -117,8 +117,8 @@ type
   end;
 
  // consts
- Const iVersion = 0.2;
-       sVersion = '0.2';
+ Const iVersion = 0.3;
+       sVersion = '0.3 nightly';
        sCaption = 'SScript Editor v'+sVersion;
 
  // variables

@@ -12,5 +12,7 @@ function<int> main()
  for (var<int> i=0; i<array_length(words); i++)
   println(words[i]);
 
+ delete words;
+
  return 0;
 }

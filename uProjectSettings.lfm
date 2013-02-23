@@ -1,7 +1,7 @@
 object ProjectSettingsForm: TProjectSettingsForm
-  Left = 317
+  Left = 237
   Height = 437
-  Top = 156
+  Top = 101
   Width = 640
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
@@ -62,7 +62,7 @@ object ProjectSettingsForm: TProjectSettingsForm
     Height = 394
     Top = 0
     Width = 387
-    PageIndex = 1
+    PageIndex = 3
     TabOrder = 3
     TabStop = True
     object p_1: TPage
@@ -392,6 +392,14 @@ object ProjectSettingsForm: TProjectSettingsForm
         Width = 82
         Caption = 'Other switches:'
         ParentColor = False
+      end
+      object c_err: TCheckBox
+        Left = 0
+        Height = 19
+        Top = 56
+        Width = 181
+        Caption = 'Display detailed error log (-err)'
+        TabOrder = 3
       end
     end
   end

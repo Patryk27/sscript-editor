@@ -57,7 +57,7 @@ Unit mProject;
  Type TCompilerSwitches = Set of TCompilerSwitch;
 
  // TVMSwitches
- Type TVMSwitch = (c_time, c_wait);
+ Type TVMSwitch = (c_time, c_wait, c_err);
  Type TVMSwitches = Set of TVMSwitch;
 
  { TProject }
@@ -1295,7 +1295,7 @@ Begin
   Begin
    Base := Output[I];
 
-   (* @TODO: DRY!!! *)
+   (* @TODO: don't repeat yourself (!) *)
 
    { error }
    P := Pos('Error:', Base);

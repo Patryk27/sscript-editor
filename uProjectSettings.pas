@@ -15,6 +15,7 @@ type
   TProjectSettingsForm = class(TForm)
     Bevel1: TBevel;
     btnGetPathsFromEV:TButton;
+    c_err:TCheckBox;
     _Cconst:TCheckBox;
     c_time:TCheckBox;
     c_wait:TCheckBox;

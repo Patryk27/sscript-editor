@@ -121,8 +121,9 @@ End;
 
 { THighlighter.Next }
 Procedure THighlighter.Next;
-Const AlNum = ['_', 'a'..'z', 'A'..'Z', '0'..'9'];
-      Num = ['0'..'9'];
+Const AlNum  = ['_', 'a'..'z', 'A'..'Z', '0'..'9'];
+      Num    = ['0'..'9'];
+      HexNum = ['a'..'f', 'A'..'F', '0'..'9'];
 Var Len              : Integer;
     StringOpened, Dot: Boolean;
 
@@ -187,6 +188,24 @@ Begin
   fToken := tShortComment;
 
   fTokenEnd += Len-fTokenPos+1;
+
+  Exit;
+ End;
+
+ { hexadecimal number }
+ if (Copy(fLineText, fTokenPos, 2) = '0x') Then
+ Begin
+  Inc(fTokenEnd, 2); // 0x
+
+  fToken := tNumber;
+
+  While (fTokenEnd <= Len) Do
+  Begin
+   if not (fLineText[fTokenEnd] in HexNum) Then
+    Break;
+
+   Inc(fTokenEnd);
+  End;
 
   Exit;
  End;
@@ -318,7 +337,7 @@ Begin
   Case Keyword of
    'function', 'var', 'const', 'return', 'naked', 'for', 'if', 'else', 'while', 'break', 'continue',
    'in', 'do', 'private', 'public', 'type', 'new', 'delete', 'namespace', 'use', 'cast': Exit(fKeywordAttri);
-   'void', 'bool', 'char', 'int', 'float', 'string': Exit(fPrimaryTypesAttri);
+   'void', 'null', 'bool', 'char', 'int', 'float', 'string': Exit(fPrimaryTypesAttri);
   End;
 
   { just some identifier }

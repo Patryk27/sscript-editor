@@ -229,6 +229,9 @@ Caption=Czekaj na `enter`, gdy program skończy działanie (-wait)
 [ProjectSettingsForm_c_time]
 Caption=Wyświetl czas działania programu (-time)
 
+[ProjectSettingsForm_c_err]
+Caption=Wyświetl szczegółowy log błędów (-err)
+
 [ProjectSettingsForm_Label9]
 Caption=Inne przełączniki:
 

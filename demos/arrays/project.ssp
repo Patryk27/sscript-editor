@@ -14,8 +14,8 @@
   <compiler>
     <switches></switches>
     <include_path>$file;$compiler</include_path>
-    <_initcode>0</_initcode>
-    <_Cconst>0</_Cconst>
+    <_initcode>1</_initcode>
+    <_Cconst>1</_Cconst>
     <_Or>0</_Or>
     <_Of>0</_Of>
     <_Op>0</_Op>
@@ -30,8 +30,8 @@
   <card_0>
     <caption>main.ss</caption>
     <file>.\main.ss</file>
-    <caret_x>2</caret_x>
-    <caret_y>49</caret_y>
+    <caret_x>38</caret_x>
+    <caret_y>11</caret_y>
     <is_main>1</is_main>
   </card_0>
 </project>

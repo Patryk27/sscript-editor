@@ -61,7 +61,7 @@ object EvSettingsForm: TEvSettingsForm
     Height = 400
     Top = 0
     Width = 398
-    PageIndex = 0
+    PageIndex = 4
     TabOrder = 3
     TabStop = True
     object p_1: TPage
@@ -847,8 +847,8 @@ object EvSettingsForm: TEvSettingsForm
         Top = 24
         Width = 385
         ItemHeight = 15
+        Style = csDropDownList
         TabOrder = 0
-        Text = 'cbLanguages'
       end
     end
   end

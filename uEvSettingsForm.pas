@@ -6,7 +6,7 @@ interface
 
 uses
   Windows, Classes, SysUtils, FileUtil, SynEdit, Forms, Controls, Graphics, Dialogs,
-  ComCtrls, ExtCtrls, StdCtrls, Buttons, Registry;
+  ComCtrls, ExtCtrls, StdCtrls, Buttons,FileCtrl,ShellCtrls,EditBtn, Registry;
 
 type
 
@@ -215,7 +215,7 @@ begin
 
  { has the language changed? }
  if (cbLanguages.ItemIndex = 0) Then // `English` (default) language
-  Tmp := '' { `English` language doesn't have its corresponding language file } Else
+  Tmp := '' { `English` language doesn't have its corresponding language file, as it is internal } Else
   Tmp := cbLanguages.Items[cbLanguages.ItemIndex]+'.lng';
 
  if (Tmp <> getString(sLanguage)) Then

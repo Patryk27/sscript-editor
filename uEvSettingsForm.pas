@@ -6,7 +6,7 @@ interface
 
 uses
   Windows, Classes, SysUtils, FileUtil, SynEdit, Forms, Controls, Graphics, Dialogs,
-  ComCtrls, ExtCtrls, StdCtrls, Buttons,FileCtrl,ShellCtrls,EditBtn, Registry;
+  ComCtrls, ExtCtrls, StdCtrls, Buttons, EditBtn, Registry;
 
 type
 

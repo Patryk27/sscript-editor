@@ -14,7 +14,6 @@ type
 
   TProjectSettingsForm = class(TForm)
     Bevel1: TBevel;
-    btnGetPathsFromEV:TButton;
     c_err:TCheckBox;
     _Cconst:TCheckBox;
     c_time:TCheckBox;
@@ -24,7 +23,6 @@ type
     eBytecodeOutput: TEdit;
     Label7: TLabel;
     Label8: TLabel;
-    CompilerFile_Select: TBitBtn;
     btnSave: TButton;
     btnCancel: TButton;
     FileTimer: TTimer;
@@ -37,7 +35,6 @@ type
     Label9:TLabel;
     p_4:TPage;
     p_3: TPage;
-    VMFile_Select: TBitBtn;
     _O1: TCheckBox;
     _Op: TCheckBox;
     eCompilerSwitches: TEdit;
@@ -46,24 +43,13 @@ type
     _Of: TCheckBox;
     _initcode: TCheckBox;
     _Or: TCheckBox;
-    eCompilerFile: TEdit;
-    eVMFile: TEdit;
     GroupBox1: TGroupBox;
-    Label1: TLabel;
-    Label2: TLabel;
-    p_1: TPage;
     p_2: TPage;
     Pages: TNotebook;
     Setting: TTreeView;
     procedure btnCancelClick(Sender: TObject);
-    procedure btnGetPathsFromEVClick(Sender:TObject);
     procedure btnSaveClick(Sender: TObject);
-    procedure CompilerFile_SelectClick(Sender: TObject);
-    procedure eCompilerFileChange(Sender: TObject);
-    procedure eVMFileChange(Sender: TObject);
-    procedure FileTimerTimer(Sender: TObject);
     procedure SettingChange(Sender:TObject;Node:TTreeNode);
-    procedure VMFile_SelectClick(Sender: TObject);
   private
     { private declarations }
   public
@@ -74,8 +60,7 @@ var
   ProjectSettingsForm: TProjectSettingsForm;
 
 implementation
-Uses uMainForm, mProject, mSettings;
-Var CheckTime: Integer = 0;
+Uses uMainForm, mProject;
 
 {$R *.lfm}
 
@@ -89,8 +74,6 @@ Begin
  With TProject(getProjectPnt) do
  Begin
   { read paths }
-  eCompilerFile.Text   := CompilerFile;
-  eVMFile.Text         := VMFile;
   eOutputFile.Text     := OutputFile;
   eBytecodeOutput.Text := BytecodeOutput;
   eHeaderFile.Text     := HeaderFile;
@@ -109,16 +92,8 @@ Begin
    TCheckBox(FindComponent(getVMSwitchName(VMSwitch, False))).Checked := VMSwitch in VMSwitches;
  End;
 
- CheckTime := 0;
- FileTimer.OnTimer(FileTimer);
  ShowModal;
 End;
-
-procedure TProjectSettingsForm.VMFile_SelectClick(Sender: TObject);
-begin
- if (EXEOpen.Execute) Then
-  eVMFile.Text := EXEOpen.FileName;
-end;
 
 procedure TProjectSettingsForm.btnSaveClick(Sender: TObject);
 Var Switch  : TCompilerSwitch;
@@ -127,8 +102,6 @@ begin
  With TProject(getProjectPnt) do
  Begin
   { save paths }
-  CompilerFile   := eCompilerFile.Text;
-  VMFile         := eVMFile.Text;
   OutputFile     := eOutputFile.Text;
   BytecodeOutput := eBytecodeOutput.Text;
   HeaderFile     := eHeaderFile.Text;
@@ -160,38 +133,6 @@ begin
  Close;
 end;
 
-procedure TProjectSettingsForm.CompilerFile_SelectClick(Sender: TObject);
-begin
- if (EXEOpen.Execute) Then
-  eCompilerFile.Text := EXEOpen.FileName;
-end;
-
-procedure TProjectSettingsForm.eCompilerFileChange(Sender: TObject);
-begin
- CheckTime := 4;
-end;
-
-procedure TProjectSettingsForm.eVMFileChange(Sender: TObject);
-begin
- CheckTime := 4;
-end;
-
-procedure TProjectSettingsForm.FileTimerTimer(Sender: TObject);
-begin
- Dec(CheckTime);
-
- if (CheckTime < 0) Then
- Begin
-  if (not FileExists(eCompilerFile.Text)) Then
-   eCompilerFile.Color := clRed Else
-   eCompilerFile.Color := clWhite;
-
-  if (not FileExists(eVMFile.Text)) Then
-   eVMFile.Color := clRed Else
-   eVMFile.Color := clWhite;
- End;
-end;
-
 procedure TProjectSettingsForm.SettingChange(Sender:TObject;Node:TTreeNode);
 Var Page: Integer;
 begin
@@ -211,12 +152,6 @@ end;
 procedure TProjectSettingsForm.btnCancelClick(Sender: TObject);
 begin
  Close;
-end;
-
-procedure TProjectSettingsForm.btnGetPathsFromEVClick(Sender:TObject);
-begin
- eCompilerFile.Text := getString(sCompilerFile);
- eVMFile.Text       := getString(sVMFile);
 end;
 
 end.

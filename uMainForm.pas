@@ -14,6 +14,8 @@ uses
 type
   { TMainForm }
   TMainForm = class(TForm)
+  MenuItem8:TMenuItem;
+  oShowCompilerOutput:TMenuItem;
   opPaste:TMenuItem;
   opCopy:TMenuItem;
   opCut:TMenuItem;
@@ -73,6 +75,7 @@ type
     procedure FormDropFiles(Sender: TObject; const FileNames: Array of String);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure oShowCompilerOutputClick(Sender:TObject);
     procedure oAboutClick(Sender: TObject);
     procedure oCloseCurrentCardClick(Sender:TObject);
     procedure oCloseProjectClick(Sender:TObject);
@@ -130,7 +133,7 @@ type
  Function getProjectPnt: Pointer;
 
  Implementation
-Uses mProject, mLanguages, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm{, LCLStrConsts};
+Uses mProject, mLanguages, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput{, LCLStrConsts};
 Var Project        : TProject = nil; // currently opened project
     Splitter1Factor: Extended = 1;
 
@@ -338,7 +341,7 @@ procedure TMainForm.FormShow(Sender: TObject);
 Var FileName, tText: String;
 begin
  { if specified in parameter, try to open a project }
- SetCurrentDir(ExtractFilePath(Application.ExeName));
+ SetCurrentDir(ExtractFilePath(ParamStr(1)));
 
  FileName := ParamStr(1);
  if (FileExists(FileName)) and (CompareText(ExtractFileExt(FileName), '.ssp') = 0) Then // check for file existence, and also check the file extension
@@ -363,6 +366,12 @@ begin
  End;
 
  ShowWindow(Handle, SW_SHOWMAXIMIZED);
+end;
+
+procedure TMainForm.oShowCompilerOutputClick(Sender:TObject);
+begin
+ CompilerOutputForm.Output.Text := Project.CompilerOutput;
+ CompilerOutputForm.ShowModal;
 end;
 
 procedure TMainForm.oAboutClick(Sender: TObject);
@@ -573,12 +582,12 @@ begin
  With TOpenDialog.Create(MainForm) do
  Begin
   Try
-   if (Project = nil) Then // no project opened - show project opening dialog
+   if (Project = nil) Then // no project opened - oShowCompilerOutput project opening dialog
    Begin
     Title  := getLangValue(ls_project_opening);
     Filter := getLangValue(ls_filter_project);
    End Else
-   Begin // in other case - show module opening dialog
+   Begin // in other case - oShowCompilerOutput module opening dialog
     Title  := getLangValue(ls_module_opening);
     Filter := getLangValue(ls_filter_module);
    End;

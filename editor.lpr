@@ -29,7 +29,7 @@ uses
   Forms, lazcontrols, runtimetypeinfocontrols, uMainForm, uProjectSettings,
   uAboutForm, uEvSettingsForm, uSyntaxHighlighterChange,
 
-  mLanguages, mSettings;
+  mLanguages, mSettings, uCompilerOutput;
 
 {$R *.res}
 
@@ -41,6 +41,7 @@ begin
   Application.CreateForm(TAboutForm, AboutForm);
   Application.CreateForm(TEvSettingsForm, EvSettingsForm);
   Application.CreateForm(TSyntaxHighlighterChange, SyntaxHighlighterChange);
+  Application.CreateForm(TCompilerOutputForm, CompilerOutputForm);
 
   LoadLanguageFile(ExtractFilePath(ParamStr(0))+'lang\'+getString(sLanguage));
 

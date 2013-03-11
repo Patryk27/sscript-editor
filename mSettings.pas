@@ -1,8 +1,6 @@
 {$H+}
 {$MODE DELPHI}
 
-{$DEFINE NOT_PRODUCTION} // changes compiler and VM paths in default environment settings
-
 Unit mSettings;
 
  Interface
@@ -32,13 +30,8 @@ Unit mSettings;
        DefaultValues: Array[TSetting] of String =
  (
   '4.8',
-  {$IFDEF NOT_PRODUCTION}
-  '..\SScript-Compiler\compiler.exe',
-  '..\SScript-VM\vm.exe',
-  {$ELSE}
-  'compiler\compiler.exe',
-  'compiler\vm.exe',
-  {$ENDIF}
+  'C:\Users\xxx\Documents\GitHub\SScript-Compiler\compiler.exe',
+  'C:\Users\xxx\Documents\GitHub\SScript-VM\vm.exe',
   'false,false,false,false,0,0',
   'true,false,false,false,8135705,0',
   'true,false,false,false,15728885,0',
@@ -155,10 +148,36 @@ Begin
  Result.Underline := F.Underline;
 End;
 
+{ MakeFullPath }
+Function PathIsRelative(pszPath: PChar): Boolean; stdcall; external 'shlwapi.dll' name 'PathIsRelativeA';
+Function PathCanonicalize(lpszDst: PChar; lpszSrc: PChar): LongBool; stdcall; external 'shlwapi.dll' name 'PathCanonicalizeA';
+
+Function MakeFullPath(const FileName: String): String;
+Var Dst: Array[0..MAX_PATH-1] of Char;
+Begin
+ if (PathIsRelative(PChar(FileName))) Then
+ Begin
+  PathCanonicalize(@Dst[0], PChar(FileName));
+  Result := Dst;
+ End Else
+  Result := FileName;
+End;
+
 { getString }
 Function getString(S: TSetting): String;
+Var Dir: String;
 Begin
  Result := Ini.ReadString('settings', getName(S), DefaultValues[S]);
+
+ if (S in [sCompilerFile, sVMFile]) Then // make absolute path (if needed)
+ Begin
+  Dir := GetCurrentDir;
+  SetCurrentDir(ExtractFilePath(ParamStr(0)));
+
+  Result := MakeFullPath(Result);
+
+  SetCurrentDir(Dir);
+ End;
 End;
 
 { getInteger }

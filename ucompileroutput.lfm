@@ -1,0 +1,31 @@
+object CompilerOutputForm: TCompilerOutputForm
+  Left = 475
+  Height = 360
+  Top = 190
+  Width = 613
+  BorderStyle = bsSizeToolWin
+  Caption = 'Compiler output'
+  ClientHeight = 360
+  ClientWidth = 613
+  Position = poScreenCenter
+  LCLVersion = '1.0.6.0'
+  object Output: TMemo
+    Left = 0
+    Height = 360
+    Top = 0
+    Width = 613
+    Align = alClient
+    Font.CharSet = EASTEUROPE_CHARSET
+    Font.Height = -12
+    Font.Name = 'Courier New'
+    Font.Pitch = fpFixed
+    Font.Quality = fqDraft
+    Lines.Strings = (
+      'Output'
+    )
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssAutoVertical
+    TabOrder = 0
+  end
+end

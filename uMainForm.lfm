@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 335
+  Left = 239
   Height = 471
-  Top = 127
+  Top = 130
   Width = 824
   AllowDropFiles = True
   Caption = 'SScript Editor'
@@ -14,7 +14,7 @@ object MainForm: TMainForm
   OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.0.4.0'
+  LCLVersion = '1.0.6.0'
   WindowState = wsMaximized
   object Panel1: TPanel
     Left = 0
@@ -910,6 +910,14 @@ object MainForm: TMainForm
         }
         ShortCut = 16504
         OnClick = oBuildClick
+      end
+      object MenuItem8: TMenuItem
+        Caption = '-'
+      end
+      object oShowCompilerOutput: TMenuItem
+        Tag = 1
+        Caption = 'Show compiler output'
+        OnClick = oShowCompilerOutputClick
       end
     end
     object MenuItem7: TMenuItem

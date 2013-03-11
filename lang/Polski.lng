@@ -91,6 +91,9 @@ Caption=Kompiluj i uruchom
 [MainForm_oBuild]
 Caption=Buduj
 
+[MainForm_oShowCompilerOutput]
+Caption=Pokaż wyjście kompilatora
+
 [MainForm_MenuItem7]
 Caption=Środowisko
 
@@ -160,8 +163,8 @@ Text=eVMFile
 [ProjectSettingsForm_btnGetPathsFromEV]
 Caption=Pobierz ścieżki z danych środowiska
 
-[ProjectSettingsForm__ninit]
-Caption=Nie dodawaj kodu startowego do programu (-ninit)
+[ProjectSettingsForm__initcode]
+Caption=Dodaj kod startowy do programu (-initcode)
 
 [ProjectSettingsForm_GroupBox1]
 Caption=Poszczególne optymalizacje
@@ -175,11 +178,8 @@ Caption=Optymalizuj wyrażenia stałe (-Of)
 [ProjectSettingsForm__Op]
 Caption=Optymalizuj wygenerowany bajtkod (-Op)
 
-[ProjectSettingsForm__iconst]
-Caption=Wstawiaj stałe bezpośrednio podzas budowania wyrażenia (-iconst)
-
-[ProjectSettingsForm__sconst]
-Caption=Włącz specjalne stałe, takie jak `__self`, `__line`... (-sconst)
+[ProjectSettingsForm__Cconst]
+Caption=Włącz specjalne stałe, takie jak `__self`, `__line`... (-Cconst)
 
 [ProjectSettingsForm_Label3]
 Caption=Inne przełączniki:
@@ -345,6 +345,9 @@ Caption=Test
 
 [SyntaxHighlighterChange_cBGColor]
 Caption=Posiada kolor tła
+
+[CompilerOutputForm]
+Caption=Wyjście kompilatora
 
 [Strings]
 title_card_close=Zamykanie karty

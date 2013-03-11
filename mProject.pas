@@ -82,9 +82,9 @@ Unit mProject;
                    Named, Saved: Boolean;
 
                    // paths and other text data
-                   FileName, CompilerFile, VMFile: String;
-                   IncludePath, OutputFile       : String;
-                   HeaderFile, BytecodeOutput    : String;
+                   FileName                  : String;
+                   IncludePath, OutputFile   : String;
+                   HeaderFile, BytecodeOutput: String;
 
                    // project info
                    ProjectType: TProjectType;
@@ -92,6 +92,7 @@ Unit mProject;
                    // compiler
                    CompilerSwitches     : TCompilerSwitches;
                    OtherCompilerSwitches: String;
+                   CompilerOutput       : String;
 
                    // vm
                    VMSwitches     : TVMSwitches;
@@ -444,8 +445,8 @@ Procedure TProject.CheckPaths;
 Var Fail: Boolean;
 Begin
  Case ProjectType of
-  ptApplication: Fail := (not FileExists(CompilerFile)) or (not FileExists(VMFile)); // an application needs a compiler and a virtual machine
-  ptLibrary    : Fail := (not FileExists(CompilerFile)); // a library needs only a compiler
+  ptApplication: Fail := (not FileExists(getString(sCompilerFile))) or (not FileExists(getString(sVMFile))); // an application needs a compiler and a virtual machine
+  ptLibrary    : Fail := (not FileExists(getString(sCompilerFile))); // a library needs only a compiler
   else Fail := True;
  End;
 
@@ -552,9 +553,6 @@ Begin
 
  CardList.Clear;
  MessageList.Clear;
-
- CompilerFile := getString(sCompilerFile);
- VMFile       := getString(sVMFile);
 
  CheckPaths;
 
@@ -697,8 +695,6 @@ Begin
 
   WriteValue(Parent, 'version', uMainForm.iVersion);
   WriteValue(Parent, 'project_type', ord(ProjectType));
-  WriteValue(Parent, 'compiler', CompilerFile);
-  WriteValue(Parent, 'vm', VMFile);
   WriteValue(Parent, 'card_count', CardList.Count);
   WriteValue(Parent, 'opened_card', MainForm.Tabs.ActivePageIndex);
   WriteValue(Parent, 'output_file', OutputFile);
@@ -798,6 +794,8 @@ Var Doc         : TXMLDocument;
     cCaption, cFile : String;
     cIsMain         : Boolean;
 
+    OldWorkingDir: String;
+
     Version: Extended;
 
 // ReadStringValue
@@ -845,6 +843,9 @@ Begin
 
  Try
   Try
+   OldWorkingDir := GetCurrentDir;
+   SetCurrentDir(ExtractFilePath(fFileName));
+
    { open and parse file }
    ReadXMLFile(Doc, FileName);
    Root := Doc.DocumentElement;
@@ -854,8 +855,6 @@ Begin
 
    Version        := ReadFloatValue(Parent, 'version');
    ProjectType    := TProjectType(ReadIntegerValue(Parent, 'project_type'));
-   CompilerFile   := ReadStringValue(Parent, 'compiler');
-   VMFile         := ReadStringValue(Parent, 'vm');
    CardCount      := ReadIntegerValue(Parent, 'card_count');
    OpenedCard     := ReadIntegerValue(Parent, 'opened_card');
    OutputFile     := ReadStringValue(Parent, 'output_file');
@@ -914,6 +913,7 @@ Begin
    Doc.Free;
   End;
  Except
+  SetCurrentDir(OldWorkingDir);
   Exit(False);
  End;
 
@@ -1081,7 +1081,7 @@ End;
 { TProject.Compile }
 Function TProject.Compile: Boolean;
 Type TMessageIcon = (miNone, miHint, miWarn, miError);
-Const READ_BYTES = 2048;
+Const MAX_BYTES = 2048;
 Var sOutputFile: String;
 
     Switch: TCompilerSwitch;
@@ -1090,10 +1090,11 @@ Var sOutputFile: String;
     Process    : TProcess;
     InputFile  : String = '';
     CommandLine: String = '';
-    MemStream  : TMemoryStream;
     Output     : TStringList;
     NumBytes   : LongInt;
     BytesRead  : LongInt;
+
+    TmpOutput: PChar;
 
     I, P, Line, Char              : Integer;
     Base, Message, mFileName, Posi: String;
@@ -1202,7 +1203,7 @@ Begin
 End;
 
 Begin
- if (not FileExists(CompilerFile)) Then
+ if (not FileExists(getString(sCompilerFile))) Then
  Begin
   Application.MessageBox(PChar(getLangValue(ls_msg_compiler_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
   Exit(False);
@@ -1236,24 +1237,24 @@ Begin
 
   { generate command line }
   CommandLine :=
-  '"'+CompilerFile+'" "'+InputFile+'"'+
-  ' -includepath "'+IncludePath+'"'+
-  ' -o "'+sOutputFile+'"';
+  '"'+getString(sCompilerFile)+'" "'+InputFile+'" -v'+
+  ' -includepath="'+IncludePath+'"'+
+  ' -o="'+OutputFile+'"';
 
   // if library
   if (ProjectType = ptApplication) Then
-   CommandLine += ' -Cm app';
+   CommandLine += ' -Cm=app';
 
   if (ProjectType = ptLibrary) Then
   Begin
-   CommandLine += ' -Cm lib';
+   CommandLine += ' -Cm=lib';
    if (HeaderFile <> '') Then
-    CommandLine += ' -h "'+MakeFullPath(HeaderFile)+'"';
+    CommandLine += ' -h="'+MakeFullPath(HeaderFile)+'"';
   End;
 
   // generate bytecode?
   if (BytecodeOutput <> '') Then
-   CommandLine += ' -bytecode "'+MakeFullPath(BytecodeOutput)+'"';
+   CommandLine += ' -bytecode="'+MakeFullPath(BytecodeOutput)+'"';
 
   // add compile switches
   For Switch in CompilerSwitches Do
@@ -1264,32 +1265,39 @@ Begin
   Process.CommandLine := CommandLine;
   Process.Execute;
 
-  MemStream := TMemoryStream.Create;
   BytesRead := 0;
 
   { read output }
+  TmpOutput      := GetMem(MAX_BYTES+1);
+  CompilerOutput := CommandLine+#13#10#13#10;
+
   While (Process.Running) Do
   Begin
-   MemStream.SetSize(BytesRead + READ_BYTES);
-   NumBytes := Process.Output.Read((MemStream.Memory + BytesRead)^, READ_BYTES);
+   NumBytes := Process.Output.Read(TmpOutput[0], MAX_BYTES);
+
+   TmpOutput[NumBytes] := #0;
+   CompilerOutput += TmpOutput;
 
    Inc(BytesRead, NumBytes);
-   Sleep(100);
+   Sleep(50);
   End;
 
   Repeat
-   MemStream.SetSize(BytesRead + READ_BYTES);
+   NumBytes := Process.Output.Read(TmpOutput[0], MAX_BYTES);
 
-   NumBytes := Process.Output.Read((MemStream.Memory + BytesRead)^, READ_BYTES);
+   TmpOutput[NumBytes] := #0;
+   CompilerOutput += TmpOutput;
 
    Inc(BytesRead, NumBytes);
   Until (NumBytes <= 0);
 
+  FreeMem(TmpOutput);
+
   Process.Free;
 
   { parse compiler output }
-  Output := TStringList.Create;
-  Output.LoadFromStream(MemStream);
+  Output      := TStringList.Create;
+  Output.Text := CompilerOutput;
 
   For I := 0 To Output.Count-1 Do
   Begin
@@ -1370,7 +1378,7 @@ Begin
  if (ProjectType = ptLibrary) Then // cannot run a library
   Exit;
 
- if (not FileExists(VMFile)) Then // check virtual machine
+ if (not FileExists(getString(sVMFile))) Then // check virtual machine
  Begin
   Application.MessageBox(PChar(getLangValue(ls_msg_vm_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
   Exit;
@@ -1400,7 +1408,7 @@ Begin
  CommandLine += ' '+OtherVMSwitches;
 
  { run program }
- ExecuteProcess(VMFile, CommandLine, []);
+ ExecuteProcess(getString(sVMFile), CommandLine, []);
 End;
 
 { TProject.isEverythingSaved }

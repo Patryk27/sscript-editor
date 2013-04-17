@@ -1,11 +1,11 @@
 object MainForm: TMainForm
-  Left = 239
+  Left = 316
   Height = 471
-  Top = 130
+  Top = 135
   Width = 824
   AllowDropFiles = True
   Caption = 'SScript Editor'
-  ClientHeight = 451
+  ClientHeight = 471
   ClientWidth = 824
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
@@ -14,12 +14,12 @@ object MainForm: TMainForm
   OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.0.6.0'
+  LCLVersion = '1.0.8.0'
   WindowState = wsMaximized
   object Panel1: TPanel
     Left = 0
     Height = 96
-    Top = 332
+    Top = 354
     Width = 824
     Align = alBottom
     ClientHeight = 96
@@ -31,7 +31,6 @@ object MainForm: TMainForm
       Top = 1
       Width = 822
       Align = alClient
-      DefaultItemHeight = 18
       Images = MessagesImageList
       ParentShowHint = False
       PopupMenu = CompileStatusPopup
@@ -50,8 +49,8 @@ object MainForm: TMainForm
   end
   object StatusBar: TStatusBar
     Left = 0
-    Height = 23
-    Top = 428
+    Height = 21
+    Top = 450
     Width = 824
     Panels = <    
       item
@@ -64,12 +63,13 @@ object MainForm: TMainForm
   end
   object Tabs: TExtendedNotebook
     Left = 0
-    Height = 327
+    Height = 349
     Top = 0
     Width = 824
     Align = alClient
     PopupMenu = TabsPopup
     TabOrder = 2
+    OnChange = TabsChange
     OnTabDragDropEx = TabsTabDragDropEx
     TabDragMode = dmAutomatic
     TabDragAcceptMode = dmAutomatic
@@ -78,7 +78,7 @@ object MainForm: TMainForm
     Cursor = crVSplit
     Left = 0
     Height = 5
-    Top = 327
+    Top = 349
     Width = 824
     Align = alBottom
     AutoSnap = False
@@ -1060,7 +1060,7 @@ object MainForm: TMainForm
       OnClick = opCloseCardClick
     end
     object opCloseAll: TMenuItem
-      Caption = 'Close all card except this'
+      Caption = 'Close all cards except this'
       OnClick = opCloseAllClick
     end
   end

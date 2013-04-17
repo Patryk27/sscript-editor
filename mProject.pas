@@ -4,7 +4,7 @@
 Unit mProject;
 
  Interface
- Uses uMainForm, Windows, Classes, ComCtrls, Controls, Graphics, SynEdit, SynEditSScript, FGL;
+ Uses uMainForm, LCLType, FileUtil, Classes, ComCtrls, Controls, Graphics, SynEdit, SynEditSScript, FGL;
 
  Type TProjectType = (ptApplication, ptLibrary);
 
@@ -71,7 +71,7 @@ Unit mProject;
                    Function FindCard(const cFileName: String): Integer;
                    Function getMainCard: TCard;
 
-                   Function MakeFullPath(const FileName: String): String;
+                   Function MakeAbsolutePath(const FileName: String): String;
                    Function MakeRelativePath(const FileName: String): String;
                    Procedure CheckPaths;
 
@@ -132,8 +132,6 @@ Unit mProject;
 
  Implementation
 Uses mSettings, mLanguages, Dialogs, SysUtils, Forms, DOM, XMLWrite, XMLRead, TypInfo, Process;
-
-Function PathIsRelative(pszPath: PChar): Boolean; stdcall; external 'shlwapi.dll' name 'PathIsRelativeA';
 
 { getSwitchName }
 Function getSwitchName(const S: TCompilerSwitch; DeleteFirstChar: Boolean=True): String;
@@ -216,7 +214,7 @@ Procedure TCard.Editor_OnSpecialLineColors(Sender: TObject; Line: Integer; var S
 Begin
  if (Line = ErrorLine) Then
  Begin
-  BG      := RGB(255, 160, 80);
+  BG      := 16752720;
   Special := True;
  End;
 End;
@@ -469,38 +467,16 @@ Begin
   Save;
 End;
 
-{ TProject.MakeFullPath }
-Function PathCanonicalize(lpszDst: PChar; lpszSrc: PChar): LongBool; stdcall; external 'shlwapi.dll' name 'PathCanonicalizeA';
-
-Function TProject.MakeFullPath(const FileName: String): String;
-Var Directory: String;
-    Dst      : Array[0..MAX_PATH-1] of Char;
+{ TProject.MakeAbsolutePath }
+Function TProject.MakeAbsolutePath(const FileName: String): String;
 Begin
- Directory := ExtractFilePath(self.FileName);
-
- if (PathIsRelative(PChar(FileName))) Then
- Begin
-  PathCanonicalize(@Dst[0], PChar(IncludeTrailingBackslash(Directory) + FileName));
-  Result := Dst;
- End Else
-  Result := FileName;
+ Result := CreateAbsolutePath(FileName, ExtractFilePath(self.FileName));
 End;
 
 { TProject.MakeRelativePath }
-Function PathRelativePathTo(pszPath: PChar; pszFrom: PChar; dwAttrFrom: DWORD; pszTo: PChar; dwAtrTo: DWORD): LongBool; stdcall; external 'shlwapi.dll' name 'PathRelativePathToA';
-
 Function TProject.MakeRelativePath(const FileName: String): String;
-Var Directory: String;
-    Path     : Array[0..MAX_PATH-1] of Char;
 Begin
- Directory := ExtractFilePath(self.FileName);
-
- if (PathIsRelative(PChar(FileName))) Then // path is already relative
-  Result := FileName Else
-  Begin
-   PathRelativePathTo(@Path[0], PChar(Directory), FILE_ATTRIBUTE_DIRECTORY, PChar(FileName), 0);
-   Result := Path;
-  End;
+ Result := CreateRelativePath(FileName, ExtractFilePath(self.FileName));
 End;
 
 { TProject.Create }
@@ -542,7 +518,7 @@ Begin
  CompilerSwitches      := [_initcode, _O1, _Cconst]; // `-initcode`, `-O1`, `-Cconst` are enabled by default
  OtherCompilerSwitches := '';
 
- VMSwitches      := [c_wait]; // `-wait` is switched by default
+ VMSwitches      := [c_wait]; // `-wait` is enabled by default
  OtherVMSwitches := '';
 
  IncludePath    := '$file;$compiler';
@@ -592,7 +568,7 @@ Var I   : Integer;
 Begin
  For I := 0 To 256 Do
  Begin
-  Name := 'bez_nazwy_'+IntToStr(I)+'.ss';
+  Name := 'no_name_'+IntToStr(I)+'.ss';
   if (FindCard(Name) = -1) Then
   Begin
    CreateCard(Name, False);
@@ -677,7 +653,7 @@ Begin
  End;
 
  self.Saved := True;
- FileName   := MakeFullPath(FileName);
+ FileName   := MakeAbsolutePath(FileName);
 
  if (CompareText(ExtractFileExt(FileName), '.ssp') <> 0) Then
   FileName += '.ssp';
@@ -798,44 +774,44 @@ Var Doc         : TXMLDocument;
 
     Version: Extended;
 
-// ReadStringValue
-Function ReadStringValue(Node: TDOMNode; Name: String): String;
-Begin
- if (Node = nil) Then // parent node does not exist
-  Exit('');
+  // ReadStringValue
+  Function ReadStringValue(Node: TDOMNode; Name: String): String;
+  Begin
+   if (Node = nil) Then // parent node does not exist
+    Exit('');
 
- Node := Node.FindNode(Name);
+   Node := Node.FindNode(Name);
 
- if (Node = nil) Then // child (text) node not found
-  Exit('');
+   if (Node = nil) Then // child (text) node not found
+    Exit('');
 
- Result := Node.TextContent;
-End;
+   Result := Node.TextContent;
+  End;
 
-// ReadIntegerValue
-Function ReadIntegerValue(Node: TDOMNode; Name: String): Integer;
-Var Tmp: String;
-Begin
- Tmp := ReadStringValue(Node, Name);
+  // ReadIntegerValue
+  Function ReadIntegerValue(Node: TDOMNode; Name: String): Integer;
+  Var Tmp: String;
+  Begin
+   Tmp := ReadStringValue(Node, Name);
 
- if (not TryStrToInt(Tmp, Result)) Then
-  Result := 0;
-End;
+   if (not TryStrToInt(Tmp, Result)) Then
+    Result := 0;
+  End;
 
-// ReadFloatValue
-Function ReadFloatValue(Node: TDOMNode; Name: String): Extended;
-Var Tmp: String;
-Begin
- Tmp := ReadStringValue(Node, Name);
+  // ReadFloatValue
+  Function ReadFloatValue(Node: TDOMNode; Name: String): Extended;
+  Var Tmp: String;
+  Begin
+   Tmp := ReadStringValue(Node, Name);
 
- if (not TryStrToFloat(Tmp, Result)) Then
-  Result := 0;
-End;
+   if (not TryStrToFloat(Tmp, Result)) Then
+    Result := 0;
+  End;
 
 Begin
  Result := False;
 
- FileName := MakeFullPath(fFileName);
+ FileName := MakeAbsolutePath(fFileName);
  Named    := True;
  Saved    := True;
 
@@ -882,13 +858,16 @@ Begin
     if (ReadIntegerValue(Parent, getVMSwitchName(VMSwitch, False)) = 1) Then
      VMSwitches += [VMSwitch];
 
+   if (CardCount = 0) THen
+    raise Exception.Create('File damaged: CardCount = 0');
+
    { read cards }
    For I := 0 To CardCount-1 Do
    Begin
     Parent := Root.FindNode('card_'+IntToStr(I));
 
     cCaption := ReadStringValue(Parent, 'caption');
-    cFile    := MakeFullPath(ReadStringValue(Parent, 'file'));
+    cFile    := MakeAbsolutePath(ReadStringValue(Parent, 'file'));
 
     if (CreateCardEx(cFile, cCaption, True)) Then
     Begin
@@ -1087,12 +1066,11 @@ Var sOutputFile: String;
     Switch: TCompilerSwitch;
     Card  : TCard;
 
-    Process    : TProcess;
-    InputFile  : String = '';
-    CommandLine: String = '';
-    Output     : TStringList;
-    NumBytes   : LongInt;
-    BytesRead  : LongInt;
+    Process  : TProcess;
+    InputFile: String = '';
+    Output   : TStringList;
+    NumBytes : LongInt;
+    BytesRead: LongInt;
 
     TmpOutput: PChar;
 
@@ -1222,7 +1200,7 @@ Begin
  End;
 
  InputFile   := getMainCard.FileName;
- sOutputFile := MakeFullPath(OutputFile);
+ sOutputFile := MakeAbsolutePath(OutputFile);
  DeleteFile(sOutputFile); // remove previous output file
 
  Application.ProcessMessages;
@@ -1232,44 +1210,49 @@ Begin
   Clear;
   AddText(Format(getLangValue(ls_compilation_started), [TimeToStr(Time)]));
 
-  Process         := TProcess.Create(nil);
-  Process.Options := [poUsePipes, poNoConsole];
+  Process            := TProcess.Create(nil);
+  Process.Options    := [poUsePipes, poNoConsole];
+  Process.Executable := getString(sCompilerFile);
 
   { generate command line }
-  CommandLine :=
-  '"'+getString(sCompilerFile)+'" "'+InputFile+'" -v'+
-  ' -includepath="'+IncludePath+'"'+
-  ' -o="'+OutputFile+'"';
+  Process.Parameters.AddStrings(
+  [
+   InputFile, '-v', '-devlog',
+   '-includepath', IncludePath,
+   '-o', OutputFile
+  ]
+  );
 
   // if library
   if (ProjectType = ptApplication) Then
-   CommandLine += ' -Cm=app';
+   Process.Parameters.AddStrings(['-Cm', 'app']);
 
   if (ProjectType = ptLibrary) Then
   Begin
-   CommandLine += ' -Cm=lib';
+   Process.Parameters.AddStrings(['-Cm', 'lib']);
+
    if (HeaderFile <> '') Then
-    CommandLine += ' -h="'+MakeFullPath(HeaderFile)+'"';
+    Process.Parameters.AddStrings(['-h', MakeAbsolutePath(HeaderFile)]);
   End;
 
   // generate bytecode?
   if (BytecodeOutput <> '') Then
-   CommandLine += ' -bytecode="'+MakeFullPath(BytecodeOutput)+'"';
+   Process.Parameters.AddStrings(['-bytecode', MakeAbsolutePath(BytecodeOutput)]);
 
   // add compile switches
   For Switch in CompilerSwitches Do
-   CommandLine += ' -'+getSwitchName(Switch);
-  CommandLine += ' '+OtherCompilerSwitches;
+   Process.Parameters.Add('-'+getSwitchName(Switch));
+
+  Process.Parameters.Add(OtherCompilerSwitches); // @TODO
 
   { run compiler }
-  Process.CommandLine := CommandLine;
   Process.Execute;
 
   BytesRead := 0;
 
   { read output }
   TmpOutput      := GetMem(MAX_BYTES+1);
-  CompilerOutput := CommandLine+#13#10#13#10;
+  CompilerOutput := Process.Parameters.Text+#13#10#13#10;
 
   While (Process.Running) Do
   Begin
@@ -1292,7 +1275,6 @@ Begin
   Until (NumBytes <= 0);
 
   FreeMem(TmpOutput);
-
   Process.Free;
 
   { parse compiler output }
@@ -1349,8 +1331,8 @@ Begin
   End;
 
   { check output file }
-  if (not FileExists(sOutputFile)) Then
-   AnyError := True; // ;<
+  if (not AnyError) and (not FileExists(sOutputFile)) Then
+   AddError(0, 0, 'Output file not found ('+sOutputFile+')! Check compiler''s output.', '', getMainCard.getFileName);
 
   { finishing message }
   if (not AnyError) Then
@@ -1373,7 +1355,8 @@ End;
 Procedure TProject.Run;
 Var sOutputFile, CommandLine: String;
     Switch                  : TVMSwitch;
-    Tries                   : Integer;
+    Tries                   : Integer = 0;
+    Process                 : TProcess;
 Begin
  if (ProjectType = ptLibrary) Then // cannot run a library
   Exit;
@@ -1385,10 +1368,9 @@ Begin
  End;
 
  { check path }
- sOutputFile := MakeFullPath(OutputFile);
+ sOutputFile := MakeAbsolutePath(OutputFile);
 
  { wait for file }
- Tries := 0;
  Sleep(25);
  While (not FileExists(sOutputFile)) Do
  Begin
@@ -1400,7 +1382,7 @@ Begin
  End;
 
  { generate command line }
- CommandLine := '"'+sOutputFile+'" ';
+ CommandLine := '';
 
  For Switch in VMSwitches Do
   CommandLine += ' -'+getVMSwitchName(Switch, True);
@@ -1408,7 +1390,29 @@ Begin
  CommandLine += ' '+OtherVMSwitches;
 
  { run program }
- ExecuteProcess(getString(sVMFile), CommandLine, []);
+ {$IFDEF LINUX}
+  Process := TProcess.Create(nil);
+
+  With Process do
+  Begin
+   Options          := [poUsePipes];
+   CommandLine      := 'xterm -e ''sh run.sh "'+getString(sVMFile)+'" "'+sOutputFile+'" "'+CommandLine+'";read''';
+   CurrentDirectory := ExtractFilePath(ParamStr(0));
+  End;
+
+  Process.Execute;
+  While (Process.Running) Do ;
+
+  Process.Free;
+ {$ELSE}
+  ExecuteProcess(getString(sVMFile), CommandLine, []);
+ {$ENDIF}
+
+ {
+  Linux: ~15 lines and 6 hours of wasted time searching for solution and debugging
+  Windows: 1 line and 6 minuts of writing the entire method
+  Because fuck you, that's why ;-;
+ }
 End;
 
 { TProject.isEverythingSaved }

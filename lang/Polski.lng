@@ -246,9 +246,8 @@ Caption=Ustawienia środowiska
 1=Kolorowanie składni
 2=Środowisko
 3=Ścieżki
-4=Powiązania
-5=Język
-6=Inne
+4=Język
+5=Inne
 
 [EvSettingsForm_btnSave]
 Caption=Zapisz

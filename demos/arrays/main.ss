@@ -9,7 +9,7 @@ function<int> main()
  var<string[]> words = strexplode(input, ' ');
 
  println("You entered:");
- for (var<int> i=0; i<array_length(words); i++)
+ for (var<int> i=0; i<words.length(); i++)
   println(words[i]);
 
  delete words;

@@ -9,13 +9,12 @@ object EvSettingsForm: TEvSettingsForm
   ClientWidth = 640
   FormStyle = fsSystemStayOnTop
   Position = poScreenCenter
-  LCLVersion = '1.0.4.0'
+  LCLVersion = '1.0.8.0'
   object Setting: TTreeView
     Left = 0
     Height = 400
     Top = 0
     Width = 240
-    DefaultItemHeight = 18
     ReadOnly = True
     TabOrder = 0
     OnChange = SettingChange
@@ -24,12 +23,11 @@ object EvSettingsForm: TEvSettingsForm
       F9FFFFFF020002000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF010000000000
       00000106000000456469746F7200000000FFFFFFFFFFFFFFFFFFFFFFFF000000
       0000000000001300000053796E74617820686967686C69676874696E67040000
-      00FFFFFFFFFFFFFFFFFFFFFFFF0400000000000000010B000000456E7669726F
+      00FFFFFFFFFFFFFFFFFFFFFFFF0300000000000000010B000000456E7669726F
       6E6D656E7401000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000500
-      0000506174687302000000FFFFFFFFFFFFFFFFFFFFFFFF000000000000000000
-      0A000000457874656E73696F6E7304000000FFFFFFFFFFFFFFFFFFFFFFFF0000
-      00000000000000080000004C616E677561676503000000FFFFFFFFFFFFFFFFFF
-      FFFFFF000000000000000000050000004F74686572
+      0000506174687303000000FFFFFFFFFFFFFFFFFFFFFFFF000000000000000000
+      080000004C616E677561676502000000FFFFFFFFFFFFFFFFFFFFFFFF00000000
+      0000000000050000004F74686572
     }
   end
   object Bevel1: TBevel
@@ -57,14 +55,15 @@ object EvSettingsForm: TEvSettingsForm
     TabOrder = 2
   end
   object Pages: TNotebook
-    Left = 240
+    Left = 242
     Height = 400
     Top = 0
     Width = 398
-    PageIndex = 4
+    PageIndex = 0
     TabOrder = 3
     TabStop = True
     object p_1: TPage
+      OnBeforeShow = p_1BeforeShow
       object btnFont: TButton
         Left = 8
         Height = 25
@@ -570,6 +569,8 @@ object EvSettingsForm: TEvSettingsForm
           object SynGutterSeparator1: TSynGutterSeparator
             Width = 2
             MouseActions = <>
+            MarkupInfo.Background = clWhite
+            MarkupInfo.Foreground = clGray
           end
           object SynGutterCodeFolding1: TSynGutterCodeFolding
             MouseActions = <>
@@ -793,17 +794,6 @@ object EvSettingsForm: TEvSettingsForm
         }
         OnClick = CompilerFile_Select1Click
         TabOrder = 3
-      end
-    end
-    object p_3: TPage
-      object btnExtLink: TButton
-        Left = 8
-        Height = 25
-        Top = 8
-        Width = 384
-        Caption = 'btnExtLink'
-        OnClick = btnExtLinkClick
-        TabOrder = 0
       end
     end
     object p_4: TPage

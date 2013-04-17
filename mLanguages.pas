@@ -148,7 +148,7 @@ End;
 Function getLangValue(const Name: LString): String;
 Var Ini: TIniFile;
 Begin
- Ini    := TIniFile.Create('lang\'+getString(sLanguage));
+ Ini    := TIniFile.Create(ExtractFilePath(ParamStr(0))+'lang/'+getString(sLanguage));
  Result := Ini.ReadString('Strings', getLStringName(Name), '');
  Ini.Free;
 

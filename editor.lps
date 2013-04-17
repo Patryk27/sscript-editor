@@ -4,18 +4,15 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="53">
+    <Units Count="67">
       <Unit0>
         <Filename Value="editor.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="editor"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="5"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="19"/>
-        <CursorPos X="3" Y="48"/>
+        <TopLine Value="12"/>
+        <CursorPos X="68" Y="36"/>
         <UsageCount Value="208"/>
-        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="uMainForm.pas"/>
@@ -24,10 +21,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uMainForm"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="359"/>
-        <CursorPos X="71" Y="374"/>
+        <TopLine Value="624"/>
+        <CursorPos X="22" Y="634"/>
         <UsageCount Value="208"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -39,13 +37,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uProjectSettings"/>
-        <EditorIndex Value="6"/>
         <WindowIndex Value="0"/>
         <TopLine Value="48"/>
         <CursorPos X="25" Y="63"/>
         <UsageCount Value="212"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="uProjectSettings_Paths.pas"/>
@@ -77,12 +72,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uEvSettingsForm"/>
-        <EditorIndex Value="7"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="42" Y="9"/>
+        <TopLine Value="149"/>
+        <CursorPos X="45" Y="176"/>
         <UsageCount Value="204"/>
-        <Loaded Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="uSyntaxHighlighterChange.pas"/>
@@ -103,13 +96,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uCompilerOutput"/>
-        <EditorIndex Value="4"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="52" Y="17"/>
-        <UsageCount Value="22"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
+        <UsageCount Value="31"/>
       </Unit7>
       <Unit8>
         <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\objpas\classes\classesh.inc"/>
@@ -121,10 +111,12 @@
       <Unit9>
         <Filename Value="mProject.pas"/>
         <UnitName Value="mProject"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1386"/>
-        <CursorPos X="32" Y="1409"/>
+        <TopLine Value="1320"/>
+        <CursorPos X="45" Y="1325"/>
         <UsageCount Value="103"/>
+        <Loaded Value="True"/>
       </Unit9>
       <Unit10>
         <Filename Value="C:\lazarus\lcl\dialogs.pp"/>
@@ -137,12 +129,10 @@
       <Unit11>
         <Filename Value="SynEditSScript.pas"/>
         <UnitName Value="SynEditSScript"/>
-        <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="327"/>
-        <CursorPos X="39" Y="332"/>
+        <TopLine Value="120"/>
+        <CursorPos X="25" Y="136"/>
         <UsageCount Value="100"/>
-        <Loaded Value="True"/>
       </Unit11>
       <Unit12>
         <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\inc\systemh.inc"/>
@@ -154,12 +144,10 @@
       <Unit13>
         <Filename Value="mSettings.pas"/>
         <UnitName Value="mSettings"/>
-        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="146"/>
-        <CursorPos X="77" Y="164"/>
+        <TopLine Value="61"/>
+        <CursorPos X="11" Y="61"/>
         <UsageCount Value="100"/>
-        <Loaded Value="True"/>
       </Unit13>
       <Unit14>
         <Filename Value="C:\lazarus\lcl\lclproc.pas"/>
@@ -391,12 +379,10 @@
       <Unit44>
         <Filename Value="mLanguages.pas"/>
         <UnitName Value="mLanguages"/>
-        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="85"/>
-        <CursorPos X="58" Y="104"/>
+        <TopLine Value="142"/>
+        <CursorPos X="56" Y="156"/>
         <UsageCount Value="39"/>
-        <Loaded Value="True"/>
       </Unit44>
       <Unit45>
         <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\objpas\typinfo.pp"/>
@@ -457,55 +443,205 @@
         <CursorPos X="10" Y="29"/>
         <UsageCount Value="10"/>
       </Unit52>
+      <Unit53>
+        <Filename Value="..\..\..\usr\share\fpcsrc\2.6.2\rtl\wince\windows.pp"/>
+        <UnitName Value="windows"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="30"/>
+        <CursorPos X="10" Y="56"/>
+        <UsageCount Value="10"/>
+      </Unit53>
+      <Unit54>
+        <Filename Value="..\..\..\usr\share\lazarus\1.0.8\lcl\forms.pp"/>
+        <UnitName Value="Forms"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="614"/>
+        <CursorPos X="14" Y="614"/>
+        <UsageCount Value="11"/>
+      </Unit54>
+      <Unit55>
+        <Filename Value="..\..\..\usr\share\lazarus\1.0.8\lcl\lclintf.pas"/>
+        <UnitName Value="LCLIntf"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="193"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="10"/>
+      </Unit55>
+      <Unit56>
+        <Filename Value="..\..\..\usr\share\lazarus\1.0.8\components\lazutils\fileutil.pas"/>
+        <UnitName Value="FileUtil"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="93"/>
+        <CursorPos X="10" Y="93"/>
+        <UsageCount Value="10"/>
+      </Unit56>
+      <Unit57>
+        <Filename Value="..\..\..\usr\share\lazarus\1.0.8\components\lazutils\fileutil.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="904"/>
+        <CursorPos X="28" Y="929"/>
+        <UsageCount Value="10"/>
+      </Unit57>
+      <Unit58>
+        <Filename Value="..\..\..\usr\share\fpcsrc\2.6.2\rtl\objpas\sysutils\sysstrh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="27"/>
+        <CursorPos X="28" Y="27"/>
+        <UsageCount Value="10"/>
+      </Unit58>
+      <Unit59>
+        <Filename Value="..\..\..\usr\share\lazarus\1.0.8\lcl\stdctrls.pp"/>
+        <UnitName Value="StdCtrls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="764"/>
+        <CursorPos X="14" Y="776"/>
+        <UsageCount Value="10"/>
+      </Unit59>
+      <Unit60>
+        <Filename Value="..\..\..\usr\share\lazarus\1.0.8\lcl\controls.pp"/>
+        <UnitName Value="Controls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="156"/>
+        <CursorPos X="3" Y="158"/>
+        <UsageCount Value="10"/>
+      </Unit60>
+      <Unit61>
+        <Filename Value="..\..\..\usr\share\lazarus\1.0.8\lcl\lcltype.pp"/>
+        <UnitName Value="LCLType"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="63"/>
+        <CursorPos X="3" Y="72"/>
+        <UsageCount Value="10"/>
+      </Unit61>
+      <Unit62>
+        <Filename Value="..\..\..\usr\share\fpcsrc\2.6.2\rtl\objpas\sysutils\osutilsh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="9"/>
+        <CursorPos X="6" Y="15"/>
+        <UsageCount Value="10"/>
+      </Unit62>
+      <Unit63>
+        <Filename Value="..\..\..\usr\share\fpcsrc\2.6.2\packages\fcl-process\src\process.pp"/>
+        <UnitName Value="process"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="141"/>
+        <CursorPos X="14" Y="141"/>
+        <UsageCount Value="10"/>
+      </Unit63>
+      <Unit64>
+        <Filename Value="..\..\..\usr\share\fpcsrc\2.6.2\packages\fcl-process\src\unix\process.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="252"/>
+        <CursorPos X="3" Y="255"/>
+        <UsageCount Value="10"/>
+      </Unit64>
+      <Unit65>
+        <Filename Value="..\..\..\usr\share\fpcsrc\2.6.2\rtl\unix\aliasctp.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="22"/>
+        <CursorPos X="3" Y="33"/>
+        <UsageCount Value="10"/>
+      </Unit65>
+      <Unit66>
+        <Filename Value="..\..\..\usr\share\fpcsrc\2.6.2\rtl\unix\ctypes.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="32"/>
+        <CursorPos X="3" Y="36"/>
+        <UsageCount Value="10"/>
+      </Unit66>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="11" HistoryIndex="10">
+    <JumpHistory Count="22" HistoryIndex="21">
       <Position1>
-        <Filename Value="uProjectSettings.pas"/>
-        <Caret Line="135" Column="45" TopLine="121"/>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1390" Column="74" TopLine="1374"/>
       </Position1>
       <Position2>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="76" Column="119" TopLine="72"/>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1367" Column="40" TopLine="1352"/>
       </Position2>
       <Position3>
-        <Filename Value="mSettings.pas"/>
-        <Caret Line="160" Column="45" TopLine="144"/>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1386" Column="34" TopLine="1360"/>
       </Position3>
       <Position4>
-        <Filename Value="mSettings.pas"/>
-        <Caret Line="177" Column="34" TopLine="150"/>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1393" Column="18" TopLine="1357"/>
       </Position4>
       <Position5>
-        <Filename Value="mSettings.pas"/>
-        <Caret Line="155" Column="6" TopLine="141"/>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1391" Column="17" TopLine="1372"/>
       </Position5>
       <Position6>
-        <Filename Value="mSettings.pas"/>
-        <Caret Line="153" Column="129" TopLine="141"/>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1393" Column="23" TopLine="1375"/>
       </Position6>
       <Position7>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="344" Column="1" TopLine="340"/>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1396" Column="33" TopLine="1375"/>
       </Position7>
       <Position8>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="344" Column="1" TopLine="340"/>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1395" Column="21" TopLine="1375"/>
       </Position8>
       <Position9>
-        <Filename Value="uEvSettingsForm.pas"/>
-        <Caret Line="228" Column="44" TopLine="43"/>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1396" Column="27" TopLine="1375"/>
       </Position9>
       <Position10>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="111" Column="49" TopLine="96"/>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1399" Column="4" TopLine="1369"/>
       </Position10>
       <Position11>
-        <Filename Value="mLanguages.pas"/>
-        <Caret Line="104" Column="58" TopLine="85"/>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1400" Column="17" TopLine="1369"/>
       </Position11>
+      <Position12>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="373" Column="61" TopLine="355"/>
+      </Position12>
+      <Position13>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1217" Column="5" TopLine="1198"/>
+      </Position13>
+      <Position14>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1073" Column="14" TopLine="1050"/>
+      </Position14>
+      <Position15>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1228" Column="44" TopLine="1195"/>
+      </Position15>
+      <Position16>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1248" Column="19" TopLine="1203"/>
+      </Position16>
+      <Position17>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1337" Column="19" TopLine="1320"/>
+      </Position17>
+      <Position18>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1101" Column="42" TopLine="1122"/>
+      </Position18>
+      <Position19>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1347" Column="50" TopLine="1305"/>
+      </Position19>
+      <Position20>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="25" Column="105" TopLine="1"/>
+      </Position20>
+      <Position21>
+        <Filename Value="mProject.pas"/>
+        <Caret Line="1399" Column="21" TopLine="1374"/>
+      </Position21>
+      <Position22>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="567" Column="95" TopLine="537"/>
+      </Position22>
     </JumpHistory>
   </ProjectSession>
   <Debugging>

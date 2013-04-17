@@ -133,7 +133,7 @@ Function ReadString(const Term: Char): Boolean;
 Begin
  Result := False;
 
- Inc(fTokenEnd); // ommit first `"` (or `'`)
+ Inc(fTokenEnd); // skip first `"` (or `'`)
  While (fTokenEnd < Len) Do
  Begin
   if (fLineText[fTokenEnd] = Term) and (fLineText[fTokenEnd-1] <> '\') Then

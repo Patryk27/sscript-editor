@@ -5,8 +5,8 @@ unit uEvSettingsForm;
 interface
 
 uses
-  Windows, Classes, SysUtils, FileUtil, SynEdit, Forms, Controls, Graphics, Dialogs,
-  ComCtrls, ExtCtrls, StdCtrls, Buttons, EditBtn, Registry;
+  Classes, LCLType, SysUtils, FileUtil, SynEdit, Forms, Controls, Graphics, Dialogs,
+  ComCtrls, ExtCtrls, StdCtrls, Buttons, EditBtn;
 
 type
 
@@ -26,7 +26,6 @@ type
     btn_cPrimaryTypes: TButton;
     btn_cOther: TButton;
     btnFGColor: TButton;
-    btnExtLink: TButton;
     cAddBrackets:TCheckBox;
     cbLanguages:TComboBox;
     cOpenRecentProject:TCheckBox;
@@ -45,7 +44,6 @@ type
     Label3:TLabel;
     p_5:TPage;
     p_4:TPage;
-    p_3: TPage;
     p_2: TPage;
     Pages: TNotebook;
     p_1: TPage;
@@ -53,7 +51,6 @@ type
     SampleCode: TSynEdit;
     procedure btnBGColorClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
-    procedure btnExtLinkClick(Sender: TObject);
     procedure btnFGColorClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnFontClick(Sender: TObject);
@@ -70,10 +67,11 @@ type
     procedure eCompilerFileChange(Sender: TObject);
     procedure eVMFileChange(Sender: TObject);
     procedure FileTimerTimer(Sender: TObject);
+    procedure p_1BeforeShow(ASender: TObject; ANewPage: TPage;
+    ANewIndex: Integer);
     procedure SettingChange(Sender:TObject;Node:TTreeNode);
   private
    Procedure UpdateSampleCode;
-   Procedure UpdateExtButton;
   public
    Procedure Run;
   end;
@@ -83,11 +81,8 @@ var
 
 implementation
 Uses mSettings, mProject, mLanguages, SynEditSScript, uMainForm, uSyntaxHighlighterChange;
-
 Const SettingsFile       = mSettings.FileName;
       SettingsFileBackup = mSettings.FileName+'_';
-
-Const FileExt: Array[0..0] of String = ('ssp');
 
 Var Highlighter: THighlighter = nil;
     CheckTime  : Integer = 0;
@@ -95,14 +90,14 @@ Var Highlighter: THighlighter = nil;
 {$R *.lfm}
 
 // mCopyFile
-Procedure mCopyFile(fFrom, fTo: String);
+Procedure mCopyFile(const fFrom, fTo: String);
 Begin
  if (FileExists(fFrom)) Then
-  CopyFile(PChar(fFrom), PChar(fTo), True);
+  CopyFile(fFrom, fTo, True);
 End;
 
 // mDeleteFile
-Procedure mDeleteFile(fFile: String);
+Procedure mDeleteFile(const fFile: String);
 Begin
  if (FileExists(fFile)) Then
   DeleteFile(fFile);
@@ -120,35 +115,14 @@ Begin
  SampleCode.Highlighter := Highlighter;
 End;
 
-{ TEvSettingsForm.UpdateExtButton }
-Procedure TEvSettingsForm.UpdateExtButton;
-Var Reg: TRegistry;
-Begin
- Reg         := TRegistry.Create;
- Reg.RootKey := HKEY_CLASSES_ROOT;
-
- if (Reg.KeyExists('.'+FileExt[0])) Then
- // @TODO: this is a bit lame solution, as it checks only for 'is there any program which handles this extension', but doesn't check whether it's our editor or something else
- Begin
-  btnExtLink.Tag     := 2;
-  btnExtLink.Caption := getLangValue(ls_remove_ext);
- End Else
- Begin
-  btnExtLink.Tag     := 1;
-  btnExtLink.Caption := getLangValue(ls_add_ext);
- End;
-
- Reg.Free;
-End;
-
 { getLanguageName }
 Function getLanguageName(FileName: String): String;
 Begin
- Result := Copy(FileName, 1, Pos('.', FileName)-1);
+ Result := Copy(FileName, 1, LastDelimiter('.', FileName)-1);
 End;
 
-{ FindLanguages }
-Procedure FindLanguages;
+{ SearchLanguages }
+Procedure SearchLanguages;
 Var M: TSearchRec;
 Begin
  With EvSettingsForm.cbLanguages do
@@ -157,7 +131,7 @@ Begin
   Items.Add('English');
  End;
 
- if (FindFirst('lang\*.lng', faAnyFile, M) <> 0) Then
+ if (FindFirst(ExtractFilePath(ParamStr(0))+'/lang/*.lng', faAnyFile, M) <> 0) Then
   Exit; // no files found
 
  Repeat
@@ -182,7 +156,6 @@ Begin
  mCopyFile(SettingsFile, SettingsFileBackup);
 
  UpdateSampleCode;
- UpdateExtButton;
 
  // load config
  eCompilerFile.Text         := getString(sCompilerFile);
@@ -191,8 +164,8 @@ Begin
  cOpenRecentProject.Checked := getBoolean(sOpenRecentProject);
  cAddBrackets.Checked       := getBoolean(sAddBrackets);
 
- // search for languages
- FindLanguages;
+ // search languages
+ SearchLanguages;
 
  // show form
  CheckTime := 0;
@@ -206,6 +179,9 @@ End;
 procedure TEvSettingsForm.btnSaveClick(Sender: TObject);
 Var Tmp: String;
 begin
+ { hide form }
+ Hide;
+
  { save new settings }
  setString(sCompilerFile, eCompilerFile.Text);
  setString(sVMFile, eVMFile.Text);
@@ -214,9 +190,13 @@ begin
  setBoolean(sAddBrackets, cAddBrackets.Checked);
 
  { has the language changed? }
- if (cbLanguages.ItemIndex = 0) Then // `English` (default) language
-  Tmp := '' { `English` language doesn't have its corresponding language file, as it is internal } Else
-  Tmp := cbLanguages.Items[cbLanguages.ItemIndex]+'.lng';
+ if (cbLanguages.Items.Count = 0) Then
+  Tmp := '' Else
+ Begin
+  if (cbLanguages.ItemIndex = 0) Then // `English` (default) language
+   Tmp := '' { `English` language doesn't have its corresponding language file, as it is internal } Else
+   Tmp := cbLanguages.Items[cbLanguages.ItemIndex]+'.lng';
+ End;
 
  if (Tmp <> getString(sLanguage)) Then
   Application.MessageBox(PChar(getLangValue(ls_msg_env_restart)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
@@ -328,6 +308,12 @@ begin
  End;
 end;
 
+procedure TEvSettingsForm.p_1BeforeShow(ASender: TObject; ANewPage: TPage;
+ANewIndex: Integer);
+begin
+
+end;
+
 procedure TEvSettingsForm.SettingChange(Sender:TObject;Node:TTreeNode);
 Var Page: Integer;
 begin
@@ -353,53 +339,6 @@ begin
  mSettings.ReloadConfig;
 
  Close;
-end;
-
-procedure TEvSettingsForm.btnExtLinkClick(Sender: TObject);
-Var Reg: TRegistry;
-    Ext: String;
-begin
- Reg         := TRegistry.Create;
- Reg.RootKey := HKEY_CLASSES_ROOT;
-
- Case TButton(Sender).Tag of
-  1: { write keys to the registry }
-  Begin
-   For Ext in FileExt Do
-   Begin
-    Reg.OpenKey('.'+Ext, True);
-    Reg.WriteString('', Ext+'file');
-    Reg.CloseKey;
-    Reg.OpenKey(Ext+'file', True);
-    Reg.WriteString('', 'SScript Project');
-    Reg.CloseKey;
-    Reg.OpenKey(Ext+'file\DefaultIcon', True);
-    Reg.WriteString('', Application.ExeName+',0');
-    Reg.CloseKey;
-    Reg.OpenKey(Ext+'file\shell\open', True);
-    Reg.WriteString('', '&SScript Editor');
-    Reg.CloseKey;
-    Reg.OpenKey(Ext+'file\shell\open\command', True);
-    Reg.WriteString('', Application.ExeName+' "%1"');
-   End;
-  End;
-
-  2: { remove keys from the registry }
-  Begin
-   For Ext in FileExt Do
-   Begin
-    Reg.DeleteKey('.'+Ext);
-    Reg.DeleteKey(Ext+'file');
-    Reg.DeleteKey(Ext+'file\DefaultIcon');
-    Reg.DeleteKey(Ext+'file\shell\open');
-    Reg.DeleteKey(Ext+'file\shell\open\command');
-   End;
-  End;
- End;
-
- Reg.Free;
-
- UpdateExtButton;
 end;
 
 procedure TEvSettingsForm.btnBGColorClick(Sender: TObject);

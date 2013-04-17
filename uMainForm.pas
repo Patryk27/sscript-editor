@@ -5,7 +5,7 @@ unit uMainForm;
 interface
 
 uses
-  Windows, Classes, SysUtils, FileUtil, SynEdit, ExtendedNotebook, Forms,
+  Classes, SysUtils, FileUtil, SynEdit, ExtendedNotebook, Forms,
   Controls, Graphics, Dialogs, Menus, ExtCtrls, ComCtrls, mSettings, LCLType;
 
  // types
@@ -107,6 +107,7 @@ type
     procedure oUndoClick(Sender: TObject);
     procedure Splitter1CanResize(Sender: TObject; var NewSize: Integer;
     var Accept: Boolean);
+    procedure TabsChange(Sender: TObject);
     procedure TabsTabDragDropEx(Sender, Source: TObject; OldIndex,
       NewIndex: Integer; CopyDrag: Boolean; var Done: Boolean);
     procedure TabsUpdateTimer(Sender: TObject);
@@ -222,6 +223,7 @@ Begin
    With RecentlyOpened Do
     Delete(IndexOf(TMenuItem(Sender).Caption)); // remove not-existing file from the list
    setRecentlyOpened(RecentlyOpened);
+   setMainMenu(stDisabled);
 
    Application.MessageBox(PChar(getLangValue(ls_msg_project_open_failed)), PChar(getLangValue(ls_msg_error)), MB_IconError);
   End;
@@ -365,7 +367,7 @@ begin
    Project.Free;
  End;
 
- ShowWindow(Handle, SW_SHOWMAXIMIZED);
+// ShowWindow(Handle, SW_SHOWMAXIMIZED); @TODO
 end;
 
 procedure TMainForm.oShowCompilerOutputClick(Sender:TObject);
@@ -556,7 +558,7 @@ procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
  CanClose := SaveProject;
 
- // save current project as a "Recent" and add it into the "Recently opened" list (if it's possible)
+ // save current project as a "Recent" and add it into the "Recently opened" list (if possible)
  if (CanClose) and (Project <> nil) Then
   if (Project.Named) Then
   Begin
@@ -572,7 +574,7 @@ begin
   Exit;
 
  Data := Integer(CompileStatus.Selected.Data);
- if (Data > 0) Then // when `Data == 0`, it's just a editor's message, not a compiler error, warning or hint
+ if (Data > 0) Then // when `Data == 0`, it's just an editor's message, not a compiler error, warning or hint, so there's no need to 'raise' it
   Project.RaiseMessage(Data-1);
 end;
 
@@ -643,6 +645,11 @@ begin
  setFloat(sSplitter1, Splitter1Factor);
 end;
 
+procedure TMainForm.TabsChange(Sender: TObject);
+begin
+
+end;
+
 procedure TMainForm.TabsTabDragDropEx(Sender, Source: TObject; OldIndex,
   NewIndex: Integer; CopyDrag: Boolean; var Done: Boolean);
 begin
@@ -652,10 +659,10 @@ end;
 
 procedure TMainForm.TabsUpdateTimer(Sender: TObject);
 begin
- if (Project = nil) Then // no project created?
+ if (Project = nil) Then // no project created
   Exit;
 
- if (Project.getCurrentCard = nil) Then // no card opened (shouldn't happen, in fact...)?
+ if (Project.getCurrentCard = nil) Then // no card opened
   Exit;
 
  Project.UpdateCards;

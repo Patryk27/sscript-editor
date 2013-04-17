@@ -43,7 +43,7 @@ begin
   Application.CreateForm(TSyntaxHighlighterChange, SyntaxHighlighterChange);
   Application.CreateForm(TCompilerOutputForm, CompilerOutputForm);
 
-  LoadLanguageFile(ExtractFilePath(ParamStr(0))+'lang\'+getString(sLanguage));
+  LoadLanguageFile(ExtractFilePath(ParamStr(0))+'lang/'+getString(sLanguage));
 
   Application.Run;
 end.

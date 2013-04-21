@@ -1219,7 +1219,7 @@ Begin
   [
    InputFile, '-v', '-devlog',
    '-includepath', IncludePath,
-   '-o', OutputFile
+   '-o', sOutputFile
   ]
   );
 
@@ -1298,7 +1298,7 @@ Begin
     Line := StrToInt(Copy(Posi, 1, Pos(',', Posi)-1));
     Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
 
-    AddError(Line, Char, Base, Message, mFileName);
+    AddError(Line, Char+1, Base, Message, mFileName);
    End;
 
    { hint }
@@ -1312,7 +1312,7 @@ Begin
     Line := StrToInt(Copy(Posi, 1, Pos(',', Posi)-1));
     Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
 
-    AddHint(Line, Char, Base, Message, mFileName);
+    AddHint(Line, Char+1, Base, Message, mFileName);
    End;
 
    { note }
@@ -1326,7 +1326,7 @@ Begin
     Line := StrToInt(Copy(Posi, 1, Pos(',', Posi)-1));
     Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
 
-    AddNote(Line, Char, Base, Message, mFileName);
+    AddNote(Line, Char+1, Base, Message, mFileName);
    End;
   End;
 
@@ -1383,6 +1383,9 @@ Begin
 
  { generate command line }
  CommandLine := '';
+ {$IFDEF WINDOWS}
+  CommandLine := sOutputFile;
+ {$ENDIF}
 
  For Switch in VMSwitches Do
   CommandLine += ' -'+getVMSwitchName(Switch, True);

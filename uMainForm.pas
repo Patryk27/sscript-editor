@@ -121,8 +121,12 @@ type
   end;
 
  // consts
- Const iVersion = 0.3;
-       sVersion = '0.3 nightly';
+ Const vMajor   = 0.3;
+       vMinor   = 1;
+
+       iVersion: Single = 100*vMajor+vMinor; // this is saved into the `version` field in project files.
+
+       sVersion = '0.3.1 nightly';
        sCaption = 'SScript Editor v'+sVersion;
 
  // variables

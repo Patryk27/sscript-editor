@@ -1,7 +1,7 @@
 object ProjectSettingsForm: TProjectSettingsForm
-  Left = 441
+  Left = 346
   Height = 437
-  Top = 96
+  Top = 99
   Width = 640
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
@@ -10,7 +10,7 @@ object ProjectSettingsForm: TProjectSettingsForm
   ClientWidth = 640
   FormStyle = fsStayOnTop
   Position = poScreenCenter
-  LCLVersion = '1.0.6.0'
+  LCLVersion = '1.0.8.0'
   object Setting: TTreeView
     Left = 0
     Height = 400
@@ -24,12 +24,12 @@ object ProjectSettingsForm: TProjectSettingsForm
     Items.Data = {
       F9FFFFFF020003000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF010000000000
       0000010700000050726F6A65637400000000FFFFFFFFFFFFFFFFFFFFFFFF0000
-      00000000000000050000005061746873FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      01000000000000000108000000436F6D70696C657201000000FFFFFFFFFFFFFF
-      FFFFFFFFFF000000000000000000050000005061746873FFFFFFFFFFFFFFFFFF
-      FFFFFFFFFFFFFF0100000000000000010F0000005669727475616C206D616368
-      696E6502000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000A000000
-      506172616D6574657273
+      00000000000000080000005377697463686573FFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFF01000000000000000108000000436F6D70696C657201000000FFFFFFFF
+      FFFFFFFFFFFFFFFF000000000000000000050000005061746873FFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFF0100000000000000010F0000005669727475616C206D
+      616368696E6502000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000A
+      000000506172616D6574657273
     }
   end
   object Bevel1: TBevel
@@ -61,7 +61,7 @@ object ProjectSettingsForm: TProjectSettingsForm
     Height = 394
     Top = 0
     Width = 387
-    PageIndex = 2
+    PageIndex = 0
     TabOrder = 3
     TabStop = True
     object p_2: TPage
@@ -75,11 +75,11 @@ object ProjectSettingsForm: TProjectSettingsForm
       end
       object GroupBox1: TGroupBox
         Left = 119
-        Height = 88
-        Top = 272
+        Height = 296
+        Top = 64
         Width = 265
-        Caption = 'Individual optimizations'
-        ClientHeight = 70
+        Caption = 'Optimizations'
+        ClientHeight = 278
         ClientWidth = 261
         TabOrder = 1
         object _Or: TCheckBox
@@ -106,6 +106,14 @@ object ProjectSettingsForm: TProjectSettingsForm
           Caption = 'Optimize bytecode (-Op)'
           TabOrder = 2
         end
+        object _Ou: TCheckBox
+          Left = 6
+          Height = 19
+          Top = 68
+          Width = 192
+          Caption = 'Remove unreachable code (-Ou)'
+          TabOrder = 3
+        end
       end
       object Label3: TLabel
         Left = 0
@@ -125,11 +133,11 @@ object ProjectSettingsForm: TProjectSettingsForm
       end
       object GroupBox2: TGroupBox
         Left = 0
-        Height = 88
-        Top = 272
+        Height = 296
+        Top = 64
         Width = 113
-        Caption = 'Optimizations'
-        ClientHeight = 70
+        Caption = 'Optimization levels'
+        ClientHeight = 278
         ClientWidth = 109
         TabOrder = 3
         object _O1: TCheckBox

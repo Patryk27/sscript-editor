@@ -53,7 +53,7 @@ Unit mProject;
  Type TMessageList = specialize TFPGList<PMessage>;
 
  // TCompilerSwitches
- Type TCompilerSwitch = (_initcode, _Cconst, _Or, _Of, _Op, _O1);
+ Type TCompilerSwitch = (_initcode, _Cconst, _Or, _Of, _Op, _Ou, _O1);
  Type TCompilerSwitches = Set of TCompilerSwitch;
 
  // TVMSwitches
@@ -772,7 +772,7 @@ Var Doc         : TXMLDocument;
 
     OldWorkingDir: String;
 
-    Version: Extended;
+    Version: Single;
 
   // ReadStringValue
   Function ReadStringValue(Node: TDOMNode; Name: String): String;

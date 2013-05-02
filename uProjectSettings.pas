@@ -14,6 +14,7 @@ type
 
   TProjectSettingsForm = class(TForm)
     Bevel1: TBevel;
+    _Ou: TCheckBox;
     c_err:TCheckBox;
     _Cconst:TCheckBox;
     c_time:TCheckBox;

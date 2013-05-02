@@ -135,12 +135,11 @@ Caption=Ustawienia projektu
 
 [ProjectSettingsForm_Setting]
 0=Projekt
-1=Ścieżki
+1=Przełączniki
 2=Kompilator
-3=Kod
-4=Ścieżki
-5=Maszyna wirtualna
-6=Parametry
+3=Ścieżki
+4=Maszyna wirtualna
+5=Parametry
 
 [ProjectSettingsForm_btnSave]
 Caption=Zapisz
@@ -178,6 +177,9 @@ Caption=Optymalizuj wyrażenia stałe (-Of)
 [ProjectSettingsForm__Op]
 Caption=Optymalizuj wygenerowany bajtkod (-Op)
 
+[ProjectSettingsForm__Ou]
+Caption=Usuwaj nieosiągalny kod wynikowy (-Ou)
+
 [ProjectSettingsForm__Cconst]
 Caption=Włącz specjalne stałe, takie jak `__self`, `__line`... (-Cconst)
 
@@ -186,9 +188,6 @@ Caption=Inne przełączniki:
 
 [ProjectSettingsForm_eCompilerSwitches]
 Text=eCompilerSwitches
-
-[ProjectSettingsForm__dbg]
-Caption=Dodaj sekcję 'debug'  (-dbg)
 
 [ProjectSettingsForm_GroupBox2]
 Caption=Optymalizacje

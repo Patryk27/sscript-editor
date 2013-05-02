@@ -1,11 +1,11 @@
 object MainForm: TMainForm
-  Left = 316
+  Left = 502
   Height = 471
-  Top = 135
+  Top = 152
   Width = 824
   AllowDropFiles = True
   Caption = 'SScript Editor'
-  ClientHeight = 471
+  ClientHeight = 451
   ClientWidth = 824
   Menu = MainMenu
   OnCloseQuery = FormCloseQuery
@@ -19,7 +19,7 @@ object MainForm: TMainForm
   object Panel1: TPanel
     Left = 0
     Height = 96
-    Top = 354
+    Top = 332
     Width = 824
     Align = alBottom
     ClientHeight = 96
@@ -31,6 +31,7 @@ object MainForm: TMainForm
       Top = 1
       Width = 822
       Align = alClient
+      DefaultItemHeight = 18
       Images = MessagesImageList
       ParentShowHint = False
       PopupMenu = CompileStatusPopup
@@ -49,8 +50,8 @@ object MainForm: TMainForm
   end
   object StatusBar: TStatusBar
     Left = 0
-    Height = 21
-    Top = 450
+    Height = 23
+    Top = 428
     Width = 824
     Panels = <    
       item
@@ -63,7 +64,7 @@ object MainForm: TMainForm
   end
   object Tabs: TExtendedNotebook
     Left = 0
-    Height = 349
+    Height = 327
     Top = 0
     Width = 824
     Align = alClient
@@ -78,7 +79,7 @@ object MainForm: TMainForm
     Cursor = crVSplit
     Left = 0
     Height = 5
-    Top = 349
+    Top = 327
     Width = 824
     Align = alBottom
     AutoSnap = False

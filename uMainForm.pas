@@ -126,7 +126,7 @@ type
 
        iVersion: Single = 100*vMajor+vMinor; // this is saved into the `version` field in project files.
 
-       sVersion = '0.3.1 nightly';
+       sVersion = '0.3.1';
        sCaption = 'SScript Editor v'+sVersion;
 
  // variables

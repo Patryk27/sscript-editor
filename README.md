@@ -9,8 +9,8 @@ It's written in Pascal (Lazarus, precisely).
 I made it mainly out of boredom - it's nothing, comparing to eg.Lazarus, but I'm still developing and proud of it :)
 
 
-All tutorials are - as for now - written only in Polish: http://sscriptwiki.xorg.pl/wiki/Strona_g³ówna
-... but soon I'm going to translate them into English ;)
+All tutorials are - as for now - written only in Polish: http://sscript.4programmers.net/
+... but soon I'm going to translate them to English ;)
 
 ### Downloading
 There are 2 branches:

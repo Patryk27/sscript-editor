@@ -1079,106 +1079,126 @@ Var sOutputFile: String;
 
     AnyError: Boolean = False;
 
-// AddText
-Procedure AddText(const Str: String; Icon: TMessageIcon=miNone; DataInt: Integer=0);
-Begin
- With MainForm.CompileStatus do
-  With Items.Add(nil, Str) do
+  // AddUserSwitches
+  Procedure AddUserSwitches;
+  Var Switches, Switch: String;
+      I               : uint32;
   Begin
-   Data          := Pointer(DataInt);
-   ImageIndex    := ord(Icon);
-   SelectedIndex := ImageIndex;
+   Switches := OtherCompilerSwitches+' ';
+   Switch   := '';
+
+   For I := 1 To Length(Switches) Do
+    if (Switches[I] = ' ') Then
+    Begin
+     if (Length(Switch) = 0) Then
+      Continue;
+
+     Process.Parameters.Add(Switch);
+     Switch := '';
+    End Else
+     Switch += Switches[I];
   End;
-End;
 
-// AddError
-Procedure AddError(Line, Char: Integer; Base, Message, FileName: String);
-Var Card: Integer;
-    Info: PMessage;
-Begin
- AnyError := True;
-
- { open card }
- Card := FindCard(FileName);
- if (Card = -1) Then
- Begin
-  if (not CreateCard(FileName, True)) Then // failed
-   Exit;
-  Card := CardList.Count-1;
- End;
-
- { modify card }
- With CardList[Card] do
- Begin
-  if (ErrorLine = -1) Then
+  // AddText
+  Procedure AddText(const Str: String; Icon: TMessageIcon=miNone; DataInt: Integer=0);
   Begin
-   ErrorLine := Line;
-   With SynEdit do
+   With MainForm.CompileStatus do
+    With Items.Add(nil, Str) do
+    Begin
+     Data          := Pointer(DataInt);
+     ImageIndex    := ord(Icon);
+     SelectedIndex := ImageIndex;
+    End;
+  End;
+
+  // AddError
+  Procedure AddError(Line, Char: Integer; Base, Message, FileName: String);
+  Var Card: Integer;
+      Info: PMessage;
+  Begin
+   AnyError := True;
+
+   { open card }
+   Card := FindCard(FileName);
+   if (Card = -1) Then
    Begin
-    CaretX := Char;
-    CaretY := Line;
-    Invalidate;
+    if (not CreateCard(FileName, True)) Then // failed
+     Exit;
+    Card := CardList.Count-1;
+   End;
+
+   { modify card }
+   With CardList[Card] do
+   Begin
+    if (ErrorLine = -1) Then
+    Begin
+     ErrorLine := Line;
+     With SynEdit do
+     Begin
+      CaretX := Char;
+      CaretY := Line;
+      Invalidate;
+     End;
+    End;
+
+    New(Info);
+    Info^.Line     := Line;
+    Info^.Char     := Char;
+    Info^.FileName := FileName;
+    Info^.Text     := Message;
+    MessageList.Add(Info);
+
+    AddText(Base, miError, MessageList.Count);
    End;
   End;
 
-  New(Info);
-  Info^.Line     := Line;
-  Info^.Char     := Char;
-  Info^.FileName := FileName;
-  Info^.Text     := Message;
-  MessageList.Add(Info);
+  // AddHint
+  Procedure AddHint(Line, Char: Integer; Base, Message, FileName: String);
+  Var Card: Integer;
+      Info: PMessage;
+  Begin
+   { open card }
+   Card := FindCard(FileName);
+   if (Card = -1) Then
+   Begin
+    if (not CreateCard(FileName, True)) Then // failed
+     Exit;
+    Card := CardList.Count-1;
+   End;
 
-  AddText(Base, miError, MessageList.Count);
- End;
-End;
+   New(Info);
+   Info^.Line     := Line;
+   Info^.Char     := Char;
+   Info^.FileName := FileName;
+   Info^.Text     := Message;
+   MessageList.Add(Info);
 
-// AddHint
-Procedure AddHint(Line, Char: Integer; Base, Message, FileName: String);
-Var Card: Integer;
-    Info: PMessage;
-Begin
- { open card }
- Card := FindCard(FileName);
- if (Card = -1) Then
- Begin
-  if (not CreateCard(FileName, True)) Then // failed
-   Exit;
-  Card := CardList.Count-1;
- End;
+   AddText(Base, miHint, MessageList.Count);
+  End;
 
- New(Info);
- Info^.Line     := Line;
- Info^.Char     := Char;
- Info^.FileName := FileName;
- Info^.Text     := Message;
- MessageList.Add(Info);
+  // AddNote
+  Procedure AddNote(Line, Char: Integer; Base, Message, FileName: String);
+  Var Card: Integer;
+      Info: PMessage;
+  Begin
+   { open card }
+   Card := FindCard(FileName);
+   if (Card = -1) Then
+   Begin
+    if (not CreateCard(FileName, True)) Then // failed
+     Exit;
+    Card := CardList.Count-1;
+   End;
 
- AddText(Base, miHint, MessageList.Count);
-End;
+   New(Info);
+   Info^.Line     := Line;
+   Info^.Char     := Char;
+   Info^.FileName := FileName;
+   Info^.Text     := Message;
+   MessageList.Add(Info);
 
-// AddNote
-Procedure AddNote(Line, Char: Integer; Base, Message, FileName: String);
-Var Card: Integer;
-    Info: PMessage;
-Begin
- { open card }
- Card := FindCard(FileName);
- if (Card = -1) Then
- Begin
-  if (not CreateCard(FileName, True)) Then // failed
-   Exit;
-  Card := CardList.Count-1;
- End;
-
- New(Info);
- Info^.Line     := Line;
- Info^.Char     := Char;
- Info^.FileName := FileName;
- Info^.Text     := Message;
- MessageList.Add(Info);
-
- AddText(Base, miHint, MessageList.Count);
-End;
+   AddText(Base, miHint, MessageList.Count);
+  End;
 
 Begin
  if (not FileExists(getString(sCompilerFile))) Then
@@ -1217,9 +1237,9 @@ Begin
   { generate command line }
   Process.Parameters.AddStrings(
   [
-   InputFile, '-v', '-devlog',
-   '-includepath', IncludePath,
-   '-o', sOutputFile
+   '"'+InputFile+'"', '-v', '-vv',
+   '-includepath', '"'+IncludePath+'"',
+   '-o', '"'+sOutputFile+'"'
   ]
   );
 
@@ -1232,18 +1252,18 @@ Begin
    Process.Parameters.AddStrings(['-Cm', 'lib']);
 
    if (HeaderFile <> '') Then
-    Process.Parameters.AddStrings(['-h', MakeAbsolutePath(HeaderFile)]);
+    Process.Parameters.AddStrings(['-h', '"'+MakeAbsolutePath(HeaderFile)+'"']);
   End;
 
   // generate bytecode?
   if (BytecodeOutput <> '') Then
-   Process.Parameters.AddStrings(['-bytecode', MakeAbsolutePath(BytecodeOutput)]);
+   Process.Parameters.AddStrings(['-bytecode', '"'+MakeAbsolutePath(BytecodeOutput)+'"']);
 
   // add compile switches
   For Switch in CompilerSwitches Do
    Process.Parameters.Add('-'+getSwitchName(Switch));
 
-  Process.Parameters.Add(OtherCompilerSwitches); // @TODO
+  AddUserSwitches;
 
   { run compiler }
   Process.Execute;
@@ -1356,7 +1376,10 @@ Procedure TProject.Run;
 Var sOutputFile, CommandLine: String;
     Switch                  : TVMSwitch;
     Tries                   : Integer = 0;
-    Process                 : TProcess;
+
+    {$IFDEF LINUX}
+     Process: TProcess;
+    {$ENDIF}
 Begin
  if (ProjectType = ptLibrary) Then // cannot run a library
   Exit;

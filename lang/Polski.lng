@@ -165,20 +165,12 @@ Caption=Pobierz ścieżki z danych środowiska
 [ProjectSettingsForm__initcode]
 Caption=Dodaj kod startowy do programu (-initcode)
 
-[ProjectSettingsForm_GroupBox1]
-Caption=Poszczególne optymalizacje
-
-[ProjectSettingsForm__Or]
-Caption=Trzymaj niektóre zmienne w rejestrach (-Or)
-
-[ProjectSettingsForm__Of]
-Caption=Optymalizuj wyrażenia stałe (-Of)
-
-[ProjectSettingsForm__Op]
-Caption=Optymalizuj wygenerowany bajtkod (-Op)
-
-[ProjectSettingsForm__Ou]
-Caption=Usuwaj nieosiągalny kod wynikowy (-Ou)
+[ProjectSettingsForm_rgOptimizationLevel]
+Caption=Stopień optymalizacji
+0=-O0 (brak optymalizacji)
+1=-O1
+2=-O2 (-O1+szybkie optymalizacje)
+3=-O3 (-O2+wolne optymalizacje)
 
 [ProjectSettingsForm__Cconst]
 Caption=Włącz specjalne stałe, takie jak `__self`, `__line`... (-Cconst)

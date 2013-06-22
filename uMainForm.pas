@@ -14,16 +14,16 @@ uses
 type
   { TMainForm }
   TMainForm = class(TForm)
-  MenuItem8:TMenuItem;
-  oShowCompilerOutput:TMenuItem;
-  opPaste:TMenuItem;
-  opCopy:TMenuItem;
-  opCut:TMenuItem;
-  opSaveSelectedMessage:TMenuItem;
-  opSaveMessagesToClipboard:TMenuItem;
-  oCloseProject:TMenuItem;
-  oCloseCurrentCard:TMenuItem;
-  MessagesImageList:TImageList;
+    MenuItem8:TMenuItem;
+    oShowCompilerOutput:TMenuItem;
+    opPaste:TMenuItem;
+    opCopy:TMenuItem;
+    opCut:TMenuItem;
+    opSaveSelectedMessage:TMenuItem;
+    opSaveMessagesToClipboard:TMenuItem;
+    oCloseProject:TMenuItem;
+    oCloseCurrentCard:TMenuItem;
+    MessagesImageList:TImageList;
     MenuItem1: TMenuItem;
     MenuItem7: TMenuItem;
     opSaveMessages:TMenuItem;

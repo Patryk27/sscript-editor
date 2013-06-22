@@ -53,7 +53,7 @@ Unit mProject;
  Type TMessageList = specialize TFPGList<PMessage>;
 
  // TCompilerSwitches
- Type TCompilerSwitch = (_initcode, _Cconst, _Or, _Of, _Op, _Ou, _O1);
+ Type TCompilerSwitch = (_initcode, _Cconst);
  Type TCompilerSwitches = Set of TCompilerSwitch;
 
  // TVMSwitches
@@ -91,6 +91,7 @@ Unit mProject;
 
                    // compiler
                    CompilerSwitches     : TCompilerSwitches;
+                   OptimizationLevel    : uint8; // 0..3
                    OtherCompilerSwitches: String;
                    CompilerOutput       : String;
 
@@ -151,7 +152,8 @@ Begin
   Delete(Result, 1, 2);
 End;
 
-{ TCard.Editor_OnKeyPress }
+// -------------------------------------------------------------------------- //
+(* TCard.Editor_OnKeyPress *)
 Procedure TCard.Editor_OnKeyPress(Sender: TObject; var Key: Char);
 Var Str: String = '';
 Begin
@@ -181,45 +183,48 @@ Begin
  SynEdit.Invalidate;
 End;
 
-{ TCard.Editor_OnKeyDown }
+(* TCard.Editor_OnKeyDown *)
 Procedure TCard.Editor_OnKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 Begin
  ErrorLine := -1;
  SynEdit.Invalidate;
 End;
 
-{ TCard.Editor_OnMouseUp }
+(* TCard.Editor_OnMouseUp *)
 Procedure TCard.Editor_OnMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 Begin
  ErrorLine := -1;
  SynEdit.Invalidate;
 End;
 
-{ TCard.Editor_OnMouseDown }
+(* TCard.Editor_OnMouseDown *)
 Procedure TCard.Editor_OnMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 Begin
  ErrorLine := -1;
  SynEdit.Invalidate;
 End;
 
-{ TCard.Editor_OnClick }
+(* TCard.Editor_OnClick *)
 Procedure TCard.Editor_OnClick(Sender: TObject);
 Begin
  ErrorLine := -1;
  SynEdit.Invalidate;
 End;
 
-{ TCard.Editor_OnSpecialLineColors }
+(* TCard.Editor_OnSpecialLineColors *)
 Procedure TCard.Editor_OnSpecialLineColors(Sender: TObject; Line: Integer; var Special: Boolean; var FG, BG: TColor);
 Begin
  if (Line = ErrorLine) Then
  Begin
-  BG      := 16752720;
+  BG      := 16752720; // @TODO: afair, on Linux it should be written as BGR, not RGB
   Special := True;
  End;
 End;
 
-{ TCard.Create }
+(* TCard.Create *)
+{
+ Creates a card with cation `fCaption` and loads into it file named `fFileName`
+}
 Constructor TCard.Create(const fFileName, fCaption: String);
 Begin
  FileName := fFileName;
@@ -264,14 +269,21 @@ Begin
  SynEdit.SetFocus;
 End;
 
-{ TCard.Destroy }
+(* TCard.Destroy *)
+{
+ Destroys card's components and then removes the card.
+}
 Destructor TCard.Destroy;
 Begin
  SynEdit.Free;
  Tab.Destroy;
 End;
 
-{ TCard.Save }
+(* TCard.Save *)
+{
+ Saves card's editor content.
+ Returns `true` if content was successfully saved or `false` otherwise.
+}
 Function TCard.Save(const fFileName: String=''): Boolean;
 Begin
  Result := False;
@@ -312,28 +324,40 @@ Begin
  Exit(True);
 End;
 
-{ TCard.Save }
+(* TCard.Save *)
+{
+ Displays a prompt and then saves the card.
+ Returns `true` if content was successfully saved or `false` otherwise.
+}
 Function TCard.Save(const Reason: TCardSaveReason): Boolean;
 Begin
- Case MessageDlg(getLangValue(ls_title_card_close), getLangValue(ls_msg_card_close), mtWarning, mbYesNoCancel, '') of
-  { yes }
-  mrYes:
-  Begin
-   Save();
-   Exit(True);
+ Result := False;
+
+ if (Reason = csrClosingCard) Then
+ Begin
+  Case MessageDlg(getLangValue(ls_title_card_close), getLangValue(ls_msg_card_close), mtWarning, mbYesNoCancel, '') of
+   { yes }
+   mrYes:
+   Begin
+    Save();
+    Exit(True);
+   End;
+
+   { no }
+   mrNo: Exit(True);
+
+   { cancel }
+   mrCancel: Exit(False);
   End;
 
-  { no }
-  mrNo: Exit(True);
-
-  { cancel }
-  mrCancel: Exit(False);
+  Exit(True);
  End;
-
- Exit(True);
 End;
 
-{ TCard.Update }
+(* TCard.Update *)
+{
+ Updates card
+}
 Procedure TCard.Update;
 Begin
  // update card's caption
@@ -342,7 +366,10 @@ Begin
   Tab.Caption := Caption;
 End;
 
-{ TCard.RefreshControls }
+(* TCard.RefreshControls *)
+{
+ Refreshes card's controls.
+}
 Procedure TCard.RefreshControls;
 Begin
  With SynEdit do
@@ -361,20 +388,30 @@ Begin
  End;
 End;
 
-{ TCard.ReCaption }
+(* TCard.ReCaption *)
+{
+ Sets new caption for card.
+}
 Procedure TCard.ReCaption(const NewCaption: String);
 Begin
  Caption     := NewCaption;
  Tab.Caption := Caption;
 End;
 
-{ TProject.CreateCard }
+// -------------------------------------------------------------------------- //
+(* TProject.CreateCard *)
+{
+ Creates a new card from specified file name and optionally loads it (if `LoadFile = true`).
+}
 Function TProject.CreateCard(const cFileName: String; LoadFile: Boolean): Boolean;
 Begin
  Result := CreateCardEx(cFileName, ExtractFileName(cFileName), LoadFile);
 End;
 
-{ TProject.CreateCardEx }
+(* TProject.CreateCardEx *)
+{
+ Creates a new card.
+}
 Function TProject.CreateCardEx(const cFileName, cCaption: String; LoadFile: Boolean): Boolean;
 Var Card: TCard;
     Text: String;
@@ -416,18 +453,25 @@ Begin
  Exit(True);
 End;
 
-{ TProject.FindCard }
+(* TProject.FindCard *)
+{
+ Finds a card with specified file name and returns its ID.
+ Returns `-1` when a such card is not found.
+}
 Function TProject.FindCard(const cFileName: String): Integer;
 Var I: Integer;
 Begin
  Result := -1;
 
  For I := 0 To CardList.Count-1 Do
-  if (CardList[I].FileName = cFileName) Then
+  if (AnsiCompareFileName(CardList[I].FileName, cFileName) = 0) Then
    Exit(I);
 End;
 
-{ TProject.getMainCard }
+(* TProject.getMainCard *)
+{
+ Returns main card class.
+}
 Function TProject.getMainCard: TCard;
 Var Card: TCard;
 Begin
@@ -438,7 +482,10 @@ Begin
    Exit(Card);
 End;
 
-{ TProject.CheckPaths }
+(* TProject.CheckPaths *)
+{
+ Checks compiler or/and (depending on project's type) virtual machine existence and displays an error when at least one of them isn't found.
+}
 Procedure TProject.CheckPaths;
 Var Fail: Boolean;
 Begin
@@ -452,7 +499,10 @@ Begin
   Application.MessageBox(PChar(getLangValue(ls_msg_compiler_or_vm_not_found)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
 End;
 
-{ TProject.SaveIfCan }
+(* TProject.SaveIfCan *)
+{
+ Saves project if all of the cards had been already saved.
+}
 Procedure TProject.SaveIfCan;
 Var CanSave: Boolean;
     Card   : TCard;
@@ -467,19 +517,28 @@ Begin
   Save;
 End;
 
-{ TProject.MakeAbsolutePath }
+(* TProject.MakeAbsolutePath *)
+{
+ Creates a absolute path relative to project's file name.
+}
 Function TProject.MakeAbsolutePath(const FileName: String): String;
 Begin
  Result := CreateAbsolutePath(FileName, ExtractFilePath(self.FileName));
 End;
 
-{ TProject.MakeRelativePath }
+(* TProject.MakeRelativePath *)
+{
+ Creates a relative path relative to project's file name.
+}
 Function TProject.MakeRelativePath(const FileName: String): String;
 Begin
  Result := CreateRelativePath(FileName, ExtractFilePath(self.FileName));
 End;
 
-{ TProject.Create }
+(* TProject.Create *)
+{
+ Constructor for class `TProject`
+}
 Constructor TProject.Create;
 Begin
  MainForm.setMainMenu(stDisabled);
@@ -489,7 +548,10 @@ Begin
  ProjectType := ptApplication;
 End;
 
-{ TProject.Destroy }
+(* TProject.Destroy *)
+{
+ Frees each its card, disables main-menu and changes main form's caption.
+}
 Destructor TProject.Destroy;
 Var Card: TCard;
 Begin
@@ -507,7 +569,10 @@ Begin
  MainForm.Caption := uMainForm.sCaption;
 End;
 
-{ TProject.NewProject }
+(* TProject.NewProject *)
+{
+ Creates a new project of given type and enables main-menu.
+}
 Procedure TProject.NewProject(const Typ: TProjectType);
 Begin
  MainForm.setMainMenu(stEnabled);
@@ -515,8 +580,9 @@ Begin
  Named := False;
  Saved := False;
 
- CompilerSwitches      := [_initcode, _O1, _Cconst]; // `-initcode`, `-O1`, `-Cconst` are enabled by default
+ CompilerSwitches      := [_initcode, _Cconst]; // `-initcode`, `-Cconst` are enabled by default
  OtherCompilerSwitches := '';
+ OptimizationLevel     := 2;
 
  VMSwitches      := [c_wait]; // `-wait` is enabled by default
  OtherVMSwitches := '';
@@ -561,7 +627,10 @@ Begin
   isMain := True;
 End;
 
-{ TProject.NewNoNameCard }
+(* TProject.NewNoNameCard *)
+{
+ Creates a new "no-name" card.
+}
 Procedure TProject.NewNoNameCard;
 Var I   : Integer;
     Name: String;
@@ -577,7 +646,10 @@ Begin
  End;
 End;
 
-{ TProject.Save }
+(* TProject.Save *)
+{
+ Saves project.
+}
 Function TProject.Save(const fFileName: String=''): Boolean;
 Var Doc               : TXMLDocument;
     Root, Parent, Node: TDOMNode;
@@ -586,28 +658,28 @@ Var Doc               : TXMLDocument;
     Switch  : TCompilerSwitch;
     VMSwitch: TVMSwitch;
 
-// WriteValue
-Procedure WriteValue(const Root: TDomNode; sName, sValue: String);
-Var Value: TDomNode;
-Begin
- Node  := Doc.CreateElement(sName);
- Value := Doc.CreateTextNode(sValue);
- Node.AppendChild(Value);
+  // WriteValue
+  Procedure WriteValue(const Root: TDomNode; sName, sValue: String);
+  Var Value: TDomNode;
+  Begin
+   Node  := Doc.CreateElement(sName);
+   Value := Doc.CreateTextNode(sValue);
+   Node.AppendChild(Value);
 
- Root.AppendChild(Node);
-End;
+   Root.AppendChild(Node);
+  End;
 
-// WriteValue
-Procedure WriteValue(const Root: TDomNode; Name: String; Value: Integer);
-Begin
- WriteValue(Root, Name, IntToStr(Value));
-End;
+  // WriteValue
+  Procedure WriteValue(const Root: TDomNode; Name: String; Value: Integer);
+  Begin
+   WriteValue(Root, Name, IntToStr(Value));
+  End;
 
-// WriteValue
-Procedure WriteValue(const Root: TDomNode; Name: String; Value: Extended);
-Begin
- WriteValue(Root, Name, FloatToStr(Value));
-End;
+  // WriteValue
+  Procedure WriteValue(const Root: TDomNode; Name: String; Value: Extended);
+  Begin
+   WriteValue(Root, Name, FloatToStr(Value));
+  End;
 
 Begin
  Result := False;
@@ -684,6 +756,7 @@ Begin
 
   WriteValue(Parent, 'switches', OtherCompilerSwitches);
   WriteValue(Parent, 'include_path', IncludePath);
+  WriteValue(Parent, 'optimization_level', OptimizationLevel);
 
   For Switch in TCompilerSwitches Do
    WriteValue(Parent, getSwitchName(Switch, False), Integer(Switch in CompilerSwitches));
@@ -731,7 +804,10 @@ Begin
  Exit(True);
 End;
 
-{ TProject.SaveCurrentCard }
+(* TProject.SaveCurrentCard *)
+{
+ Saves currently opened card.
+}
 Procedure TProject.SaveCurrentCard;
 Begin
  if (not Named) Then
@@ -740,7 +816,10 @@ Begin
  CardList[MainForm.Tabs.ActivePageIndex].Save;
 End;
 
-{ TProject.SaveCurrentCard }
+(* TProject.SaveCurrentCard *)
+{
+ Saves currently opened card with new name.
+}
 Procedure TProject.SaveCurrentCardAs;
 Var oldFileName: String;
 Begin
@@ -757,7 +836,10 @@ Begin
  End;
 End;
 
-{ TProject.Open }
+(* TProject.Open *)
+{
+ Opens a new project.
+}
 Function TProject.Open(const fFileName: String=''): Boolean;
 Var Doc         : TXMLDocument;
     Root, Parent: TDOMNode;
@@ -789,23 +871,23 @@ Var Doc         : TXMLDocument;
   End;
 
   // ReadIntegerValue
-  Function ReadIntegerValue(Node: TDOMNode; Name: String): Integer;
+  Function ReadIntegerValue(const Node: TDOMNode; const Name: String; const Default: Integer=0): Integer;
   Var Tmp: String;
   Begin
    Tmp := ReadStringValue(Node, Name);
 
    if (not TryStrToInt(Tmp, Result)) Then
-    Result := 0;
+    Result := Default;
   End;
 
   // ReadFloatValue
-  Function ReadFloatValue(Node: TDOMNode; Name: String): Extended;
+  Function ReadFloatValue(const Node: TDOMNode; const Name: String; const Default: Integer=0): Extended;
   Var Tmp: String;
   Begin
    Tmp := ReadStringValue(Node, Name);
 
    if (not TryStrToFloat(Tmp, Result)) Then
-    Result := 0;
+    Result := Default;
   End;
 
 Begin
@@ -830,7 +912,7 @@ Begin
    Parent := Root.FindNode('config');
 
    Version        := ReadFloatValue(Parent, 'version');
-   ProjectType    := TProjectType(ReadIntegerValue(Parent, 'project_type'));
+   ProjectType    := TProjectType(ReadIntegerValue(Parent, 'project_type', ord(ptApplication)));
    CardCount      := ReadIntegerValue(Parent, 'card_count');
    OpenedCard     := ReadIntegerValue(Parent, 'opened_card');
    OutputFile     := ReadStringValue(Parent, 'output_file');
@@ -842,6 +924,7 @@ Begin
 
    OtherCompilerSwitches := ReadStringValue(Parent, 'switches');
    IncludePath           := ReadStringValue(Parent, 'include_path');
+   OptimizationLevel     := ReadIntegerValue(Parent, 'optimization_level', 2);
 
    CompilerSwitches := [];
    For Switch in TCompilerSwitches Do
@@ -923,7 +1006,10 @@ Begin
  Exit(True);
 End;
 
-{ TProject.OpenCard }
+(* TProject.OpenCard *)
+{
+ Opens a new card from specified file.
+}
 Function TProject.OpenCard(const fFileName: String): Boolean;
 Var I: Integer;
 Begin
@@ -942,7 +1028,10 @@ Begin
  Result := CreateCard(fFileName, True);
 End;
 
-{ TProject.UpdateCards }
+(* TProject.UpdateCards *)
+{
+ Updates all cards.
+}
 Procedure TProject.UpdateCards;
 Var Card: TCard;
 Begin
@@ -950,13 +1039,19 @@ Begin
   Card.Update;
 End;
 
-{ TProject.SwapCards }
+(* TProject.SwapCards *)
+{
+ Swaps two cards.
+}
 Procedure TProject.SwapCards(A, B: Integer);
 Begin
  CardList.Exchange(A, B);
 End;
 
-{ TProject.CloseCard }
+(* TProject.CloseCard *)
+{
+ Closes card with specified ID.
+}
 Procedure TProject.CloseCard(ID: Integer);
 Begin
  // is the only opened card?
@@ -984,7 +1079,10 @@ Begin
  SaveIfCan;
 End;
 
-{ TProject.CloseCards }
+(* TProject.CloseCardsExcluding *)
+{
+ Closes all cards excluding main and specified one.
+}
 Procedure TProject.CloseCardsExcluding(ID: Integer);
 Var Card, Current: TCard;
     I            : Integer;
@@ -1021,7 +1119,10 @@ Begin
  SaveIfCan;
 End;
 
-{ TProject.RaiseMessage }
+(* TProject.RaiseMessage *)
+{
+ Raises a message from the list.
+}
 Procedure TProject.RaiseMessage(ID: Integer);
 Var Card: Integer;
 Begin
@@ -1049,7 +1150,10 @@ Begin
  End;
 End;
 
-{ TProject.RefreshControls }
+(* TProject.RefreshControls *)
+{
+ Refreshes controls of each card.s
+}
 Procedure TProject.RefreshControls;
 Var Card: TCard;
 Begin
@@ -1057,10 +1161,13 @@ Begin
   Card.RefreshControls;
 End;
 
-{ TProject.Compile }
+(* TProject.Compile *)
+{
+ Compiles project.
+}
 Function TProject.Compile: Boolean;
 Type TMessageIcon = (miNone, miHint, miWarn, miError);
-Const MAX_BYTES = 2048;
+Const MAX_BYTES = 10240;
 Var sOutputFile: String;
 
     Switch: TCompilerSwitch;
@@ -1081,22 +1188,33 @@ Var sOutputFile: String;
 
   // AddUserSwitches
   Procedure AddUserSwitches;
-  Var Switches, Switch: String;
+  Var SwitchesList    : TStringList;
+      Switches, Switch: String;
       I               : uint32;
   Begin
-   Switches := OtherCompilerSwitches+' ';
-   Switch   := '';
+   SwitchesList      := TStringList.Create;
+   SwitchesList.Text := StringReplace(OtherCompilerSwitches, '|', sLineBreak, [rfReplaceAll]); // get user switches
 
-   For I := 1 To Length(Switches) Do
-    if (Switches[I] = ' ') Then
+   Try
+    For Switches in SwitchesList Do
     Begin
-     if (Length(Switch) = 0) Then
-      Continue;
+     Switches += ' ';
+     Switch   := '';
 
-     Process.Parameters.Add(Switch);
-     Switch := '';
-    End Else
-     Switch += Switches[I];
+     For I := 1 To Length(Switches) Do
+      if (Switches[I] = ' ') Then
+      Begin
+       if (Length(Switch) = 0) Then
+        Continue;
+
+       Process.Parameters.Add(Switch);
+       Switch := '';
+      End Else
+       Switch += Switches[I];
+    End;
+   Finally
+    SwitchesList.Free;
+   End;
   End;
 
   // AddText
@@ -1152,6 +1270,31 @@ Var sOutputFile: String;
    End;
   End;
 
+  // @TODO: too much DRY on a square meter...
+  // AddWarning
+  Procedure AddWarning(Line, Char: Integer; Base, Message, FileName: String);
+  Var Card: Integer;
+      Info: PMessage;
+  Begin
+   { open card }
+   Card := FindCard(FileName);
+   if (Card = -1) Then
+   Begin
+    if (not CreateCard(FileName, True)) Then // failed
+     Exit;
+    Card := CardList.Count-1;
+   End;
+
+   New(Info);
+   Info^.Line     := Line;
+   Info^.Char     := Char;
+   Info^.FileName := FileName;
+   Info^.Text     := Message;
+   MessageList.Add(Info);
+
+   AddText(Base, miWarn, MessageList.Count);
+  End;
+
   // AddHint
   Procedure AddHint(Line, Char: Integer; Base, Message, FileName: String);
   Var Card: Integer;
@@ -1201,7 +1344,7 @@ Var sOutputFile: String;
   End;
 
 Begin
- if (not FileExists(getString(sCompilerFile))) Then
+ if (not FileExists(getString(sCompilerFile))) Then // compielr file not found
  Begin
   Application.MessageBox(PChar(getLangValue(ls_msg_compiler_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
   Exit(False);
@@ -1223,11 +1366,11 @@ Begin
  sOutputFile := MakeAbsolutePath(OutputFile);
  DeleteFile(sOutputFile); // remove previous output file
 
- Application.ProcessMessages;
+ Application.ProcessMessages; // process LCL
 
  With MainForm.CompileStatus.Items do
  Begin
-  Clear;
+  Clear; // clear previous build messages
   AddText(Format(getLangValue(ls_compilation_started), [TimeToStr(Time)]));
 
   Process            := TProcess.Create(nil);
@@ -1237,16 +1380,21 @@ Begin
   { generate command line }
   Process.Parameters.AddStrings(
   [
-   '"'+InputFile+'"', '-v', '-vv',
+   '"'+InputFile+'"',
    '-includepath', '"'+IncludePath+'"',
    '-o', '"'+sOutputFile+'"'
   ]
   );
 
-  // if library
+  // optimization level
+  if (OptimizationLevel <> 0) Then
+   Process.Parameters.Add('-O'+IntToStr(OptimizationLevel));
+
+  // if application
   if (ProjectType = ptApplication) Then
    Process.Parameters.AddStrings(['-Cm', 'app']);
 
+  // if library
   if (ProjectType = ptLibrary) Then
   Begin
    Process.Parameters.AddStrings(['-Cm', 'lib']);
@@ -1255,7 +1403,7 @@ Begin
     Process.Parameters.AddStrings(['-h', '"'+MakeAbsolutePath(HeaderFile)+'"']);
   End;
 
-  // generate bytecode?
+  // generate output mnemonic bytecode?
   if (BytecodeOutput <> '') Then
    Process.Parameters.AddStrings(['-bytecode', '"'+MakeAbsolutePath(BytecodeOutput)+'"']);
 
@@ -1319,6 +1467,24 @@ Begin
     Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
 
     AddError(Line, Char+1, Base, Message, mFileName);
+
+    Continue;
+   End;
+
+   { warning }
+   P := Pos('Warning:', Base);
+   if (P > 0) Then
+   Begin
+    Message   := Trim(Copy(Base, P+8, Length(Base)));
+    mFileName := Trim(Copy(Base, 1, Pos('(', Base)-1));
+    Posi      := Trim(Copy(Base, Pos('(', Base)+1, Pos(')', Base)-Pos('(', Base)-1));
+
+    Line := StrToInt(Copy(Posi, 1, Pos(',', Posi)-1));
+    Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
+
+    AddWarning(Line, Char+1, Base, Message, mFileName);
+
+    Continue;
    End;
 
    { hint }
@@ -1333,6 +1499,8 @@ Begin
     Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
 
     AddHint(Line, Char+1, Base, Message, mFileName);
+
+    Continue;
    End;
 
    { note }
@@ -1347,31 +1515,36 @@ Begin
     Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
 
     AddNote(Line, Char+1, Base, Message, mFileName);
+
+    Continue;
    End;
   End;
 
-  { check output file }
+  { check if the output file exists }
   if (not AnyError) and (not FileExists(sOutputFile)) Then
    AddError(0, 0, 'Output file not found ('+sOutputFile+')! Check compiler''s output.', '', getMainCard.getFileName);
 
-  { finishing message }
+  { show finish message }
   if (not AnyError) Then
    AddText(Format(getLangValue(ls_compilation_finished), [TimeToStr(Time), OutputFile])) Else
    AddText(Format(getLangValue(ls_compilation_stopped), [TimeToStr(Time)]));
  End;
 
- For Card in CardList Do
+ For Card in CardList Do // enable editors
   Card.SynEdit.Enabled := True;
 
- if (MessageList.Count > 0) Then
+ if (MessageList.Count > 0) Then // raise first message
   RaiseMessage(0);
 
- Application.ProcessMessages;
+ Application.ProcessMessages; // process LCL
 
  Exit(not AnyError);
 End;
 
-{ TProject.Run }
+(* TProject.Run *)
+{
+ Runs project.
+}
 Procedure TProject.Run;
 Var sOutputFile, CommandLine: String;
     Switch                  : TVMSwitch;
@@ -1437,11 +1610,14 @@ Begin
  {
   Linux: ~15 lines and 6 hours of wasted time searching for solution and debugging
   Windows: 1 line and 6 minuts of writing the entire method
-  Because fuck you, that's why ;-;
+  Because f*ck you, that's why... ;_;
  }
 End;
 
-{ TProject.isEverythingSaved }
+(* TProject.isEverythingSaved *)
+{
+ Returns `true` if project and all of its card are saved, `false` otherwise.
+}
 Function TProject.isEverythingSaved: Boolean;
 Var Card: TCard;
 Begin
@@ -1455,7 +1631,10 @@ Begin
    Exit(False);
 End;
 
-{ TProject.getCurrentCard }
+(* TProject.getCurrentCard *)
+{
+ Returns current card class.
+}
 Function TProject.getCurrentCard: TCard;
 Begin
  if (CardList.Count = 0) Then
@@ -1472,7 +1651,10 @@ Begin
  End;
 End;
 
-{ TProject.getCurrentEditor }
+(* TProject.getCurrentEditor *)
+{
+ Returns current card's editor.
+}
 Function TProject.getCurrentEditor: TSynEdit;
 Begin
  if (CardList.Count = 0) Then

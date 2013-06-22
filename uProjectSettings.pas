@@ -14,8 +14,9 @@ type
 
   TProjectSettingsForm = class(TForm)
     Bevel1: TBevel;
-    _Ou: TCheckBox;
     c_err:TCheckBox;
+    mOtherSwitches: TMemo;
+    rgOptimizationLevel: TRadioGroup;
     _Cconst:TCheckBox;
     c_time:TCheckBox;
     c_wait:TCheckBox;
@@ -36,15 +37,8 @@ type
     Label9:TLabel;
     p_4:TPage;
     p_3: TPage;
-    _O1: TCheckBox;
-    _Op: TCheckBox;
-    eCompilerSwitches: TEdit;
-    GroupBox2: TGroupBox;
     Label3: TLabel;
-    _Of: TCheckBox;
     _initcode: TCheckBox;
-    _Or: TCheckBox;
-    GroupBox1: TGroupBox;
     p_2: TPage;
     Pages: TNotebook;
     Setting: TTreeView;
@@ -80,8 +74,9 @@ Begin
   eHeaderFile.Text     := HeaderFile;
 
   { read compiler paths and switches }
-  eCompilerSwitches.Text := OtherCompilerSwitches;
-  eIncludePath.Text      := IncludePath;
+  mOtherSwitches.Text           := StringReplace(OtherCompilerSwitches, '|', sLineBreak, [rfReplaceAll]);
+  eIncludePath.Text             := IncludePath;
+  rgOptimizationLevel.ItemIndex := OptimizationLevel;
 
   For Switch in TCompilerSwitches Do
    TCheckBox(FindComponent(getSwitchName(Switch, False))).Checked := Switch in CompilerSwitches;
@@ -108,8 +103,11 @@ begin
   HeaderFile     := eHeaderFile.Text;
 
   { save compiler paths and switches }
-  OtherCompilerSwitches := eCompilerSwitches.Text;
+  // if (Pos(mOtherSwitches.Text, '|') > 0) Then ...
+
+  OtherCompilerSwitches := StringReplace(mOtherSwitches.Text, sLineBreak, '|', [rfReplaceAll]);
   IncludePath           := eIncludePath.Text;
+  OptimizationLevel     := rgOptimizationLevel.ItemIndex;
 
   CompilerSwitches := [];
   For Switch in TCompilerSwitches Do

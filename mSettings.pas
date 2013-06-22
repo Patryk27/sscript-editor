@@ -30,8 +30,8 @@ Unit mSettings;
        DefaultValues: Array[TSetting] of String =
  (
   '4.8',
-  '../SScript-Compiler/compiler.exe',
-  '../SScript-VM/vm.exe',
+  'compiler/compiler.exe',
+  'compiler/vm.exe',
   'false,false,false,false,0,0',
   'true,false,false,false,8135705,0',
   'true,false,false,false,15728885,0',

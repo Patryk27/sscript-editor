@@ -23,66 +23,12 @@ Unit mLanguages;
   ls_filter_project, ls_filter_module, ls_filter_any_file
  );
 
- Procedure SaveLanguageFile(const FileName: String);
  Procedure LoadLanguageFile(const FileName: String);
  Function getLangValue(const Name: LString): String;
 
  Implementation
-Uses mSettings, Forms, Classes, TypInfo, IniFiles, SysUtils, Dialogs, ComCtrls;
+Uses mSettings, Forms, Classes, TypInfo, IniFiles, SysUtils, Dialogs, ComCtrls, ExtCtrls;
 Const Properties: Array[1..3] of string = ('Caption', 'Hint', 'Text');
-
-{ SaveLanguageFile }
-Procedure SaveLanguageFile(const FileName: String);
-Var Form, I, P   : Integer;
-    Comp         : TComponent;
-    FormName, Tmp: String;
-    Ini          : TIniFile;
-Begin
- Ini := TIniFile.Create(FileName);
-
- // save each form
- For Form := 0 To Application.ComponentCount-1 Do
-  With Application do
-   With Components[Form] do
-   Begin
-    FormName := TForm(Application.Components[Form]).Name;
-    Ini.WriteString(Name, 'Caption', TForm(Application.Components[Form]).Caption);
-
-    // save each component
-    For I := 0 To ComponentCount-1 Do
-    Begin
-     Comp := Components[I];
-
-     { TTreeView }
-     if (Comp is TTreeView) Then
-     Begin
-      With (Comp as TTreeView) do
-      Begin
-       For P := 0 To Items.Count-1 Do
-        Ini.WriteString(FormName+'_'+Comp.Name, IntToStr(P), Items[P].Text);
-
-       Continue; // proceed to the next control
-      End;
-     End;
-
-     { standard control }
-     For P := Low(Properties) To High(Properties) Do
-      if (isPublishedProp(Comp, Properties[P])) Then
-      Begin
-       Tmp := GetPropValue(Comp, Properties[P]);
-
-       if (Tmp <> '') Then
-       Begin
-        Tmp := StringReplace(Tmp, #13#10, '%newline%', [rfReplaceAll]);
-
-        Ini.WriteString(FormName+'_'+Comp.Name, Properties[P], Tmp);
-       End;
-      End;
-    End;
-   End;
-
- Ini.Free;
-End;
 
 { LoadLanguageFile }
 Procedure LoadLanguageFile(const FileName: String);
@@ -115,12 +61,20 @@ Begin
       Begin
        For P := 0 To Items.Count-1 Do
         Items[P].Text := Ini.ReadString(FormName+'_'+Comp.Name, IntToStr(P), Items[P].Text);
-
-       Continue; // proceed to the next control
       End;
      End;
 
-     { standard control }
+     { TRadioGroup }
+     if (Comp is TRadioGroup) Then
+     Begin
+      With (Comp as TRadioGroup) do
+      Begin
+       For P := 0 To Items.Count-1 Do
+        Items[P] := Ini.ReadString(FormName+'_'+Comp.Name, IntToStr(P), Items[P]);
+      End;
+     End;
+
+     { other control's properties }
      For P := Low(Properties) To High(Properties) Do
       if (isPublishedProp(Comp, Properties[P])) Then
       Begin

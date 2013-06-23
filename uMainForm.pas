@@ -122,11 +122,11 @@ type
 
  // consts
  Const vMajor   = 0.3;
-       vMinor   = 1;
+       vMinor   = 2;
 
        iVersion: Single = 100*vMajor+vMinor; // this is saved into the `version` field in project files.
 
-       sVersion = '0.3.1 nightly';
+       sVersion = '0.3.2';
        sCaption = 'SScript Editor v'+sVersion;
 
  // variables

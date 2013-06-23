@@ -12,25 +12,21 @@
   <compiler>
     <switches></switches>
     <include_path>$file;$compiler</include_path>
+    <optimization_level>2</optimization_level>
     <_initcode>1</_initcode>
     <_Cconst>1</_Cconst>
-    <_Or>0</_Or>
-    <_Of>0</_Of>
-    <_Op>0</_Op>
-    <_Ou>0</_Ou>
-    <_O1>1</_O1>
   </compiler>
   <vm>
     <switches></switches>
-    <c_time>0</c_time>
+    <c_time>1</c_time>
     <c_wait>1</c_wait>
-    <c_err>0</c_err>
+    <c_err>1</c_err>
   </vm>
   <card_0>
     <caption>main.ss</caption>
     <file>main.ss</file>
     <caret_x>2</caret_x>
-    <caret_y>36</caret_y>
+    <caret_y>35</caret_y>
     <is_main>1</is_main>
   </card_0>
 </project>

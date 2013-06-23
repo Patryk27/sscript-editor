@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   <config>
-    <version>0.3</version>
+    <version>32</version>
     <project_type>1</project_type>
     <compiler>compiler\compiler.exe</compiler>
     <vm>compiler\vm.exe</vm>

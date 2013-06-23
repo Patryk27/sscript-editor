@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   <config>
-    <version>31</version>
+    <version>32</version>
     <project_type>0</project_type>
     <card_count>1</card_count>
     <opened_card>0</opened_card>

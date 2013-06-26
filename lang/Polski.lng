@@ -4,6 +4,9 @@
 [MainForm_menuFile]
 Caption=Plik
 
+[MainForm_menuSearch]
+Caption=Szukaj
+
 [MainForm_oNewModule]
 Caption=Nowy moduł
 
@@ -60,6 +63,30 @@ Caption=Kopiuj
 
 [MainForm_oPaste]
 Caption=Wklej
+
+[MainForm_oSelectAll]
+Caption=Zaznacz wszystko
+
+[MainForm_oSelectWord]
+Caption=Zaznacz wyraz
+
+[MainForm_oSelectLine]
+Caption=Zaznacz linię
+
+[MainForm_oFind]
+Caption=Znajdź
+
+[MainForm_oFindNext]
+Caption=Znajdź następny
+
+[MainForm_oFindPrev]
+Caption=Znajdź poprzedni
+
+[MainForm_oReplace]
+Caption=Zamień
+
+[MainForm_oGotoLine]
+Caption=Idź do wiersza
 
 [MainForm_menuProject]
 Caption=Projekt
@@ -339,6 +366,40 @@ Caption=Posiada kolor tła
 [CompilerOutputForm]
 Caption=Wyjście kompilatora
 
+[FindForm_Label1]
+Caption=Znajdź:
+
+[FindForm_cbReplace]
+Caption=Zamień na:
+
+[FindForm_cgOptions]
+Caption=Opcje
+0=Uwzględniaj wielkość liter
+1=Tylko całe słowa
+2=Wyrażenie regularne
+3=Wieloliniowe wyrażenie regularne
+
+[FindForm_rgSearchPosition]
+Caption=Pozycja szukania
+0=Od kursora
+1=Od początku pliku
+
+[FindForm_rgSearchIn]
+Caption=Szukaj wewnątrz
+0=Zaznaczonego tekstu
+1=Całego pliku
+
+[FindForm_rgSearchDir]
+Caption=Szukaj w kierunku
+0=W górę
+1=W dół
+
+[FindForm_btnCancel]
+Caption=Anuluj
+
+[FindForm_btnReplaceAll]
+Caption=Zastąp wszystko
+
 [Strings]
 title_card_close=Zamykanie karty
 
@@ -384,3 +445,12 @@ new_lib=nowa biblioteka
 filter_project=Projekt SScript Editor (*.ssp)|*.ssp
 filter_module=Kod SScript (*.ss)|*.ss
 filter_any_file=Wszystkie pliki (*.*)|*.*
+
+goto_line_title=Idź do linii
+goto_line=Idź do linii (%d-%d):
+
+find=Znajdź
+find_title=Znajdź
+replace=Zamień
+replace_msg=Zamienić to wyrażenie `%s` na `%s`?
+find_not_found=Wyrażenie `%s` nie zostało odnalezione!

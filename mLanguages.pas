@@ -20,7 +20,11 @@ Unit mLanguages;
 
   ls_new_app, ls_new_lib,
 
-  ls_filter_project, ls_filter_module, ls_filter_any_file
+  ls_filter_project, ls_filter_module, ls_filter_any_file,
+
+  ls_goto_line_title, ls_goto_line,
+  ls_find, ls_replace, ls_replace_msg,
+  ls_find_title, ls_find_not_found
  );
 
  Procedure LoadLanguageFile(const FileName: String);
@@ -68,6 +72,16 @@ Begin
      if (Comp is TRadioGroup) Then
      Begin
       With (Comp as TRadioGroup) do
+      Begin
+       For P := 0 To Items.Count-1 Do
+        Items[P] := Ini.ReadString(FormName+'_'+Comp.Name, IntToStr(P), Items[P]);
+      End;
+     End;
+
+     { TCheckGroup }
+     if (Comp is TCheckGroup) Then
+     Begin
+      With (Comp as TCheckGroup) do
       Begin
        For P := 0 To Items.Count-1 Do
         Items[P] := Ini.ReadString(FormName+'_'+Comp.Name, IntToStr(P), Items[P]);
@@ -153,6 +167,15 @@ Begin
    ls_filter_project: Result := 'SScript Editor Project (*.ssp)|*.ssp';
    ls_filter_module: Result := 'SScript Code (*.ss)|*.ss';
    ls_filter_any_file: Result := 'All files (*.*)|*.*';
+
+   ls_goto_line_title: Result := 'Goto line';
+   ls_goto_line      : Result := 'Goto line (%d-%d):';
+
+   ls_find          : Result := 'Find';
+   ls_replace       : Result := 'Replace';
+   ls_replace_msg   : Result := 'Do you want to replace this occurrence of `%s` with `%s`?';
+   ls_find_title    : Result := 'Find';
+   ls_find_not_found: Result := 'Expression `%s` not found!';
 
    else
     Exit('<unknown string>');

@@ -29,21 +29,23 @@ uses
   Forms, lazcontrols, runtimetypeinfocontrols, uMainForm, uProjectSettings,
   uAboutForm, uEvSettingsForm, uSyntaxHighlighterChange,
 
-  mLanguages, mSettings, uCompilerOutput;
+  mLanguages, mSettings, uCompilerOutput, uFindForm;
 
 {$R *.res}
 
 begin
   RequireDerivedFormResource := True;
   Application.Initialize;
+
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TProjectSettingsForm, ProjectSettingsForm);
   Application.CreateForm(TAboutForm, AboutForm);
   Application.CreateForm(TEvSettingsForm, EvSettingsForm);
   Application.CreateForm(TSyntaxHighlighterChange, SyntaxHighlighterChange);
   Application.CreateForm(TCompilerOutputForm, CompilerOutputForm);
+  Application.CreateForm(TFindForm, FindForm);
 
-  LoadLanguageFile(ExtractFilePath(ParamStr(0))+'lang/'+getString(sLanguage));
+  LoadLanguageFile(ExtractFilePath(ParamStr(0))+'lang/'+getString(sLanguage)); // load language
 
   Application.Run;
 end.

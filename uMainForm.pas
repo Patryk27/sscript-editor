@@ -5,6 +5,7 @@ unit uMainForm;
 interface
 
 uses
+  {$IFDEF WINDOWS} Windows, {$ENDIF}
   Classes, SysUtils, FileUtil, SynEdit, ExtendedNotebook, Forms,
   Controls, Graphics, Dialogs, Menus, ExtCtrls, ComCtrls, mSettings, LCLType;
 
@@ -14,7 +15,18 @@ uses
 type
   { TMainForm }
   TMainForm = class(TForm)
+    oReplace: TMenuItem;
+    MenuItem11: TMenuItem;
+    oGotoLine: TMenuItem;
+    oFind: TMenuItem;
+    oFindNext: TMenuItem;
+    oFindPrev: TMenuItem;
+    menuSearch: TMenuItem;
+    oSelectAll: TMenuItem;
+    oSelectWord: TMenuItem;
+    oSelectLine: TMenuItem;
     MenuItem8:TMenuItem;
+    MenuItem9: TMenuItem;
     oShowCompilerOutput:TMenuItem;
     opPaste:TMenuItem;
     opCopy:TMenuItem;
@@ -75,6 +87,14 @@ type
     procedure FormDropFiles(Sender: TObject; const FileNames: Array of String);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure oReplaceClick(Sender: TObject);
+    procedure oFindClick(Sender: TObject);
+    procedure oFindNextClick(Sender: TObject);
+    procedure oFindPrevClick(Sender: TObject);
+    procedure oGotoLineClick(Sender: TObject);
+    procedure oSelectAllClick(Sender: TObject);
+    procedure oSelectLineClick(Sender: TObject);
+    procedure oSelectWordClick(Sender: TObject);
     procedure oShowCompilerOutputClick(Sender:TObject);
     procedure oAboutClick(Sender: TObject);
     procedure oCloseCurrentCardClick(Sender:TObject);
@@ -122,11 +142,11 @@ type
 
  // consts
  Const vMajor   = 0.3;
-       vMinor   = 2;
+       vMinor   = 3;
 
        iVersion: Single = 100*vMajor+vMinor; // this is saved into the `version` field in project files.
 
-       sVersion = '0.3.2';
+       sVersion = '0.3.3';
        sCaption = 'SScript Editor v'+sVersion;
 
  // variables
@@ -138,7 +158,7 @@ type
  Function getProjectPnt: Pointer;
 
  Implementation
-Uses mProject, mLanguages, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput{, LCLStrConsts};
+Uses mProject, mLanguages, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm;
 Var Project        : TProject = nil; // currently opened project
     Splitter1Factor: Extended = 1;
 
@@ -371,7 +391,72 @@ begin
    Project.Free;
  End;
 
-// ShowWindow(Handle, SW_SHOWMAXIMIZED); @TODO
+ {$IFDEF WINDOWS}
+  ShowWindow(Handle, SW_SHOWMAXIMIZED);
+ {$ENDIF}
+end;
+
+procedure TMainForm.oReplaceClick(Sender: TObject);
+begin
+ FindForm.Run(frReplace);
+end;
+
+procedure TMainForm.oFindClick(Sender: TObject);
+begin
+ FindForm.Run(frFind);
+end;
+
+procedure TMainForm.oFindNextClick(Sender: TObject);
+begin
+ FindForm.btnFind.Click;
+end;
+
+procedure TMainForm.oFindPrevClick(Sender: TObject);
+Var Prev: Integer;
+begin
+ With FindForm.rgSearchDir do
+ Begin
+  Prev := ItemIndex;
+
+  if (ItemIndex = 0) Then
+   ItemIndex := 1 Else
+   ItemIndex := 0;
+
+  FindForm.btnFind.Click;
+
+  ItemIndex := Prev;
+ End;
+end;
+
+procedure TMainForm.oGotoLineClick(Sender: TObject);
+Var LineStr      : String;
+    Line, LineMax: Integer;
+begin
+ LineMax := Project.getCurrentEditor.Lines.Count;
+ LineStr := '0';
+
+ if (InputQuery(getLangValue(ls_goto_line_title),
+                Format(getLangValue(ls_goto_line), [1, LineMax]),
+                LineStr)) Then
+ Begin
+  if (TryStrToInt(LineStr, Line)) Then
+   Project.getCurrentEditor.CaretY := Line;
+ End;
+end;
+
+procedure TMainForm.oSelectAllClick(Sender: TObject);
+begin
+ Project.getCurrentEditor.SelectAll;
+end;
+
+procedure TMainForm.oSelectLineClick(Sender: TObject);
+begin
+ Project.getCurrentEditor.SelectLine;
+end;
+
+procedure TMainForm.oSelectWordClick(Sender: TObject);
+begin
+ Project.getCurrentEditor.SelectWord;
 end;
 
 procedure TMainForm.oShowCompilerOutputClick(Sender:TObject);

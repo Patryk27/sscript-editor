@@ -1,7 +1,7 @@
 object AboutForm: TAboutForm
-  Left = 365
+  Left = 381
   Height = 303
-  Top = 62
+  Top = 61
   Width = 380
   BorderStyle = bsToolWindow
   Caption = 'About SScript Editor'
@@ -10,7 +10,7 @@ object AboutForm: TAboutForm
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '1.0.4.0'
+  LCLVersion = '1.0.10.0'
   object ImgLogo: TImage
     Left = 120
     Height = 130
@@ -720,13 +720,13 @@ object AboutForm: TAboutForm
     }
   end
   object mText: TMemo
-    Left = 8
+    Left = 6
     Height = 162
     Top = 136
-    Width = 368
+    Width = 369
     Font.CharSet = EASTEUROPE_CHARSET
     Font.Height = -13
-    Font.Name = 'Segoe UI'
+    Font.Name = 'Trebuchet MS'
     Font.Pitch = fpVariable
     Font.Quality = fqDraft
     Lines.Strings = (

@@ -185,6 +185,7 @@ End;
 
 (* TCard.Editor_OnKeyDown *)
 Procedure TCard.Editor_OnKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+Var BlockBegin, BlockEnd: TPoint;
 Begin
  ErrorLine := -1;
  SynEdit.Invalidate;
@@ -237,6 +238,8 @@ Begin
 
  SynEdit := TSynEdit.Create(MainForm);
  Tab     := TTabSheet.Create(MainForm);
+
+ SynEdit.Keystrokes.Delete(SynEdit.Keystrokes.FindKeycode(VK_U, [ssShift, ssCtrl])); // @TODO: this shouldn't be hardcoded
 
  { Tab }
  Tab.Caption     := fCaption;

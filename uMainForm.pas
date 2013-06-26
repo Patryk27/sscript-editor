@@ -15,6 +15,9 @@ uses
 type
   { TMainForm }
   TMainForm = class(TForm)
+    menuCode: TMenuItem;
+    oUncommentSelected: TMenuItem;
+    oCommentSelected: TMenuItem;
     oReplace: TMenuItem;
     MenuItem11: TMenuItem;
     oGotoLine: TMenuItem;
@@ -87,6 +90,7 @@ type
     procedure FormDropFiles(Sender: TObject; const FileNames: Array of String);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure oCommentSelectedClick(Sender: TObject);
     procedure oReplaceClick(Sender: TObject);
     procedure oFindClick(Sender: TObject);
     procedure oFindNextClick(Sender: TObject);
@@ -124,10 +128,10 @@ type
     procedure oOpenClick(Sender: TObject);
     procedure oPasteClick(Sender: TObject);
     procedure oRedoClick(Sender: TObject);
+    procedure oUncommentSelectedClick(Sender: TObject);
     procedure oUndoClick(Sender: TObject);
     procedure Splitter1CanResize(Sender: TObject; var NewSize: Integer;
     var Accept: Boolean);
-    procedure TabsChange(Sender: TObject);
     procedure TabsTabDragDropEx(Sender, Source: TObject; OldIndex,
       NewIndex: Integer; CopyDrag: Boolean; var Done: Boolean);
     procedure TabsUpdateTimer(Sender: TObject);
@@ -158,13 +162,13 @@ type
  Function getProjectPnt: Pointer;
 
  Implementation
-Uses mProject, mLanguages, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm;
+Uses mProject, mLanguages, mFunctions, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm;
 Var Project        : TProject = nil; // currently opened project
     Splitter1Factor: Extended = 1;
 
 {$R *.lfm}
 
-{ AddRecentlyOpened }
+(* AddRecentlyOpened *)
 Procedure AddRecentlyOpened(const FileName: String);
 Begin
  With RecentlyOpened do
@@ -172,7 +176,7 @@ Begin
   if (IndexOf(FileName) = -1) Then // don't duplicate
   Begin
    Add(FileName);
-   While (Count > 8) Do
+   While (Count > 8) Do // if more than 8 items on the list, remove the first
     Delete(0);
   End Else
    Exchange(IndexOf(FileName), 0); // move at the beginning
@@ -180,13 +184,14 @@ Begin
  setRecentlyOpened(RecentlyOpened);
 End;
 
-{ getProjectPnt }
+(* getProjectPnt *)
 Function getProjectPnt: Pointer;
 Begin
  Result := Project;
 End;
 
-{ SaveProject }
+// -------------------------------------------------------------------------- //
+(* SaveProject *)
 Function SaveProject: Boolean;
 Var Save: Boolean;
 Begin
@@ -226,9 +231,8 @@ Begin
   Project.Save;
 End;
 
-(* ===== TMainForm ===== *)
-
-{ RecentlyOpened_Click }
+// -------------------------------------------------------------------------- //
+(* TMainForm.RecentlyOpened_Click *)
 Procedure TMainForm.RecentlyOpened_Click(Sender: TObject);
 Begin
  if (SaveProject) Then
@@ -254,27 +258,7 @@ Begin
  End;
 End;
 
-{ setMainMenu }
-Procedure TMainForm.setMainMenu(State: TState);
-Var B: Boolean;
-    C: Integer;
-Begin
- B := (State = stEnabled);
-
- For C := 0 To ComponentCount-1 Do // iterate each component
- Begin
-  if (Components[C] is TMenuItem) Then
-   With Components[C] as TMenuItem do
-   Begin
-    Case Tag of
-     1: Enabled := B;
-     2: Enabled := not B;
-    End;
-   End;
- End;
-End;
-
-{ UpdateRecentlyOpened }
+(* UpdateRecentlyOpened *)
 Procedure TMainForm.UpdateRecentlyOpened;
 Var Str     : String;
     MenuItem: TMenuItem;
@@ -297,6 +281,27 @@ Begin
  End;
 End;
 
+(* TMainForm.setMainMenu *)
+Procedure TMainForm.setMainMenu(State: TState);
+Var B: Boolean;
+    C: Integer;
+Begin
+ B := (State = stEnabled);
+
+ For C := 0 To ComponentCount-1 Do // iterate each component
+ Begin
+  if (Components[C] is TMenuItem) Then
+   With Components[C] as TMenuItem do
+   Begin
+    Case Tag of
+     1: Enabled := B;
+     2: Enabled := not B;
+    End;
+   End;
+ End;
+End;
+
+(* TMainForm.FormCreate *)
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
  // set some values
@@ -317,8 +322,8 @@ begin
  UpdateRecentlyOpened;
 end;
 
-procedure TMainForm.FormDropFiles(Sender: TObject;
-  const FileNames: Array of String);
+(* TMainForm.FormDropFiles *)
+procedure TMainForm.FormDropFiles(Sender: TObject; const FileNames: Array of String);
 Var I: Integer = 0;
 begin
  // trying to open a project?
@@ -356,6 +361,7 @@ begin
   Project.OpenCard(FileNames[I]);
 end;
 
+(* TMainForm.FormResize *)
 procedure TMainForm.FormResize(Sender: TObject);
 begin
  // update controls' positions
@@ -363,6 +369,7 @@ begin
  StatusBar.Top                  := Height*2;
 end;
 
+(* TMainForm.FormShow *)
 procedure TMainForm.FormShow(Sender: TObject);
 Var FileName, tText: String;
 begin
@@ -381,7 +388,7 @@ begin
   End;
  End Else
 
- { open recent project }
+ { open recent project, if set }
  if (getBoolean(sOpenRecentProject)) Then
  Begin
   FileName := getString(sRecentProject);
@@ -393,24 +400,70 @@ begin
 
  {$IFDEF WINDOWS}
   ShowWindow(Handle, SW_SHOWMAXIMIZED);
+  BringToFront;
  {$ENDIF}
 end;
 
+(* TMainForm.oCommentSelectedClick *)
+procedure TMainForm.oCommentSelectedClick(Sender: TObject);
+Var Line            : Integer;
+    Editor          : TSynEdit;
+    List            : TStringList;
+    CaretPos, BB, BE: TPoint;
+    Str             : String;
+begin
+ Editor   := Project.getCurrentEditor;
+ CaretPos := Editor.CaretXY;
+ BB       := Editor.BlockBegin;
+ BE       := Editor.BlockEnd;
+
+ List := TStringList.Create;
+ Try
+  List.Text := Editor.SelText;
+
+  if (List.Count = 1) Then
+  Begin
+   List[0] := '/*'+List[0]+'*/';
+   Inc(Be.X, 4);
+  End Else
+  Begin
+   if (List.Count > 0) Then
+    Inc(BE.X, 2);
+
+   For Line := 0 To List.Count-1 Do
+    List[Line] := '//'+List[Line];
+  End;
+
+  Str := List.Text;
+  Delete(Str, Length(Str)-Length(LineEnding)+1, Length(LineEnding));
+  Editor.SelText := Str;
+ Finally
+  Editor.CaretXY    := CaretPos;
+  Editor.BlockBegin := BB;
+  Editor.BlockEnd   := BE;
+  List.Free;
+ End;
+end;
+
+(* TMainForm.oReplaceClick *)
 procedure TMainForm.oReplaceClick(Sender: TObject);
 begin
  FindForm.Run(frReplace);
 end;
 
+(* TMainForm.oFindClick *)
 procedure TMainForm.oFindClick(Sender: TObject);
 begin
  FindForm.Run(frFind);
 end;
 
+(* TMainForm.oFindNextClick *)
 procedure TMainForm.oFindNextClick(Sender: TObject);
 begin
  FindForm.btnFind.Click;
 end;
 
+(* TMainForm.oFindPrevClick *)
 procedure TMainForm.oFindPrevClick(Sender: TObject);
 Var Prev: Integer;
 begin
@@ -428,12 +481,13 @@ begin
  End;
 end;
 
+(* TMainForm.oGotoLineClick *)
 procedure TMainForm.oGotoLineClick(Sender: TObject);
 Var LineStr      : String;
     Line, LineMax: Integer;
 begin
  LineMax := Project.getCurrentEditor.Lines.Count;
- LineStr := '0';
+ LineStr := IntToStr(Project.getCurrentEditor.CaretY);
 
  if (InputQuery(getLangValue(ls_goto_line_title),
                 Format(getLangValue(ls_goto_line), [1, LineMax]),
@@ -444,37 +498,44 @@ begin
  End;
 end;
 
+(* TMainForm.oSelectAllClick *)
 procedure TMainForm.oSelectAllClick(Sender: TObject);
 begin
  Project.getCurrentEditor.SelectAll;
 end;
 
+(* TMainForm.oSelectLineClick *)
 procedure TMainForm.oSelectLineClick(Sender: TObject);
 begin
  Project.getCurrentEditor.SelectLine;
 end;
 
+(* TMainForm.oSelectWordClick *)
 procedure TMainForm.oSelectWordClick(Sender: TObject);
 begin
  Project.getCurrentEditor.SelectWord;
 end;
 
+(* TMainForm.oShowCompilerOutputClick *)
 procedure TMainForm.oShowCompilerOutputClick(Sender:TObject);
 begin
  CompilerOutputForm.Output.Text := Project.CompilerOutput;
  CompilerOutputForm.ShowModal;
 end;
 
+(* TMainForm.oAboutClick *)
 procedure TMainForm.oAboutClick(Sender: TObject);
 begin
  AboutForm.ShowModal;
 end;
 
+(* TMainForm.oCloseCurrentCardClick *)
 procedure TMainForm.oCloseCurrentCardClick(Sender:TObject);
 begin
  opCloseCard.Click;
 end;
 
+(* TMainForm.oCloseProjectClick *)
 procedure TMainForm.oCloseProjectClick(Sender:TObject);
 begin
  if (SaveProject) Then
@@ -482,11 +543,13 @@ begin
    FreeAndNil(Project);
 end;
 
+(* TMainForm.oEvSettingsClick *)
 procedure TMainForm.oEvSettingsClick(Sender: TObject);
 begin
  EvSettingsForm.Run;
 end;
 
+(* TMainForm.oNewProj_AppClick *)
 procedure TMainForm.oNewProj_AppClick(Sender: TObject);
 begin
  if (SaveProject) Then
@@ -504,6 +567,7 @@ begin
  End;
 end;
 
+(* TMainForm.oNewProj_LibraryClick *)
 procedure TMainForm.oNewProj_LibraryClick(Sender: TObject);
 begin
  if (SaveProject) Then
@@ -521,41 +585,49 @@ begin
  End;
 end;
 
+(* TMainForm.opCloseAllClick *)
 procedure TMainForm.opCloseAllClick(Sender:TObject);
 begin
  Project.CloseCardsExcluding(Tabs.ActivePageIndex); // close each card except this currently opened
 end;
 
+(* TMainForm.opCloseCardClick *)
 procedure TMainForm.opCloseCardClick(Sender: TObject);
 begin
  Project.CloseCard(Tabs.ActivePageIndex); // close current card
 end;
 
+(* TMainForm.opCopyClick *)
 procedure TMainForm.opCopyClick(Sender:TObject);
 begin
  Project.getCurrentEditor.CopyToClipboard;
 end;
 
+(* TMainForm.opCutClick *)
 procedure TMainForm.opCutClick(Sender:TObject);
 begin
  Project.getCurrentEditor.CutToClipboard;
 end;
 
+(* TMainForm.opPasteClick *)
 procedure TMainForm.opPasteClick(Sender:TObject);
 begin
  Project.getCurrentEditor.PasteFromClipboard;
 end;
 
+(* TMainForm.oProjectSettingsClick *)
 procedure TMainForm.oProjectSettingsClick(Sender: TObject);
 begin
  ProjectSettingsForm.Run;
 end;
 
+(* TMainForm.oExitClick *)
 procedure TMainForm.oExitClick(Sender: TObject);
 begin
  Close;
 end;
 
+(* TMainForm.oOpenProjectClick *)
 procedure TMainForm.oOpenProjectClick(Sender: TObject);
 begin
  if (SaveProject) Then
@@ -567,17 +639,20 @@ begin
  End;
 end;
 
+(* TMainForm.oCompileAndRunClick *)
 procedure TMainForm.oCompileAndRunClick(Sender: TObject);
 begin
  if (Project.Compile) Then
   Project.Run;
 end;
 
+(* TMainForm.oNewModuleCkick *)
 procedure TMainForm.oNewModuleClick(Sender: TObject);
 begin
  Project.NewNoNameCard;
 end;
 
+(* TMainForm.opSaveMessagesClick *)
 procedure TMainForm.opSaveMessagesClick(Sender:TObject);
 begin
  // run save dialog
@@ -593,6 +668,7 @@ begin
   End;
 end;
 
+(* TMainForm.opSaveMessagesToClipboardClick *)
 procedure TMainForm.opSaveMessagesToClipboardClick(Sender:TObject);
 Var Stream: TStringStream;
 begin
@@ -603,6 +679,7 @@ begin
  Stream.Free;
 end;
 
+(* TMainForm.opSaveSelectedMessageClick *)
 procedure TMainForm.opSaveSelectedMessageClick(Sender:TObject);
 begin
  if (CompileStatus.Selected = nil) Then // anything selected?
@@ -611,38 +688,45 @@ begin
  Clipboard.SetTextBuf(PChar(CompileStatus.Selected.Text)); // copy to the clipboard
 end;
 
+(* TMainForm.oSaveAllClick *)
 procedure TMainForm.oSaveAllClick(Sender: TObject);
 begin
  Project.Save;
 end;
 
+(* TMainForm.oSaveAsClick *)
 procedure TMainForm.oSaveAsClick(Sender: TObject);
 begin
  Project.Save;
  Project.SaveCurrentCardAs;
 end;
 
+(* TMainForm.oSaveClick *)
 procedure TMainForm.oSaveClick(Sender: TObject);
 begin
  Project.Save;
  Project.SaveCurrentCard;
 end;
 
+(* TMainForm.oBuildClick *)
 procedure TMainForm.oBuildClick(Sender: TObject);
 begin
  Project.Compile;
 end;
 
+(* TMainForm.oCopyClick *)
 procedure TMainForm.oCopyClick(Sender: TObject);
 begin
  Project.getCurrentEditor.CopyToClipboard;
 end;
 
+(* TMainForm.oCutClick *)
 procedure TMainForm.oCutClick(Sender: TObject);
 begin
  Project.getCurrentEditor.CutToClipboard;
 end;
 
+(* TMainForm.FormCloseQuery *)
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
  CanClose := SaveProject;
@@ -656,6 +740,7 @@ begin
   End;
 end;
 
+(* TMainForm.CompileStatusClick *)
 procedure TMainForm.CompileStatusClick(Sender:TObject);
 Var Data: Integer;
 begin
@@ -667,6 +752,7 @@ begin
   Project.RaiseMessage(Data-1);
 end;
 
+(* TMainForm.oOpenClick *)
 procedure TMainForm.oOpenClick(Sender: TObject);
 begin
  // create open dialog
@@ -712,33 +798,95 @@ begin
  End;
 end;
 
+(* TMainForm.oPasteClick *)
 procedure TMainForm.oPasteClick(Sender: TObject);
 begin
  Project.getCurrentEditor.PasteFromClipboard;
 end;
 
+(* TMainForm.oRedoClick *)
 procedure TMainForm.oRedoClick(Sender: TObject);
 begin
  Project.getCurrentEditor.Redo;
 end;
 
+(* TMainForm.oUncommentSelectedClick *)
+procedure TMainForm.oUncommentSelectedClick(Sender: TObject);
+Var Line, Char      : Integer;
+    Editor          : TSynEdit;
+    List            : TStringList;
+    CaretPos, BB, BE: TPoint;
+    Str             : String;
+begin
+ Editor   := Project.getCurrentEditor;
+ CaretPos := Editor.CaretXY;
+ BB       := Editor.BlockBegin;
+ BE       := Editor.BlockEnd;
+
+ List := TStringList.Create;
+ Try
+  List.Text := Editor.SelText;
+
+  if (List.Count = 1) Then
+  Begin
+   Str := List[0];
+
+   if (MPos('/*', Str) > 0) and (MPos('*/', Str) > 0) Then
+   Begin
+    Delete(Str, MPos('/*', Str), 2);
+    Delete(Str, MPos('*/', Str), 2);
+   End;
+
+   List[0] := Str;
+  End;
+
+  For Line := 0 To List.Count-1 Do
+  Begin
+   Str := List[Line];
+
+   For Char := 1 To Length(Str) Do
+   Begin
+    if not (Str[Char] in ['/', ' ']) Then
+     Break;
+
+    if (Copy(Str, Char, 2) = '//') Then
+    Begin
+     if (Line = List.Count-1) Then
+      Dec(BE.X, 2);
+
+     Delete(Str, Char, 2);
+     Break;
+    End;
+   End;
+
+   List[Line] := Str;
+  End;
+
+  Str := List.Text;
+  Delete(Str, Length(Str)-Length(LineEnding)+1, Length(LineEnding));
+  Editor.SelText := Str;
+ Finally
+  Editor.CaretXY    := CaretPos;
+  Editor.BlockBegin := BB;
+  Editor.BlockEnd   := BE;
+  List.Free;
+ End;
+end;
+
+(* TMainForm.oUndoClick *)
 procedure TMainForm.oUndoClick(Sender: TObject);
 begin
  Project.getCurrentEditor.Undo;
 end;
 
-procedure TMainForm.Splitter1CanResize(Sender: TObject; var NewSize: Integer;
-var Accept: Boolean);
+(* TMainForm.Splitter1CanResize *)
+procedure TMainForm.Splitter1CanResize(Sender: TObject; var NewSize: Integer; var Accept: Boolean);
 begin
  Splitter1Factor := Height/NewSize;
  setFloat(sSplitter1, Splitter1Factor);
 end;
 
-procedure TMainForm.TabsChange(Sender: TObject);
-begin
-
-end;
-
+(* TMainForm.TabsTabDragDropEx *)
 procedure TMainForm.TabsTabDragDropEx(Sender, Source: TObject; OldIndex,
   NewIndex: Integer; CopyDrag: Boolean; var Done: Boolean);
 begin
@@ -746,6 +894,7 @@ begin
   Project.SwapCards(OldIndex, NewIndex);
 end;
 
+(* TMainForm.TabsUpdateTimer *)
 procedure TMainForm.TabsUpdateTimer(Sender: TObject);
 begin
  if (Project = nil) Then // no project created

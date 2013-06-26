@@ -4,17 +4,15 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="78">
+    <Units Count="83">
       <Unit0>
         <Filename Value="editor.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="editor"/>
-        <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
         <TopLine Value="20"/>
         <CursorPos X="50" Y="48"/>
         <UsageCount Value="208"/>
-        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="uMainForm.pas"/>
@@ -23,10 +21,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uMainForm"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="715"/>
-        <CursorPos X="13" Y="740"/>
+        <TopLine Value="420"/>
+        <CursorPos X="15" Y="427"/>
         <UsageCount Value="208"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -62,8 +61,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uAboutForm"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
+        <TopLine Value="28"/>
+        <CursorPos X="25" Y="42"/>
         <UsageCount Value="205"/>
       </Unit4>
       <Unit5>
@@ -100,7 +99,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="1"/>
-        <UsageCount Value="42"/>
+        <UsageCount Value="46"/>
       </Unit7>
       <Unit8>
         <Filename Value="ufindform.pas"/>
@@ -109,14 +108,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uFindForm"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="206"/>
         <CursorPos X="46" Y="221"/>
-        <UsageCount Value="28"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
+        <UsageCount Value="32"/>
       </Unit8>
       <Unit9>
         <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\objpas\classes\classesh.inc"/>
@@ -129,8 +124,8 @@
         <Filename Value="mProject.pas"/>
         <UnitName Value="mProject"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="608"/>
-        <CursorPos X="80" Y="607"/>
+        <TopLine Value="226"/>
+        <CursorPos X="123" Y="242"/>
         <UsageCount Value="103"/>
       </Unit10>
       <Unit11>
@@ -184,8 +179,8 @@
         <Filename Value="C:\lazarus\lcl\controls.pp"/>
         <UnitName Value="Controls"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="47"/>
-        <CursorPos X="37" Y="69"/>
+        <TopLine Value="1371"/>
+        <CursorPos X="14" Y="1386"/>
         <UsageCount Value="10"/>
       </Unit17>
       <Unit18>
@@ -283,9 +278,9 @@
         <Filename Value="C:\lazarus\components\synedit\synedit.pp"/>
         <UnitName Value="SynEdit"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="7025"/>
-        <CursorPos X="33" Y="7029"/>
-        <UsageCount Value="11"/>
+        <TopLine Value="1194"/>
+        <CursorPos X="14" Y="1210"/>
+        <UsageCount Value="10"/>
       </Unit30>
       <Unit31>
         <Filename Value="C:\lazarus\lcl\interfaces\win32\win32lclintf.inc"/>
@@ -394,12 +389,10 @@
       <Unit45>
         <Filename Value="mLanguages.pas"/>
         <UnitName Value="mLanguages"/>
-        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="88"/>
-        <CursorPos X="10" Y="89"/>
-        <UsageCount Value="40"/>
-        <Loaded Value="True"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="41"/>
       </Unit45>
       <Unit46>
         <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\objpas\typinfo.pp"/>
@@ -642,67 +635,167 @@
         <CursorPos X="2" Y="116"/>
         <UsageCount Value="10"/>
       </Unit77>
+      <Unit78>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\win32\system.pp"/>
+        <UnitName Value="System"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="25"/>
+        <CursorPos X="2" Y="41"/>
+        <UsageCount Value="10"/>
+      </Unit78>
+      <Unit79>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\classes\classesh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="100"/>
+        <CursorPos X="3" Y="116"/>
+        <UsageCount Value="10"/>
+      </Unit79>
+      <Unit80>
+        <Filename Value="C:\lazarus\components\synedit\syneditkeycmds.pp"/>
+        <UnitName Value="SynEditKeyCmds"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="351"/>
+        <CursorPos X="14" Y="366"/>
+        <UsageCount Value="10"/>
+      </Unit80>
+      <Unit81>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\inc\systemh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="853"/>
+        <CursorPos X="11" Y="869"/>
+        <UsageCount Value="10"/>
+      </Unit81>
+      <Unit82>
+        <Filename Value="mFunctions.pas"/>
+        <UnitName Value="mFunctions"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="5"/>
+        <CursorPos X="85" Y="21"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit82>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="14" HistoryIndex="13">
+    <JumpHistory Count="29" HistoryIndex="28">
       <Position1>
-        <Filename Value="ufindform.pas"/>
-        <Caret Line="150" Column="47" TopLine="133"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="413" Column="23" TopLine="393"/>
       </Position1>
       <Position2>
-        <Filename Value="ufindform.pas"/>
-        <Caret Line="146" Column="49" TopLine="133"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="418" Column="30" TopLine="397"/>
       </Position2>
       <Position3>
         <Filename Value="uMainForm.pas"/>
-        <Caret Line="159" Column="70" TopLine="143"/>
+        <Caret Line="421" Column="31" TopLine="402"/>
       </Position3>
       <Position4>
-        <Filename Value="ufindform.pas"/>
-        <Caret Line="142" Column="58" TopLine="136"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="411" Column="11" TopLine="394"/>
       </Position4>
       <Position5>
         <Filename Value="uMainForm.pas"/>
-        <Caret Line="159" Column="70" TopLine="143"/>
+        <Caret Line="414" Column="6" TopLine="394"/>
       </Position5>
       <Position6>
-        <Filename Value="ufindform.pas"/>
-        <Caret Line="159" Column="36" TopLine="37"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="416" Column="12" TopLine="394"/>
       </Position6>
       <Position7>
-        <Filename Value="mLanguages.pas"/>
-        <Caret Line="163" Column="50" TopLine="143"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="417" Column="12" TopLine="394"/>
       </Position7>
       <Position8>
-        <Filename Value="mLanguages.pas"/>
-        <Caret Line="162" Column="50" TopLine="143"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="418" Column="24" TopLine="394"/>
       </Position8>
       <Position9>
-        <Filename Value="editor.lpr"/>
-        <Caret Line="36" Column="68" TopLine="18"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="419" Column="27" TopLine="394"/>
       </Position9>
       <Position10>
-        <Filename Value="mLanguages.pas"/>
-        <Caret Line="79" Column="18" TopLine="71"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="421" Column="17" TopLine="394"/>
       </Position10>
       <Position11>
-        <Filename Value="mLanguages.pas"/>
-        <Caret Line="80" Column="14" TopLine="71"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="422" Column="25" TopLine="394"/>
       </Position11>
       <Position12>
-        <Filename Value="mLanguages.pas"/>
-        <Caret Line="81" Column="24" TopLine="71"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="429" Column="40" TopLine="399"/>
       </Position12>
       <Position13>
-        <Filename Value="mLanguages.pas"/>
-        <Caret Line="58" Column="43" TopLine="41"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="427" Column="20" TopLine="402"/>
       </Position13>
       <Position14>
-        <Filename Value="ufindform.pas"/>
-        <Caret Line="215" Column="49" TopLine="193"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="421" Column="16" TopLine="404"/>
       </Position14>
+      <Position15>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="418" Column="19" TopLine="402"/>
+      </Position15>
+      <Position16>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="412" Column="21" TopLine="402"/>
+      </Position16>
+      <Position17>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="409" Column="1" TopLine="403"/>
+      </Position17>
+      <Position18>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="810" Column="1" TopLine="638"/>
+      </Position18>
+      <Position19>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="431" Column="2" TopLine="407"/>
+      </Position19>
+      <Position20>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="415" Column="2" TopLine="407"/>
+      </Position20>
+      <Position21>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="835" Column="30" TopLine="813"/>
+      </Position21>
+      <Position22>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="421" Column="5" TopLine="393"/>
+      </Position22>
+      <Position23>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="863" Column="5" TopLine="859"/>
+      </Position23>
+      <Position24>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="129" Column="132" TopLine="119"/>
+      </Position24>
+      <Position25>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="834" Column="45" TopLine="820"/>
+      </Position25>
+      <Position26>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="427" Column="17" TopLine="413"/>
+      </Position26>
+      <Position27>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="832" Column="19" TopLine="822"/>
+      </Position27>
+      <Position28>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="165" Column="39" TopLine="143"/>
+      </Position28>
+      <Position29>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="837" Column="35" TopLine="766"/>
+      </Position29>
     </JumpHistory>
   </ProjectSession>
   <Debugging>

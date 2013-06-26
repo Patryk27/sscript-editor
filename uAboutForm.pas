@@ -30,20 +30,22 @@ Uses uMainForm;
 
 {$R *.lfm}
 
-{ TAboutForm }
-
+(* TAboutForm.FormCreate *)
 procedure TAboutForm.FormCreate(Sender: TObject);
 
-Procedure L(const Text: String='');
-Begin
- mText.Text := mText.Text+Text+#13#10;
-End;
+  Procedure L(Text: String=''; const AddNewline: Boolean=True); inline;
+  Begin
+   if (AddNewline) Then
+    Text += LineEnding;
+
+   mText.Text := mText.Text+Text;
+  End;
 
 begin
  mText.Text := '';
 
  L('SScript Editor v.'+uMainForm.sVersion);
- L('~Patryk Wychowaniec (http://github.com/Piterolex, http://sscript.xorg.pl/)');
+ L('by Patryk Wychowaniec (http://github.com/Piterolex, http://sscript.4programmers.net/)');
  L();
  L('');
  L('Used icon packs:');
@@ -51,8 +53,7 @@ begin
  L(' http://tango.freedesktop.org/Tango_Icon_Library');
 
  L; L; L; L; L; L;
- L('... GLaDOS is still alive...');
- L('... PS: don''t turn around...');
+ L('PS: GLaDOS is still alive! Be beware of cake!', False);
 end;
 
 end.

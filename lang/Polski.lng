@@ -88,6 +88,15 @@ Caption=Zamień
 [MainForm_oGotoLine]
 Caption=Idź do wiersza
 
+[MainForm_menuCode]
+Caption=Kod
+
+[MainForm_oCommentSelected]
+Caption=Zakomentuj zaznaczony fragment
+
+[MainForm_oUncommentSelected]
+Caption=Odkomentuj zaznaczony fragment
+
 [MainForm_menuProject]
 Caption=Projekt
 
@@ -390,7 +399,7 @@ Caption=Szukaj wewnątrz
 1=Całego pliku
 
 [FindForm_rgSearchDir]
-Caption=Szukaj w kierunku
+Caption=Kierunek szukania
 0=W górę
 1=W dół
 
@@ -446,8 +455,8 @@ filter_project=Projekt SScript Editor (*.ssp)|*.ssp
 filter_module=Kod SScript (*.ss)|*.ss
 filter_any_file=Wszystkie pliki (*.*)|*.*
 
-goto_line_title=Idź do linii
-goto_line=Idź do linii (%d-%d):
+goto_line_title=Idź do wiersza
+goto_line=Idź do wiersza (%d-%d):
 
 find=Znajdź
 find_title=Znajdź

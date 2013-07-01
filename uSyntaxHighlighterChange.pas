@@ -1,3 +1,7 @@
+(*
+ Copyright © by Patryk Wychowaniec, 2013
+ All rights reserved.
+*)
 unit uSyntaxHighlighterChange;
 
 {$mode objfpc}{$H+}

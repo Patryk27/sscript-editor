@@ -25,28 +25,51 @@ uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads,
   {$ENDIF}{$ENDIF}
-  Interfaces, SysUtils,
-  Forms, lazcontrols, runtimetypeinfocontrols, uMainForm, uProjectSettings,
-  uAboutForm, uEvSettingsForm, uSyntaxHighlighterChange,
+  Interfaces, SysUtils, Forms, lazcontrols,
+  runtimetypeinfocontrols, anchordockpkg, AnchorDocking, uMainForm, uProjectSettings,
+  uAboutForm, uEvSettingsForm, uSyntaxHighlighterChange, Controls,
 
-  mLanguages, mSettings, uCompilerOutput, uFindForm;
+  mLanguages, mSettings, uCompilerOutput, uFindForm,
+  uIdentifierListForm, uCompileStatusForm, uCodeEditor, virtualtreeview_package,
+  Dialogs, XMLPropStorage;
 
 {$R *.res}
 
+Var XML: TXMLConfigStorage;
 begin
-  RequireDerivedFormResource := True;
-  Application.Initialize;
+ RequireDerivedFormResource := True;
+ Application.Initialize;
 
-  Application.CreateForm(TMainForm, MainForm);
-  Application.CreateForm(TProjectSettingsForm, ProjectSettingsForm);
-  Application.CreateForm(TAboutForm, AboutForm);
-  Application.CreateForm(TEvSettingsForm, EvSettingsForm);
-  Application.CreateForm(TSyntaxHighlighterChange, SyntaxHighlighterChange);
-  Application.CreateForm(TCompilerOutputForm, CompilerOutputForm);
-  Application.CreateForm(TFindForm, FindForm);
+ Application.CreateForm(TMainForm, MainForm);
+ Application.CreateForm(TProjectSettingsForm, ProjectSettingsForm);
+ Application.CreateForm(TAboutForm, AboutForm);
+ Application.CreateForm(TEvSettingsForm, EvSettingsForm);
+ Application.CreateForm(TSyntaxHighlighterChange, SyntaxHighlighterChange);
+ Application.CreateForm(TCompilerOutputForm, CompilerOutputForm);
+ Application.CreateForm(TFindForm, FindForm);
+ Application.CreateForm(TIdentifierListForm, IdentifierListForm);
+ Application.CreateForm(TCompileStatusForm, CompileStatusForm);
+ Application.CreateForm(TCodeEditor, CodeEditor);
 
-  LoadLanguageFile(ExtractFilePath(ParamStr(0))+'lang/'+getString(sLanguage)); // load language
+ DockMaster.MakeDockSite(MainForm, [akTop, akLeft, akRight, akBottom], admrpChild);
+ DockMaster.MakeDockable(CompileStatusForm);
+ DockMaster.MakeDockable(IdentifierListForm);
+ DockMaster.MakeDockable(CodeEditor);
 
-  Application.Run;
+ if (FileExists('layout.xml')) Then // load layout (if possible)
+ Begin
+  XML := TXMLConfigStorage.Create('layout.xml', True);
+  Try
+   DockMaster.LoadLayoutFromConfig(XML, False);
+  Finally
+   XML.Free;
+  End;
+ End;
+
+ LoadLanguageFile(ExtractFilePath(ParamStr(0))+'lang/'+getString(sLanguage)); // load language
+
+ Application.Run;
+
+ // @TODO: save layout
 end.
 

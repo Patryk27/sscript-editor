@@ -1,44 +1,79 @@
-{$MODE OBJFPC}
-{$H+}
-
+(*
+ Copyright © by Patryk Wychowaniec, 2013
+ All rights reserved.
+*)
+{$MODE OBJFPC}{$H+}
 Unit mProject;
 
  Interface
- Uses uMainForm, LCLType, FileUtil, Classes, ComCtrls, Controls, Graphics, SynEdit, SynEditSScript, FGL;
+ Uses uMainForm, CodeScan, Tokens, LCLType, FileUtil, Classes, ComCtrls, Controls, Graphics, SynEdit, SynEditSScript, FGL,
+      SynEditMiscClasses, SynHighlighterPas, SynHighlighterCpp, SynHighlighterJava, SynHighlighterIni, VirtualTrees,
+      AnchorDocking, SynCompletion, mIntellisense;
 
  Type TProjectType = (ptApplication, ptLibrary);
+
+ Type TProject = Class;
 
  { TCard }
  Type TCardSaveReason = (csrClosingCard);
 
  Type TCard = Class
                Private
+                Project: TProject;
+
                 isMain, Named    : Boolean;
                 FileName, Caption: String;
                 SynEdit          : TSynEdit;
                 Tab              : TTabSheet;
                 ErrorLine        : Integer;
+                ShouldBeReparsed : Boolean;
+                CodeScanner      : TCodeScanner;
+                IdentifierList   : TIdentifierList;
+
+                Parsing: Boolean;
+
+                Intellisense: TSynCompletion;
+
+                Procedure UpdateIntellisense;
 
                 Procedure Editor_OnKeyPress(Sender: TObject; var Key: Char);
                 Procedure Editor_OnKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
                 Procedure Editor_OnMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
                 Procedure Editor_OnMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
                 Procedure Editor_OnClick(Sender: TObject);
-                Procedure Editor_OnSpecialLineColors(Sender: TObject; Line: Integer; var Special: Boolean; var FG, BG: TColor);
+                Procedure Editor_OnSpecialLineMarkup(Sender: TObject; Line: Integer; var Special: Boolean; Markup: TSynSelectedColor);
+                Procedure Editor_OnChange(Sender: TObject);
+
+                Function Intellisense_OnPaintItem(const AKey: String; ACanvas: TCanvas; X, Y: integer; Selected: Boolean; Index: Integer): Boolean;
+                Procedure Intellisense_OnSearchPosition(var Position: Integer);
+                Procedure Intellisense_OnShow(Sender: TObject);
+                Procedure Intellisense_OnHide(Sender: TObject);
+                Procedure Intellisense_OnCodeCompletion(var Value: String; SourceValue: String; var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char; Shift: TShiftState);
 
                Public
                 Property getFileName: String read FileName;
+                Property getShouldBeReparsed: Boolean read ShouldBeReparsed;
 
-                Constructor Create(const fFileName, fCaption: String);
+                Constructor Create(const fFileName, fCaption: String; fProject: TProject);
                 Destructor Destroy; override;
 
                 Function Save(const fFileName: String=''): Boolean;
                 Function Save(const Reason: TCardSaveReason): Boolean;
 
+                Procedure SetFocus;
                 Procedure Update;
                 Procedure RefreshControls;
 
                 Procedure ReCaption(const NewCaption: String);
+
+                Procedure Parse(const ForceParse: Boolean=False);
+
+                Function GetTokenPAtCaret: TToken_P;
+                Function GetNamespaceAtCaret: TNamespace;
+                Function GetFunctionAtCaret: TFunction;
+                Function GetIdentifierAtCaret: String;
+                Function GetFunctionNameAtCaret: String;
+                Function GetNamespacesAtCaret: TStringList;
                End;
 
  // TMessage
@@ -66,16 +101,22 @@ Unit mProject;
                    CardList   : TCardList;
                    MessageList: TMessageList;
 
-                   Function CreateCard(const cFileName: String; LoadFile: Boolean): Boolean;
-                   Function CreateCardEx(const cFileName, cCaption: String; LoadFile: Boolean): Boolean;
-                   Function FindCard(const cFileName: String): Integer;
+                   ParseError: Record
+                                Any       : Boolean;
+                                Line, Char: Integer;
+                                FileName  : String;
+                               End;
+
+                   Function CreateCard(const cFileName: String; LoadFile: Boolean): TCard;
+                   Function CreateCardEx(const cFileName, cCaption: String; LoadFile: Boolean): TCard;
+                   Function FindCard(const cFileName: String): TCard;
                    Function getMainCard: TCard;
 
                    Function MakeAbsolutePath(const FileName: String): String;
                    Function MakeRelativePath(const FileName: String): String;
                    Procedure CheckPaths;
 
-                   Procedure SaveIfCan;
+                   Procedure SaveIfPossible;
 
                   Public
                    // project state
@@ -110,7 +151,7 @@ Unit mProject;
                    Procedure SaveCurrentCard;
                    Procedure SaveCurrentCardAs;
                    Function Open(const fFileName: String=''): Boolean;
-                   Function OpenCard(const fFileName: String): Boolean;
+                   Function OpenCard(const fFileName: String): TCard;
 
                    Procedure UpdateCards;
                    Procedure SwapCards(A, B: Integer);
@@ -126,16 +167,24 @@ Unit mProject;
                    Function isEverythingSaved: Boolean;
                    Function getCurrentCard: TCard;
                    Function getCurrentEditor: TSynEdit;
+
+                   Function FindIdentifier(const CaretXY: TPoint): PIdentifier;
+                   Procedure JumpToDeclaration(const Ident: PIdentifier);
+
+                   Procedure UpdateIdentifierList;
                   End;
 
- Function getSwitchName(const S: TCompilerSwitch; DeleteFirstChar: Boolean=True): String;
+ Function getCompilerSwitchName(const S: TCompilerSwitch; DeleteFirstChar: Boolean=True): String;
  Function getVMSwitchName(const S: TVMSwitch; DeleteFirstChars: Boolean=True): String;
 
- Implementation
-Uses mSettings, mLanguages, Dialogs, SysUtils, Forms, DOM, XMLWrite, XMLRead, TypInfo, Process;
+ Var Project: TProject = nil; // currently opened project
 
-{ getSwitchName }
-Function getSwitchName(const S: TCompilerSwitch; DeleteFirstChar: Boolean=True): String;
+ Implementation
+Uses mSettings, mLanguages, uIdentifierListForm, uCompileStatusForm, uCodeEditor, Parser,
+     Dialogs, SysUtils, Forms, DOM, XMLWrite, XMLRead, TypInfo, Process;
+
+{ getCompilerSwitchName }
+Function getCompilerSwitchName(const S: TCompilerSwitch; DeleteFirstChar: Boolean=True): String;
 Begin
  Result := GetEnumName(TypeInfo(TCompilerSwitch), Integer(S));
 
@@ -153,6 +202,21 @@ Begin
 End;
 
 // -------------------------------------------------------------------------- //
+(* TCard.UpdateIntellisense *)
+{
+ Updates the Intellisense window.
+}
+Procedure TCard.UpdateIntellisense;
+Var NS: TStringList;
+Begin
+ NS := GetNamespacesAtCaret;
+ Try
+  MakeIntellisenseIdentifierList(Intellisense.ItemList, CodeScanner.getSymbolList, NS, GetFunctionNameAtCaret, GetIdentifierAtCaret);
+ Finally
+  NS.Free;
+ End;
+End;
+
 (* TCard.Editor_OnKeyPress *)
 Procedure TCard.Editor_OnKeyPress(Sender: TObject; var Key: Char);
 Var Str: String = '';
@@ -185,10 +249,40 @@ End;
 
 (* TCard.Editor_OnKeyDown *)
 Procedure TCard.Editor_OnKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-Var BlockBegin, BlockEnd: TPoint;
+Var Card: TCard;
 Begin
  ErrorLine := -1;
  SynEdit.Invalidate;
+
+ if (Shift = [ssCtrl]) and (Key = VK_SPACE) Then // Intellisense shortcut; @TODO: this should be configurable from settings
+ Begin
+  Key := 0;
+  Parse;
+
+  if (CodeScanner <> nil) Then
+  Begin
+   if (Project.ParseError.Any) Then // cannot open Intellisense if parsing wasn't successful
+   Begin
+    if (Project.ParseError.FileName = 'main.ss') and (not Project.Named) Then
+     Card := Project.FindCard('main.ss') Else
+     Card := Project.OpenCard(Project.ParseError.FileName);
+
+    if (Card <> nil) Then
+    Begin
+     Card.SynEdit.CaretX := Project.ParseError.Char;
+     Card.SynEdit.CaretY := Project.ParseError.Line;
+     Card.ErrorLine      := Project.ParseError.Line;
+     Card.SetFocus;
+    End;
+   End Else
+   Begin
+    UpdateIntellisense;
+    Intellisense.Execute('',
+                         CodeEditor.Left+SynEdit.Left+SynEdit.CaretXPix+6,
+                         CodeEditor.Top+SynEdit.CaretYPix+SynEdit.Font.Size+CodeEditor.Panel1.Height+75);
+   End;
+  End;
+ End;
 End;
 
 (* TCard.Editor_OnMouseUp *)
@@ -212,26 +306,125 @@ Begin
  SynEdit.Invalidate;
 End;
 
-(* TCard.Editor_OnSpecialLineColors *)
-Procedure TCard.Editor_OnSpecialLineColors(Sender: TObject; Line: Integer; var Special: Boolean; var FG, BG: TColor);
+(* TCard.Editor_OnSpecialLineMarkup *)
+Procedure TCard.Editor_OnSpecialLineMarkup(Sender: TObject; Line: Integer; var Special: Boolean; Markup: TSynSelectedColor);
 Begin
  if (Line = ErrorLine) Then
  Begin
-  BG      := 16752720; // @TODO: afair, on Linux it should be written as BGR, not RGB
-  Special := True;
+  Markup.Background := $50A0FF;
+  Special           := True;
  End;
+End;
+
+(* TCard.Editor_OnChange *)
+Procedure TCard.Editor_OnChange(Sender: TObject);
+Begin
+ if (Intellisense.isActive) Then
+  UpdateIntellisense;
+
+ ShouldBeReparsed := True;
+End;
+
+(* TCard.Intellisense_OnPaintItem *)
+Function TCard.Intellisense_OnPaintItem(const AKey: String; ACanvas: TCanvas; X, Y: integer; Selected: Boolean; Index: Integer): Boolean;
+Var ItemText, ItemLeft, ItemRight: String;
+    Rect                         : TRect;
+begin
+ Rect.Left := X;
+ Rect.Top  := Y;
+
+ With ACanvas do
+ Begin
+  Font.Name := 'Courier New'; // @TODO: this should be configurable
+  Font.Size := 10;
+
+  Rect.Bottom := Rect.Top+Intellisense.FontHeight;
+  Rect.Right  := Rect.Left+Intellisense.TheForm.Width;
+ End;
+
+ With ACanvas do
+ Begin
+  if (Selected) Then
+   Brush.Color := $00A00000;
+
+  FillRect(Rect);
+
+  ItemText := AKey;
+
+  ItemLeft  := Copy(ItemText, 1, Pos('|', ItemText)-1);
+  ItemRight := Copy(ItemText, Pos('|', ItemText)+1, Length(ItemText));
+
+  //Font.Style := [fsItalic];
+  TextOut(Rect.Left, Rect.Top, ItemLeft);
+
+  Font.Style := [fsBold];
+  TextOut(Rect.Left+110, Rect.Top, ItemRight);
+
+  Font.Style := [];
+ End;
+
+ Result := True;
+End;
+
+(* TCard.Intellisense_OnSearchPosition *)
+Procedure TCard.Intellisense_OnSearchPosition(var Position: Integer);
+Var I    : Integer;
+    Value: String;
+Begin
+ With Intellisense do
+  For I := 0 To ItemList.Count-1 Do
+  Begin
+   Value := ItemList[I];
+   Delete(Value, 1, Pos('|', Value));
+
+   if (Copy(Value, 1, Length(CurrentString)) = CurrentString) Then
+   Begin
+    Position := I;
+    Exit;
+   End;
+  End;
+End;
+
+(* TCard.Intellisense_OnShow *)
+Procedure TCard.Intellisense_OnShow(Sender: TObject);
+Begin
+ With TForm(Sender) do
+ Begin
+  Width  := getInteger(sIntellisenseWidth);
+  Height := getInteger(sIntellisenseHeight);
+ End;
+End;
+
+(* TCard.Intellisense_OnHide *)
+Procedure TCard.Intellisense_OnHide(Sender: TObject);
+Begin
+ With TForm(Sender) do
+ Begin
+  setInteger(sIntellisenseWidth, Width);
+  setInteger(sIntellisenseHeight, Height);
+ End;
+End;
+
+(* TCard.Intellisense_OnCodeCompletion *)
+Procedure TCard.Intellisense_OnCodeCompletion(var Value: String; SourceValue: String; var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char; Shift: TShiftState);
+Begin
+ Delete(Value, 1, Pos('|', Value));
 End;
 
 (* TCard.Create *)
 {
  Creates a card with cation `fCaption` and loads into it file named `fFileName`
 }
-Constructor TCard.Create(const fFileName, fCaption: String);
+Constructor TCard.Create(const fFileName, fCaption: String; fProject: TProject);
 Begin
+ Project := fProject;
+
  FileName := fFileName;
  Caption  := fCaption;
 
- ErrorLine := -1;
+ ErrorLine        := -1;
+ ShouldBeReparsed := True;
+ CodeScanner      := nil;
 
  Named  := False;
  isMain := False;
@@ -243,32 +436,49 @@ Begin
 
  { Tab }
  Tab.Caption     := fCaption;
- Tab.PageControl := MainForm.Tabs;
- Tab.PopupMenu   := MainForm.Tabs.PopupMenu;
+ Tab.PageControl := CodeEditor.Tabs;
+ Tab.PopupMenu   := CodeEditor.Tabs.PopupMenu;
 
  { SynEdit }
  With SynEdit do
  Begin
-  Highlighter := THighlighter.Create(SynEdit);
   Parent      := Tab;
   Align       := alClient;
-  PopupMenu   := MainForm.SynEditPopup;
+  PopupMenu   := CodeEditor.SynEditPopup;
 
   OnKeyPress          := @Editor_OnKeyPress;
   OnKeyDown           := @Editor_OnKeyDown;
   OnMouseUp           := @Editor_OnMouseUp;
   OnMouseDown         := @Editor_OnMouseDown;
   OnClick             := @Editor_OnClick;
-  OnSpecialLineColors := @Editor_OnSpecialLineColors;
+  OnSpecialLineMarkup := @Editor_OnSpecialLineMarkup;
+  OnChange            := @Editor_OnChange;
 
   Modified := False;
  End;
 
+ { Intellisense }
+ Intellisense := TSynCompletion.Create(nil);
+ With Intellisense do
+ Begin
+  Editor := SynEdit;
+
+  ShowSizeDrag := True;
+
+  OnPaintItem      := @Intellisense_OnPaintItem;
+  OnSearchPosition := @Intellisense_OnSearchPosition;
+  OnCodeCompletion := @Intellisense_OnCodeCompletion;
+
+  TheForm.OnShow := @Intellisense_OnShow;
+  TheForm.OnHide := @Intellisense_OnHide;
+ End;
+
  { Tabs }
- With MainForm.Tabs do
+ With CodeEditor.Tabs do
   ActivePageIndex := PageCount-1;
 
  RefreshControls;
+
  SynEdit.SetFocus;
 End;
 
@@ -357,6 +567,13 @@ Begin
  End;
 End;
 
+(* TCard.SetFocus *)
+Procedure TCard.SetFocus;
+Begin
+ CodeEditor.Tabs.ActivePageIndex := Project.CardList.IndexOf(self);
+ SynEdit.SetFocus;
+End;
+
 (* TCard.Update *)
 {
  Updates card
@@ -378,8 +595,18 @@ Begin
  With SynEdit do
  Begin
   // recreate highlighter
-  Highlighter.Free;
-  Highlighter := THighlighter.Create(SynEdit);
+  if (Highlighter <> nil) Then
+   Highlighter.Free;
+
+  SynEdit.Font.Quality := fqCleartype; // @TODO: this should be configurable
+
+  Case LowerCase(ExtractFileExt(FileName)) of
+   '.ss'        : Highlighter := THighlighter.Create(SynEdit);
+   '.pas', '.pp': Highlighter := TSynPasSyn.Create(SynEdit);
+   '.c', '.cpp' : Highlighter := TSynCppSyn.Create(SynEdit);
+   '.java'      : Highlighter := TSynJavaSyn.Create(SynEdit);
+   '.ini'       : Highlighter := TSynIniSyn.Create(SynEdit);
+  End;
 
   // update SynEdit
   With SynEdit do
@@ -401,12 +628,266 @@ Begin
  Tab.Caption := Caption;
 End;
 
+(* TCard.Parse *)
+Procedure TCard.Parse(const ForceParse: Boolean=False);
+Var Tmp         : PIdentifier;
+    Msg, ErrFile: String;
+    Card        : TCard;
+
+    null_token: TToken_P;
+    null_range: TRange;
+Begin
+ // @TODO: if some card doesn't have to be reparsed, let the parser use its CodeScanner.
+
+ if (Parsing) or ((not ForceParse) and (not ShouldBeReparsed)) Then
+  Exit;
+
+ With CompileStatusForm.CompileStatus do // clear parser's error message
+  if (Items.GetLastNode.Data = Pointer($CAFEBABE)) Then
+   Items.Delete(Items.GetLastNode);
+
+ Parsing                := False;
+ Project.ParseError.Any := False;
+ ShouldBeReparsed       := False;
+
+ if (IdentifierList <> nil) Then // free previous identifier list
+ Begin
+  For Tmp in IdentifierList Do
+   Dispose(Tmp);
+
+  FreeAndNil(IdentifierList);
+ End;
+
+ if (CodeScanner <> nil) Then // free previous code scanner
+  FreeAndNil(CodeScanner);
+
+ Parsing     := True;
+ CodeScanner := TCodeScanner.Create(SynEdit.Lines, getFileName, Project.getMainCard.getFileName, getString(sCompilerFile), Project.IncludePath); // parse!
+ Try
+  Try
+   IdentifierList := CodeScanner.Parse;
+  Except
+   On E: Exception Do
+   Begin
+    With Project.ParseError do
+    Begin
+     Any      := True;
+     FileName := CodeScanner.CurrentlyParsedFile; // file, where the error has been raised
+     Line     := CodeScanner.getParser.next(-1).Line;
+     Char     := CodeScanner.getParser.next(-1).Char;
+
+     ErrFile := FileName;
+    End;
+
+    if (AnsiCompareFileName(ErrFile, getFileName) = 0) Then
+     Card := self Else
+     Begin
+      Card := Project.FindCard(ErrFile);
+
+      if (Card = nil) Then
+       Card := Project.OpenCard(ErrFile);
+     End;
+
+    if (Card <> nil) Then
+     CodeEditor.Tabs.ActivePageIndex := Project.CardList.IndexOf(Card);
+
+    Msg := Format(getLangValue(ls_codescan_failed), [ErrFile, Project.ParseError.Line, Project.ParseError.Char, E.Message]);
+
+    With CompileStatusForm.CompileStatus do
+    Begin
+     if (Items.GetLastNode.Data = Pointer($CAFEBABE)) Then
+      Items.GetLastNode.Text := Msg Else
+      With Items.Add(nil, Msg) do
+      Begin
+       Data          := Pointer($CAFEBABE);
+       ImageIndex    := 3;
+       SelectedIndex := ImageIndex;
+      End;
+    End;
+   End;
+  End;
+ Finally
+  Parsing := False;
+ End;
+
+ if (CodeScanner <> nil) Then
+  With CodeScanner.getSymbolList do
+  Begin
+   // these identifiers are not visible in the identifier list, but they are in the Intellisense form
+   null_token.Char     := 0;
+   null_token.Line     := 0;
+   null_token.FileName := '';
+   null_token.Value    := '';
+
+   null_range.PBegin    := null_token;
+   null_range.PEnd      := null_token;
+   null_range.PEnd.Char := High(LongWord);
+   null_range.PEnd.Line := High(LongWord);
+
+   Add(TSymbol.Create(stConstant, TVariable.Create(null_token, null_range, 'null')));
+   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'any')));
+   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'void')));
+   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'bool')));
+   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'char')));
+   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'int')));
+   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'float')));
+   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'string')));
+  End;
+End;
+
+(* TCard.GetTokenPAtCaret *)
+{
+ Returns `Tokens.Token_P` located at editor's caret.
+}
+Function TCard.GetTokenPAtCaret: TToken_P;
+Begin
+ Result.Line     := SynEdit.CaretY;
+ Result.Char     := SynEdit.CaretX{-1};
+ Result.FileName := getFileName;
+End;
+
+(* TCard.GetNamespaceAtCaret *)
+Function TCard.GetNamespaceAtCaret: TNamespace;
+
+   // ParseSymbol
+   Procedure ParseSymbol(Symbol: TSymbol);
+   Var Tmp: TSymbol;
+   Begin
+    if (Symbol.Typ = stNamespace) and (Symbol.getToken.FileName = FileName) and (GetTokenPAtCaret in Symbol.getRange) Then
+    Begin
+     Result := Symbol.mNamespace;
+     Exit;
+    End;
+
+    if (Symbol.Typ = stNamespace) Then
+     For Tmp in Symbol.mNamespace.SymbolList Do
+      ParseSymbol(Tmp);
+   End;
+
+Var Symbol: TSymbol;
+Begin
+ Result := nil;
+
+ if (CodeScanner = nil) Then
+  Exit;
+
+ For Symbol in CodeScanner.getSymbolList Do
+  ParseSymbol(Symbol);
+End;
+
+(* TCard.GetFunctionAtCaret *)
+Function TCard.GetFunctionAtCaret: TFunction;
+
+   // ParseSymbol
+   Procedure ParseSymbol(Symbol: TSymbol);
+   Var Tmp: TSymbol;
+   Begin
+    if (Symbol.Typ = stFunction) and (Symbol.getToken.FileName = FileName) and (GetTokenPAtCaret in Symbol.getRange) Then
+    Begin
+     Result := Symbol.mFunction;
+     Exit;
+    End;
+
+    if (Symbol.Typ = stNamespace) Then
+     For Tmp in Symbol.mNamespace.SymbolList Do
+      ParseSymbol(Tmp);
+   End;
+
+Var Symbol: TSymbol;
+Begin
+ Result := nil;
+
+ if (CodeScanner = nil) Then
+  Exit;
+
+ For Symbol in CodeScanner.getSymbolList Do
+  ParseSymbol(Symbol);
+End;
+
+(* TCard.GetIdentifierAtCaret *)
+{
+ Returns identifier located backwards at editor's caret.
+}
+Function TCard.GetIdentifierAtCaret: String;
+Var PosX: Integer;
+Begin
+ Result := SynEdit.LineText;
+ PosX   := SynEdit.CaretX-1;
+
+ if (PosX < 0) or (PosX > Length(Result)) Then
+  Exit('');
+
+ While ((PosX > 0) and (Result[PosX] in ['a'..'z', 'A'..'Z', '0'..'9', '_'])) Do
+  Dec(PosX);
+
+ While ((PosX < Length(Result)) and (Result[PosX] in ['0'..'9'])) Do // identifier cannot begin with a number
+  Inc(PosX);
+
+ Delete(Result, SynEdit.CaretX, Length(Result));
+ Delete(Result, 1, PosX);
+
+ Result := Trim(Result);
+End;
+
+(* TCard.GetFunctionNameAtCaret *)
+{
+ Returns function's name in which editor's caret is located.
+}
+Function TCard.GetFunctionNameAtCaret: String;
+Var Func: TFunction;
+Begin
+ Func := GetFunctionAtCaret;
+
+ if (Func = nil) Then
+  Result := '' Else
+  Result := Func.Name;
+End;
+
+(* TCard.GetNamespacesAtCaret *)
+Function TCard.GetNamespacesAtCaret: TStringList;
+Var NS       : TNamespaceVisibility;
+    Token    : TToken_P;
+    Line     : String;
+    Tmp, PosX: Integer;
+Begin
+ Result := TStringList.Create;
+
+ if (CodeScanner = nil) Then
+  Exit;
+
+ Token := GetTokenPAtCaret;
+
+ For NS in CodeScanner.getNamespaceVisibilityList Do
+  if (Token in NS.Range) Then
+   Result.Add(NS.Namespace.Name);
+
+ // `namespace::identifier` construction
+ Line := SynEdit.LineText;
+ PosX := SynEdit.CaretX-1;
+
+ if (PosX < 0) or (PosX > Length(Line)) Then // shouldn't happen (?)
+  Exit;
+
+ While ((PosX > 0) and (Line[PosX] in ['a'..'z', 'A'..'Z', '0'..'9', '_'])) Do
+  Dec(PosX);
+
+ if (Copy(Line, PosX-1, 2) = '::') Then // namespace operator
+ Begin
+  Tmp := SynEdit.CaretX;
+
+  SynEdit.CaretX := PosX-1; // kinda ugly hack :P
+  Result.Insert(0, GetIdentifierAtCaret);
+
+  SynEdit.CaretX := Tmp;
+ End;
+End;
+
 // -------------------------------------------------------------------------- //
 (* TProject.CreateCard *)
 {
- Creates a new card from specified file name and optionally loads it (if `LoadFile = true`).
+ Creates a new card from specified file name and optionally loads that file (if `LoadFile = true`).
 }
-Function TProject.CreateCard(const cFileName: String; LoadFile: Boolean): Boolean;
+Function TProject.CreateCard(const cFileName: String; LoadFile: Boolean): TCard;
 Begin
  Result := CreateCardEx(cFileName, ExtractFileName(cFileName), LoadFile);
 End;
@@ -415,18 +896,16 @@ End;
 {
  Creates a new card.
 }
-Function TProject.CreateCardEx(const cFileName, cCaption: String; LoadFile: Boolean): Boolean;
-Var Card: TCard;
-    Text: String;
+Function TProject.CreateCardEx(const cFileName, cCaption: String; LoadFile: Boolean): TCard;
+Var Text: String;
 Begin
- Result := False;
- Card   := TCard.Create(cFileName, cCaption);
+ Result := TCard.Create(cFileName, cCaption, self);
 
- if (LoadFile) Then
+ if (LoadFile) Then // load from file?
  Begin
   if (FileExists(cFileName)) Then
   Begin
-   With Card do
+   With Result do
    Begin
     Named    := True;
     Saved    := True;
@@ -436,14 +915,15 @@ Begin
    End;
   End Else
   Begin
-   Card.Free;
+   FreeAndNil(Result);
+
    Text := Format(getLangValue(ls_msg_file_not_found), [cFileName]);
    Application.MessageBox(PChar(Text), PChar(getLangValue(ls_msg_error)), MB_IconError);
    Exit;
   End;
- End Else
+ End Else // just create an empty card
  Begin
-  With Card do
+  With Result do
   Begin
    Named := False;
    Saved := False;
@@ -452,23 +932,22 @@ Begin
   End;
  End;
 
- CardList.Add(Card);
- Exit(True);
+ CardList.Add(Result);
 End;
 
 (* TProject.FindCard *)
 {
- Finds a card with specified file name and returns its ID.
- Returns `-1` when a such card is not found.
+ Finds a card with specified file name and returns it.
+ Returns `nil` when a such card is not found.
 }
-Function TProject.FindCard(const cFileName: String): Integer;
+Function TProject.FindCard(const cFileName: String): TCard;
 Var I: Integer;
 Begin
- Result := -1;
+ Result := nil;
 
  For I := 0 To CardList.Count-1 Do
   if (AnsiCompareFileName(CardList[I].FileName, cFileName) = 0) Then
-   Exit(I);
+   Exit(CardList[I]);
 End;
 
 (* TProject.getMainCard *)
@@ -494,7 +973,7 @@ Var Fail: Boolean;
 Begin
  Case ProjectType of
   ptApplication: Fail := (not FileExists(getString(sCompilerFile))) or (not FileExists(getString(sVMFile))); // an application needs a compiler and a virtual machine
-  ptLibrary    : Fail := (not FileExists(getString(sCompilerFile))); // a library needs only a compiler
+  ptLibrary    : Fail := (not FileExists(getString(sCompilerFile))); // a library needs only to be compiled (it cannot be run)
   else Fail := True;
  End;
 
@@ -502,11 +981,11 @@ Begin
   Application.MessageBox(PChar(getLangValue(ls_msg_compiler_or_vm_not_found)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
 End;
 
-(* TProject.SaveIfCan *)
+(* TProject.SaveIfPossible *)
 {
  Saves project if all of the cards had been already saved.
 }
-Procedure TProject.SaveIfCan;
+Procedure TProject.SaveIfPossible;
 Var CanSave: Boolean;
     Card   : TCard;
 Begin
@@ -549,6 +1028,8 @@ Begin
  CardList    := TCardList.Create;
  MessageList := TMessageList.Create;
  ProjectType := ptApplication;
+
+ ParseError.Any := False;
 End;
 
 (* TProject.Destroy *)
@@ -601,7 +1082,8 @@ Begin
 
  CheckPaths;
 
- CreateCard('main.ss', False);
+ if (CreateCard('main.ss', False) = nil) Then
+  raise Exception.Create('This shouldn''t happen!');
 
  { sample program }
  With getCurrentEditor.Lines do
@@ -641,12 +1123,14 @@ Begin
  For I := 0 To 256 Do
  Begin
   Name := 'no_name_'+IntToStr(I)+'.ss';
-  if (FindCard(Name) = -1) Then
+  if (FindCard(Name) = nil) Then
   Begin
    CreateCard(Name, False);
    Exit;
   End;
  End;
+
+// raise Exception.Create('Too many files opened.');
 End;
 
 (* TProject.Save *)
@@ -747,7 +1231,7 @@ Begin
   WriteValue(Parent, 'version', uMainForm.iVersion);
   WriteValue(Parent, 'project_type', ord(ProjectType));
   WriteValue(Parent, 'card_count', CardList.Count);
-  WriteValue(Parent, 'opened_card', MainForm.Tabs.ActivePageIndex);
+  WriteValue(Parent, 'opened_card', CodeEditor.Tabs.ActivePageIndex);
   WriteValue(Parent, 'output_file', OutputFile);
   WriteValue(Parent, 'header_file', HeaderFile);
   WriteValue(Parent, 'bytecode_output', BytecodeOutput);
@@ -762,7 +1246,7 @@ Begin
   WriteValue(Parent, 'optimization_level', OptimizationLevel);
 
   For Switch in TCompilerSwitches Do
-   WriteValue(Parent, getSwitchName(Switch, False), Integer(Switch in CompilerSwitches));
+   WriteValue(Parent, getCompilerSwitchName(Switch, False), Integer(Switch in CompilerSwitches));
 
   Root.AppendChild(Parent);
 
@@ -816,7 +1300,7 @@ Begin
  if (not Named) Then
   Exit;
 
- CardList[MainForm.Tabs.ActivePageIndex].Save;
+ CardList[CodeEditor.Tabs.ActivePageIndex].Save;
 End;
 
 (* TProject.SaveCurrentCard *)
@@ -829,7 +1313,7 @@ Begin
  if (not Named) Then
   Exit;
 
- With CardList[MainForm.Tabs.ActivePageIndex] do
+ With CardList[CodeEditor.Tabs.ActivePageIndex] do
  Begin
   oldFileName := FileName;
   Named       := False;
@@ -931,7 +1415,7 @@ Begin
 
    CompilerSwitches := [];
    For Switch in TCompilerSwitches Do
-    if (ReadIntegerValue(Parent, getSwitchName(Switch, False)) = 1) Then
+    if (ReadIntegerValue(Parent, getCompilerSwitchName(Switch, False)) = 1) Then
      CompilerSwitches += [Switch];
 
    { read vm data }
@@ -955,7 +1439,7 @@ Begin
     cCaption := ReadStringValue(Parent, 'caption');
     cFile    := MakeAbsolutePath(ReadStringValue(Parent, 'file'));
 
-    if (CreateCardEx(cFile, cCaption, True)) Then
+    if (CreateCardEx(cFile, cCaption, True) <> nil) Then
     Begin
      // update card's editor's caret position
      getCurrentEditor.CaretX := ReadIntegerValue(Parent, 'caret_x');
@@ -1000,8 +1484,8 @@ Begin
  Begin
   setMainMenu(stEnabled);
 
-  Tabs.ActivePageIndex := OpenedCard;
-  Caption              := uMainForm.sCaption+' - '+FileName;
+  CodeEditor.Tabs.ActivePageIndex := OpenedCard;
+  Caption                         := uMainForm.sCaption+' - '+FileName;
  End;
 
  CheckPaths;
@@ -1011,21 +1495,20 @@ End;
 
 (* TProject.OpenCard *)
 {
- Opens a new card from specified file.
+ Opens a new card from specified file; checks for duplicates.
 }
-Function TProject.OpenCard(const fFileName: String): Boolean;
-Var I: Integer;
+Function TProject.OpenCard(const fFileName: String): TCard;
 Begin
- Result := False;
+ Result := nil;
 
  if (not FileExists(fFileName)) Then // file not found
-  Exit(False);
+  Exit;
 
- I := FindCard(fFileName);
- if (I <> -1) Then // this card had been opened before
+ Result := FindCard(fFileName);
+ if (Result <> nil) Then // this card had been opened before
  Begin
-  MainForm.Tabs.ActivePageIndex := I; // focus card
-  Exit(True);
+  CodeEditor.Tabs.ActivePageIndex := CardList.IndexOf(Result); // focus card
+  Exit;
  End;
 
  Result := CreateCard(fFileName, True);
@@ -1057,6 +1540,9 @@ End;
 }
 Procedure TProject.CloseCard(ID: Integer);
 Begin
+ if (CardList = nil) Then
+  Exit;
+
  // is the only opened card?
  if (CardList.Count <= 1) Then
  Begin
@@ -1077,9 +1563,9 @@ Begin
    Exit;
 
  CardList.Delete(ID);
- MainForm.Tabs.Pages[ID].Free;
+ CodeEditor.Tabs.Pages[ID].Free;
 
- SaveIfCan;
+ SaveIfPossible;
 End;
 
 (* TProject.CloseCardsExcluding *)
@@ -1119,7 +1605,7 @@ Begin
    Inc(I);
  Until (I >= CardList.Count);
 
- SaveIfCan;
+ SaveIfPossible;
 End;
 
 (* TProject.RaiseMessage *)
@@ -1127,27 +1613,28 @@ End;
  Raises a message from the list.
 }
 Procedure TProject.RaiseMessage(ID: Integer);
-Var Card: Integer;
+Var Card: TCard;
 Begin
  Card := FindCard(MessageList[ID]^.FileName);
 
- if (Card = -1) Then
+ if (Card = nil) Then
  Begin
-  if (not CreateCard(MessageList[ID]^.FileName, True)) Then
+  Card := CreateCard(MessageList[ID]^.FileName, True);
+
+  if (Card = nil) Then // couldn't open card
    Exit;
-  Card := CardList.Count-1;
  End;
 
- CardList[Card].ErrorLine      := MessageList[ID]^.Line;
- MainForm.Tabs.ActivePageIndex := Card;
+ Card.ErrorLine                  := MessageList[ID]^.Line;
+ CodeEditor.Tabs.ActivePageIndex := CardList.IndexOf(Card);
 
- With CardList[Card] do
+ With Card do
  Begin
   SynEdit.CaretX := MessageList[ID]^.Char;
   SynEdit.CaretY := MessageList[ID]^.Line;
   SynEdit.Invalidate;
 
-  MainForm.Tabs.SetFocus;
+  CodeEditor.Tabs.SetFocus;
   Tab.SetFocus;
   SynEdit.SetFocus;
  End;
@@ -1155,7 +1642,7 @@ End;
 
 (* TProject.RefreshControls *)
 {
- Refreshes controls of each card.s
+ Refreshes each card's controls.
 }
 Procedure TProject.RefreshControls;
 Var Card: TCard;
@@ -1223,7 +1710,7 @@ Var sOutputFile: String;
   // AddText
   Procedure AddText(const Str: String; Icon: TMessageIcon=miNone; DataInt: Integer=0);
   Begin
-   With MainForm.CompileStatus do
+   With CompileStatusForm.CompileStatus do
     With Items.Add(nil, Str) do
     Begin
      Data          := Pointer(DataInt);
@@ -1234,22 +1721,22 @@ Var sOutputFile: String;
 
   // AddError
   Procedure AddError(Line, Char: Integer; Base, Message, FileName: String);
-  Var Card: Integer;
+  Var Card: TCard;
       Info: PMessage;
   Begin
    AnyError := True;
 
    { open card }
    Card := FindCard(FileName);
-   if (Card = -1) Then
+   if (Card = nil) Then
    Begin
-    if (not CreateCard(FileName, True)) Then // failed
+    Card := CreateCard(FileName, True);
+    if (Card = nil) Then // failed
      Exit;
-    Card := CardList.Count-1;
    End;
 
    { modify card }
-   With CardList[Card] do
+   With Card do
    Begin
     if (ErrorLine = -1) Then
     Begin
@@ -1273,19 +1760,18 @@ Var sOutputFile: String;
    End;
   End;
 
-  // @TODO: too much DRY on a square meter...
-  // AddWarning
-  Procedure AddWarning(Line, Char: Integer; Base, Message, FileName: String);
-  Var Card: Integer;
+  // AddMsg
+  Procedure AddMsg(Icon: TMessageIcon; Line, Char: Integer; Base, Message, FileName: String);
+  Var Card: TCard;
       Info: PMessage;
   Begin
    { open card }
    Card := FindCard(FileName);
-   if (Card = -1) Then
+   if (Card = nil) Then
    Begin
-    if (not CreateCard(FileName, True)) Then // failed
+    Card := CreateCard(FileName, True);
+    if (Card = nil) Then // failed
      Exit;
-    Card := CardList.Count-1;
    End;
 
    New(Info);
@@ -1295,59 +1781,10 @@ Var sOutputFile: String;
    Info^.Text     := Message;
    MessageList.Add(Info);
 
-   AddText(Base, miWarn, MessageList.Count);
+   AddText(Base, Icon, MessageList.Count);
   End;
-
-  // AddHint
-  Procedure AddHint(Line, Char: Integer; Base, Message, FileName: String);
-  Var Card: Integer;
-      Info: PMessage;
-  Begin
-   { open card }
-   Card := FindCard(FileName);
-   if (Card = -1) Then
-   Begin
-    if (not CreateCard(FileName, True)) Then // failed
-     Exit;
-    Card := CardList.Count-1;
-   End;
-
-   New(Info);
-   Info^.Line     := Line;
-   Info^.Char     := Char;
-   Info^.FileName := FileName;
-   Info^.Text     := Message;
-   MessageList.Add(Info);
-
-   AddText(Base, miHint, MessageList.Count);
-  End;
-
-  // AddNote
-  Procedure AddNote(Line, Char: Integer; Base, Message, FileName: String);
-  Var Card: Integer;
-      Info: PMessage;
-  Begin
-   { open card }
-   Card := FindCard(FileName);
-   if (Card = -1) Then
-   Begin
-    if (not CreateCard(FileName, True)) Then // failed
-     Exit;
-    Card := CardList.Count-1;
-   End;
-
-   New(Info);
-   Info^.Line     := Line;
-   Info^.Char     := Char;
-   Info^.FileName := FileName;
-   Info^.Text     := Message;
-   MessageList.Add(Info);
-
-   AddText(Base, miHint, MessageList.Count);
-  End;
-
 Begin
- if (not FileExists(getString(sCompilerFile))) Then // compielr file not found
+ if (not FileExists(getString(sCompilerFile))) Then // compiler file not found
  Begin
   Application.MessageBox(PChar(getLangValue(ls_msg_compiler_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
   Exit(False);
@@ -1355,6 +1792,8 @@ Begin
 
  if (not Save) Then
   Exit(False);
+
+ DockMaster.MakeDockable(CompileStatusForm);
 
  MessageList.Clear;
 
@@ -1371,7 +1810,7 @@ Begin
 
  Application.ProcessMessages; // process LCL
 
- With MainForm.CompileStatus.Items do
+ With CompileStatusForm.CompileStatus.Items do
  Begin
   Clear; // clear previous build messages
   AddText(Format(getLangValue(ls_compilation_started), [TimeToStr(Time)]));
@@ -1412,7 +1851,7 @@ Begin
 
   // add compile switches
   For Switch in CompilerSwitches Do
-   Process.Parameters.Add('-'+getSwitchName(Switch));
+   Process.Parameters.Add('-'+getCompilerSwitchName(Switch));
 
   AddUserSwitches;
 
@@ -1485,7 +1924,7 @@ Begin
     Line := StrToInt(Copy(Posi, 1, Pos(',', Posi)-1));
     Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
 
-    AddWarning(Line, Char+1, Base, Message, mFileName);
+    AddMsg(miWarn, Line, Char+1, Base, Message, mFileName);
 
     Continue;
    End;
@@ -1501,7 +1940,7 @@ Begin
     Line := StrToInt(Copy(Posi, 1, Pos(',', Posi)-1));
     Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
 
-    AddHint(Line, Char+1, Base, Message, mFileName);
+    AddMsg(miHint, Line, Char+1, Base, Message, mFileName);
 
     Continue;
    End;
@@ -1517,7 +1956,7 @@ Begin
     Line := StrToInt(Copy(Posi, 1, Pos(',', Posi)-1));
     Char := StrToInt(Copy(Posi, Pos(',', Posi)+1, Length(Posi)));
 
-    AddNote(Line, Char+1, Base, Message, mFileName);
+    AddMsg(miHint, Line, Char+1, Base, Message, mFileName);
 
     Continue;
    End;
@@ -1609,12 +2048,6 @@ Begin
  {$ELSE}
   ExecuteProcess(getString(sVMFile), CommandLine, []);
  {$ENDIF}
-
- {
-  Linux: ~15 lines and 6 hours of wasted time searching for solution and debugging
-  Windows: 1 line and 6 minuts of writing the entire method
-  Because f*ck you, that's why... ;_;
- }
 End;
 
 (* TProject.isEverythingSaved *)
@@ -1640,12 +2073,12 @@ End;
 }
 Function TProject.getCurrentCard: TCard;
 Begin
- if (CardList.Count = 0) Then
+ if (CardList.Count = 0) Then // shouldn't happen
   Exit(nil);
 
- With MainForm.Tabs do
+ With CodeEditor.Tabs do
  Begin
-  if (ActivePageIndex = -1) Then
+  if (ActivePageIndex < 0) Then
    ActivePageIndex := 0;
   if (ActivePageIndex >= CardList.Count) Then
    ActivePageIndex := CardList.Count-1;
@@ -1666,4 +2099,290 @@ Begin
  Result := getCurrentCard.SynEdit;
 End;
 
+(* TProject.FindIdentifier *)
+{
+ Returns parsed identifier at specified position or `nil` when such identifier couldn't be found.
+}
+Function TProject.FindIdentifier(const CaretXY: TPoint): PIdentifier;
+Var Card : TCard;
+    Ident: PIdentifier;
+Begin
+ Card := getCurrentCard;
+
+ Card.Parse;
+
+ if (Card.IdentifierList = nil) Then
+  Exit(nil);
+
+ For Ident in Card.IdentifierList Do
+  if (Ident^.Char = CaretXY.X) and (Ident^.Line = CaretXY.Y) Then
+   Exit(Ident);
+
+ Exit(nil);
+End;
+
+(* TProject.JumpToDeclaration *)
+{
+ Jumps to identifier's declaration.
+}
+Procedure TProject.JumpToDeclaration(const Ident: PIdentifier);
+Var Card: TCard;
+Begin
+ if (Ident = nil) Then
+  Exit;
+
+ Card := FindCard(Ident^.RefFileName);
+ if (Card = nil) Then
+ Begin
+  Card := CreateCard(Ident^.RefFileName, True);
+
+  if (Card = nil) Then // eg.file not found
+   Exit;
+ End;
+
+ With Card.SynEdit do
+ Begin
+  CaretX := Ident^.RefChar;
+  CaretY := Ident^.RefLine;
+  SelEnd := SelStart+Ident^.RefLen;
+ End;
+
+ CodeEditor.Tabs.ActivePageIndex := CardList.IndexOf(Card);
+End;
+
+(* TProject.UpdateIdentifierList *)
+Procedure TProject.UpdateIdentifierList;
+Var Card  : TCard;
+    Symbol: TSymbol;
+
+    // MarkAllAsRemoved
+    Procedure MarkAllAsRemoved;
+    Var Data: PNodeData;
+        Node: PVirtualNode;
+    Begin
+     With IdentifierListForm.IdentifierList do
+     Begin
+      Node := GetFirst;
+      if (Node = nil) Then
+       Exit;
+
+      Repeat
+       Node := GetNext(Node);
+
+       Data := GetNodeData(Node);
+       if (Data <> nil) Then
+        Data^.Removed := True;
+
+       if (GetNext(Node) = Node) Then
+        Break;
+      Until (Node = GetLast);
+     End;
+    End;
+
+    // DeleteRemoved
+    Procedure DeleteRemoved;
+    Var Data: PNodeData;
+        Node: PVirtualNode;
+    Label Again;
+    Begin
+     With IdentifierListForm.IdentifierList do
+     Begin
+     Again:
+      Node := GetFirst;
+      if (Node = nil) Then
+       Exit;
+
+      Repeat
+       if (Node = nil) Then
+        Node := GetFirst Else
+        Node := GetNext(Node);
+
+       Data := GetNodeData(Node);
+       if (Data <> nil) and (Data^.Removed) Then
+       Begin
+        DeleteNode(Node);
+        goto Again;
+       End;
+
+       if (GetNext(Node) = Node) Then
+        Break;
+      Until (Node = GetLast);
+     End;
+    End;
+
+    // FindNode
+    Function FindNode(NParent: PVirtualNode; const NCaption: String): PVirtualNode;
+    Var Data: TNodeData;
+    Begin
+     Result := nil;
+
+     With IdentifierListForm.IdentifierList do
+     Begin
+      if (GetFirst = nil) Then
+       Exit;
+
+      if (NParent = nil) Then
+       NParent := RootNode;
+
+      Repeat
+       if (Result = nil) Then
+        Result := GetFirst Else
+        Result := GetNext(Result);
+
+       Data := PNodeData(GetNodeData(Result))^;
+
+       if (AnsiCompareStr(Data.Caption, NCaption) = 0) and (Result^.Parent = NParent) Then
+        Exit;
+      Until (Result = GetLast);
+
+      Exit(nil);
+     End;
+    End;
+
+    // AddNode
+    Function AddNode(const Node: PVirtualNode; const Symbol: TSymbol; const ImageIndex: Integer): PVirtualNode;
+    Var Data: PNodeData;
+    Begin
+     With IdentifierListForm do
+     Begin
+      Result := FindNode(Node, Symbol.getName);
+      if (Result <> nil) Then
+      Begin
+       Data          := IdentifierList.GetNodeData(Result);
+       Data^.Symbol  := Symbol;
+       Data^.Removed := False;
+       Exit;
+      End;
+
+      Result := IdentifierList.AddChild(Node);
+
+      Data          := IdentifierList.GetNodeData(Result);
+      Data^.Typ     := ndSymbol;
+      Data^.Symbol  := Symbol;
+      Data^.Caption := Symbol.getName;
+      Data^.Removed := False;
+     End;
+    End;
+
+    // AddNode
+    Function AddNode(const Node: PVirtualNode; const Value: String; const ImageIndex: Integer): PVirtualNode;
+    Var Data: PNodeData;
+    Begin
+     With IdentifierListForm do
+     Begin
+      Result := FindNode(Node, Value);
+      if (Result <> nil) Then
+      Begin
+       Data          := IdentifierList.GetNodeData(Result);
+       Data^.Removed := False;
+       Exit;
+      End;
+
+      Result := IdentifierList.AddChild(Node);
+
+      Data          := IdentifierList.GetNodeData(Result);
+      Data^.Typ     := ndText;
+      Data^.Symbol  := nil;
+      Data^.Caption := Value;
+     End;
+    End;
+
+    // ParseSymbol
+    Procedure ParseSymbol(Node: PVirtualNode; Symbol: TSymbol);
+    Var Ns, Types, Funcs, Vars, Cnsts: PVirtualNode;
+        Tmp                          : TSymbol;
+    Begin
+     if (Symbol = nil) Then // shouldn't really happen
+      Exit;
+
+     if (AnsiCompareFileName(Symbol.getPhysSymbol.Token.FileName, Card.FileName) <> 0) Then
+      Exit;
+
+     { namespace }
+     if (Symbol.Typ = stNamespace) Then
+     Begin
+      Ns := AddNode(Node, Symbol, 0); // @TODO: nice icon
+
+      Types := AddNode(Ns, getLangValue(ls_types), 0);
+      Funcs := AddNode(Ns, getLangValue(ls_functions), 0);
+      Vars  := AddNode(Ns, getLangValue(ls_variables), 0);
+      Cnsts := AddNode(Ns, getLangValue(ls_constants), 0);
+
+      For Tmp in Symbol.mNamespace.SymbolList Do
+       Case Tmp.Typ of
+        stType    : ParseSymbol(Types, Tmp);
+        stFunction: ParseSymbol(Funcs, Tmp);
+        stVariable: ParseSymbol(Vars, Tmp);
+        stConstant: ParseSymbol(Cnsts, Tmp);
+       End;
+
+      With IdentifierListForm.IdentifierList do // remove empty nodes
+      Begin
+       if (Types^.ChildCount = 0) Then
+        DeleteNode(Types);
+
+       if (Funcs^.ChildCount = 0) Then
+        DeleteNode(Funcs);
+
+       if (Vars^.ChildCount = 0) Then
+        DeleteNode(Vars);
+
+       if (Cnsts^.ChildCount = 0) Then
+        DeleteNode(Cnsts);
+      End;
+     End Else
+
+     { function }
+     if (Symbol.Typ = stFunction) Then
+     Begin
+      AddNode(Node, Symbol, 0); // @TODO: nice icon
+     End Else
+
+     { type }
+     if (Symbol.Typ = stType) Then
+     Begin
+      AddNode(Node, Symbol, 0); // @TODO: nice icon
+     End Else
+
+     { variable }
+     if (Symbol.Typ = stVariable) Then
+     Begin
+      AddNode(Node, Symbol, 0); // @TODO: nice icon
+     End;
+
+     { constant }
+     if (Symbol.Typ = stConstant) Then
+     Begin
+      AddNode(Node, Symbol, 0);
+     End;
+    End;
+
+Begin
+ Card := getCurrentCard;
+
+ if (Card = nil) Then
+  Exit;
+
+ Card.Parse;
+
+ With IdentifierListForm do
+ Begin
+  IdentifierList.BeginUpdate;
+
+  MarkAllAsRemoved;
+
+  if (Card.CodeScanner <> nil) Then
+   With Card.CodeScanner do
+   Begin
+    For Symbol in getSymbolList Do
+     ParseSymbol(nil, Symbol);
+   End;
+
+  // @TODO: show program's dependencies (includes)
+
+  DeleteRemoved;
+
+  IdentifierList.EndUpdate;
+ End;
+End;
 End.

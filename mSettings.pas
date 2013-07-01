@@ -1,17 +1,20 @@
-{$H+}
-{$MODE DELPHI}
-
+(*
+ Copyright © by Patryk Wychowaniec, 2013
+ All rights reserved.
+*)
+{$MODE DELPHI}{$H+}
 Unit mSettings;
 
  Interface
  Uses FileUtil, Dialogs, Graphics, Classes, Variants;
 
  { TSetting }
- Type TSetting = (sSplitter1, sCompilerFile, sVMFile, sIdentFormat, sKeywordFormat,
+ Type TSetting = (sCompilerFile, sVMFile, sIdentFormat, sKeywordFormat,
                   sNumberFormat, sStringFormat, sCommentFormat, sMacroFormat, sPrimaryTypesFormat,
                   sOtherFormat, sEditorBackground, sEditorForeground, sEditorFont,
                   sRecentlyOpened, sScrollPastEOL, sOpenRecentProject, sRecentProject, sAddBrackets,
-                  sLanguage);
+                  sLanguage,
+                  sIntellisenseWidth, sIntellisenseHeight);
 
  { TSyntaxFormat }
  Type TSyntaxFormat = Record
@@ -29,7 +32,6 @@ Unit mSettings;
  Const FileName = 'settings.ini';
        DefaultValues: Array[TSetting] of String =
  (
-  '4.8',
   'compiler/compiler.exe',
   'compiler/vm.exe',
   'false,false,false,false,0,0',
@@ -48,7 +50,9 @@ Unit mSettings;
   'false',
   '',
   'false',
-  ''
+  '',
+  '350',
+  '300'
  );
 
  Procedure ReloadConfig;

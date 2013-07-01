@@ -130,41 +130,29 @@ Caption=Buduj
 [MainForm_oShowCompilerOutput]
 Caption=Pokaż wyjście kompilatora
 
-[MainForm_MenuItem7]
+[MainForm_menuEnvironment]
 Caption=Środowisko
 
 [MainForm_oEvSettings]
 Caption=Ustawienia
 
-[MainForm_MenuItem1]
+[MainForm_menuHelp]
 Caption=Pomoc
 
 [MainForm_oAbout]
 Caption=O programie
 
-[MainForm_opCloseCard]
-Caption=Zamknij kartę
+[CompileStatusForm]
+Caption=Komunikaty
 
-[MainForm_opCloseAll]
-Caption=Zamknij wszystkie karty oprócz tej
-
-[MainForm_opSaveMessages]
+[CompileStatusForm_opSaveMessages]
 Caption=Zapisz do pliku
 
-[MainForm_opSaveMessagesToClipboard]
+[CompileStatusForm_opSaveMessagesToClipboard]
 Caption=Zapisz do schowka
 
-[MainForm_opSaveSelectedMessage]
+[CompileStatusForm_opSaveSelectedMessage]
 Caption=Zapisz wybrany komunikat do schowka
-
-[MainForm_opCut]
-Caption=Wytnij
-
-[MainForm_opCopy]
-Caption=Kopiuj
-
-[MainForm_opPaste]
-Caption=Wklej
 
 [ProjectSettingsForm]
 Caption=Ustawienia projektu
@@ -265,6 +253,45 @@ Caption=Inne przełączniki:
 [AboutForm]
 Caption=O programie
 
+[MainForm_menuWindow]
+Caption=Okna
+
+[MainForm_oCodeEditor]
+Caption=Edytor kodu
+
+[MainForm_oCompileStatus]
+Caption=Komunikaty
+
+[MainForm_oIdentifierList]
+Caption=Lista identyfikatorów
+
+[CodeEditor]
+Caption=Edytor kodu
+
+[CodeEditor_opCut]
+Caption=Wytnij
+
+[CodeEditor_opCopy]
+Caption=Kopiuj
+
+[CodeEditor_opPaste]
+Caption=Wklej
+
+[CodeEditor_opCloseCard]
+Caption=Zamknij kartę
+
+[CodeEditor_opCloseAll]
+Caption=Zamknij wszystkie karty oprócz tej
+
+[CodeEditor_opFindDeclaration]
+Caption=Odnajdź deklarację
+
+[CodeEditor_opOpenInclude]
+Caption=Otwórz includowany plik
+
+[IdentifierListForm]
+Caption=Lista identyfikatorów
+
 [EvSettingsForm]
 Caption=Ustawienia środowiska
 
@@ -337,7 +364,7 @@ Caption=Umożliwiaj kursorowi wychodzenie poza linię
 Caption=Otwieraj ostatnio otworzony projekt przy uruchamianiu środowiska
 
 [EvSettingsForm_cAddBrackets]
-Caption=Automatycznie dodawaj nawiasy zamykające
+Caption=Automatycznie uzupełniaj nawiasy zamykające
 
 [EvSettingsForm_Label3]
 Caption=Język:
@@ -454,6 +481,7 @@ new_lib=nowa biblioteka
 filter_project=Projekt SScript Editor (*.ssp)|*.ssp
 filter_module=Kod SScript (*.ss)|*.ss
 filter_any_file=Wszystkie pliki (*.*)|*.*
+filter_text_files=Pliki tekstowe (*.txt)|*.txt
 
 goto_line_title=Idź do wiersza
 goto_line=Idź do wiersza (%d-%d):
@@ -463,3 +491,26 @@ find_title=Znajdź
 replace=Zamień
 replace_msg=Zamienić to wyrażenie `%s` na `%s`?
 find_not_found=Wyrażenie `%s` nie zostało odnalezione!
+
+declaration_not_found=Nie udało się odnaleźć deklaracji!
+its_keyword=To jest słowo kluczowe!
+its_internal_type=Jest to typ wewnętrzny!
+
+namespaces=Przestrzenie nazw
+types=Typy
+functions=Funkcje
+variables=Zmienne
+constants=Stałe
+
+parser_eof=Nieoczekiwany koniec pliku
+invalid_int_value=Nieprawidłowa wartość całkowitoliczbowa
+invalid_float_value=Nieprawidłowa wartość zmiennoprzecinkowa
+string_exceeds_line=Niezakończony ciąg znaków
+expected_identifier=Oczekiwano identyfikatora, lecz napotkano `%s`
+expected_string=Oczekiwano ciągu znaków, lecz napotkano `%s`
+expected_int=Oczekiwano liczby całkowitej, lecz napotkano `%s`
+expected=Oczekiwano `%s`, lecz napotkano `%s`
+unexpected=`%s` było nieoczekiwane
+
+unknown_namespace=Nieznana przestrzeń nazw: `%s`
+unknown_file=Nieznany plik: `%s`

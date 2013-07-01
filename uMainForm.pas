@@ -1,3 +1,7 @@
+(*
+ Copyright © by Patryk Wychowaniec, 2013
+ All rights reserved.
+*)
 unit uMainForm;
 
 {$mode objfpc}{$H+}
@@ -6,8 +10,9 @@ interface
 
 uses
   {$IFDEF WINDOWS} Windows, {$ENDIF}
-  Classes, SysUtils, FileUtil, SynEdit, ExtendedNotebook, Forms,
-  Controls, Graphics, Dialogs, Menus, ExtCtrls, ComCtrls, mSettings, LCLType;
+  Classes, SysUtils, FileUtil, SynEdit, Forms, Controls,
+  Graphics, Dialogs, Menus, ExtCtrls, ComCtrls, mSettings, LCLType,
+  AnchorDocking, XMLPropStorage;
 
  // types
  Type TState = (stEnabled, stDisabled);
@@ -16,6 +21,10 @@ type
   { TMainForm }
   TMainForm = class(TForm)
     menuCode: TMenuItem;
+    menuWindow: TMenuItem;
+    oIdentifierList: TMenuItem;
+    oCompileStatus: TMenuItem;
+    oCodeEditor: TMenuItem;
     oUncommentSelected: TMenuItem;
     oCommentSelected: TMenuItem;
     oReplace: TMenuItem;
@@ -31,29 +40,15 @@ type
     MenuItem8:TMenuItem;
     MenuItem9: TMenuItem;
     oShowCompilerOutput:TMenuItem;
-    opPaste:TMenuItem;
-    opCopy:TMenuItem;
-    opCut:TMenuItem;
-    opSaveSelectedMessage:TMenuItem;
-    opSaveMessagesToClipboard:TMenuItem;
     oCloseProject:TMenuItem;
     oCloseCurrentCard:TMenuItem;
-    MessagesImageList:TImageList;
-    MenuItem1: TMenuItem;
-    MenuItem7: TMenuItem;
-    opSaveMessages:TMenuItem;
-    opCloseAll:TMenuItem;
+    menuHelp: TMenuItem;
+    menuEnvironment: TMenuItem;
     oRecentlyOpened: TMenuItem;
     oNewProj_App: TMenuItem;
     oNewProj_Library: TMenuItem;
     oEvSettings: TMenuItem;
     oAbout: TMenuItem;
-    opCloseCard: TMenuItem;
-    CompileStatusPopup:TPopupMenu;
-    SynEditPopup:TPopupMenu;
-    TabsPopup: TPopupMenu;
-    Splitter1: TSplitter;
-    Tabs: TExtendedNotebook;
     MainMenu: TMainMenu;
     menuFile: TMenuItem;
     menuCompile: TMenuItem;
@@ -80,17 +75,17 @@ type
     oNewModule: TMenuItem;
     MenuItem4: TMenuItem;
     oOpen: TMenuItem;
-    Panel1: TPanel;
     StatusBar: TStatusBar;
-    TabsUpdate: TTimer;
-    CompileStatus:TTreeView;
-    procedure CompileStatusClick(Sender:TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormDropFiles(Sender: TObject; const FileNames: Array of String);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure oCodeEditorClick(Sender: TObject);
     procedure oCommentSelectedClick(Sender: TObject);
+    procedure oCompileStatusClick(Sender: TObject);
+    procedure oIdentifierListClick(Sender: TObject);
     procedure oReplaceClick(Sender: TObject);
     procedure oFindClick(Sender: TObject);
     procedure oFindNextClick(Sender: TObject);
@@ -106,19 +101,11 @@ type
     procedure oEvSettingsClick(Sender: TObject);
     procedure oNewProj_AppClick(Sender: TObject);
     procedure oNewProj_LibraryClick(Sender: TObject);
-    procedure opCloseAllClick(Sender:TObject);
-    procedure opCloseCardClick(Sender: TObject);
-    procedure opCopyClick(Sender:TObject);
-    procedure opCutClick(Sender:TObject);
-    procedure opPasteClick(Sender:TObject);
     procedure oProjectSettingsClick(Sender: TObject);
     procedure oExitClick(Sender: TObject);
     procedure oOpenProjectClick(Sender: TObject);
     procedure oCompileAndRunClick(Sender: TObject);
     procedure oNewModuleClick(Sender: TObject);
-    procedure opSaveMessagesClick(Sender:TObject);
-    procedure opSaveMessagesToClipboardClick(Sender:TObject);
-    procedure opSaveSelectedMessageClick(Sender:TObject);
     procedure oSaveAllClick(Sender: TObject);
     procedure oSaveAsClick(Sender: TObject);
     procedure oSaveClick(Sender: TObject);
@@ -130,14 +117,10 @@ type
     procedure oRedoClick(Sender: TObject);
     procedure oUncommentSelectedClick(Sender: TObject);
     procedure oUndoClick(Sender: TObject);
-    procedure Splitter1CanResize(Sender: TObject; var NewSize: Integer;
-    var Accept: Boolean);
-    procedure TabsTabDragDropEx(Sender, Source: TObject; OldIndex,
-      NewIndex: Integer; CopyDrag: Boolean; var Done: Boolean);
-    procedure TabsUpdateTimer(Sender: TObject);
 
   private
    Procedure RecentlyOpened_Click(Sender: TObject);
+   Procedure AppIdle(Sender: TObject; var Done: Boolean);
 
   public
    Procedure setMainMenu(State: TState);
@@ -159,12 +142,10 @@ type
 
  // procedures
  Procedure AddRecentlyOpened(const FileName: String);
- Function getProjectPnt: Pointer;
 
  Implementation
-Uses mProject, mLanguages, mFunctions, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm;
-Var Project        : TProject = nil; // currently opened project
-    Splitter1Factor: Extended = 1;
+Uses mProject, mLanguages, mFunctions, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm, uIdentifierListForm,
+     uCompileStatusForm, uCodeEditor;
 
 {$R *.lfm}
 
@@ -258,7 +239,12 @@ Begin
  End;
 End;
 
-(* UpdateRecentlyOpened *)
+(* TMainForm.AppIdle *)
+Procedure TMainForm.AppIdle(Sender: TObject; var Done: Boolean);
+Begin
+End;
+
+(* TMainForm.UpdateRecentlyOpened *)
 Procedure TMainForm.UpdateRecentlyOpened;
 Var Str     : String;
     MenuItem: TMenuItem;
@@ -307,17 +293,12 @@ begin
  // set some values
  DefaultFormatSettings.DecimalSeparator := '.';
  Application.Title                      := Caption;
+ Application.OnIdle                     := @AppIdle;
 
  setMainMenu(stDisabled);
 
  Caption        := sCaption;
  DoubleBuffered := True;
-
- // read config
- Splitter1Factor := abs(getFloat(sSplitter1));
-
- if (Splitter1Factor = 0) Then // we don't want to divide by zero...
-  Splitter1Factor := 1;
 
  UpdateRecentlyOpened;
 end;
@@ -364,9 +345,6 @@ end;
 (* TMainForm.FormResize *)
 procedure TMainForm.FormResize(Sender: TObject);
 begin
- // update controls' positions
- Splitter1.ResizeControl.Height := Round(Height/Splitter1Factor);
- StatusBar.Top                  := Height*2;
 end;
 
 (* TMainForm.FormShow *)
@@ -404,6 +382,12 @@ begin
  {$ENDIF}
 end;
 
+(* TMainForm.oCodeEditorClick *)
+procedure TMainForm.oCodeEditorClick(Sender: TObject);
+begin
+ DockMaster.MakeDockable(CodeEditor);
+end;
+
 (* TMainForm.oCommentSelectedClick *)
 procedure TMainForm.oCommentSelectedClick(Sender: TObject);
 Var Line            : Integer;
@@ -423,7 +407,7 @@ begin
 
   if (List.Count = 1) Then
   Begin
-   List[0] := '/*'+List[0]+'*/';
+   List[0] := '/*'+TrimRight(List[0])+' */';
    Inc(Be.X, 4);
   End Else
   Begin
@@ -443,6 +427,18 @@ begin
   Editor.BlockEnd   := BE;
   List.Free;
  End;
+end;
+
+(* TMainForm.oCompileStatusClick *)
+procedure TMainForm.oCompileStatusClick(Sender: TObject);
+begin
+ DockMaster.MakeDockable(CompileStatusForm);
+end;
+
+(* TMainForm.oIdentifierListClick *)
+procedure TMainForm.oIdentifierListClick(Sender: TObject);
+begin
+ DockMaster.MakeDockable(IdentifierListForm);
 end;
 
 (* TMainForm.oReplaceClick *)
@@ -532,7 +528,7 @@ end;
 (* TMainForm.oCloseCurrentCardClick *)
 procedure TMainForm.oCloseCurrentCardClick(Sender:TObject);
 begin
- opCloseCard.Click;
+ CodeEditor.opCloseCard.Click;
 end;
 
 (* TMainForm.oCloseProjectClick *)
@@ -585,36 +581,6 @@ begin
  End;
 end;
 
-(* TMainForm.opCloseAllClick *)
-procedure TMainForm.opCloseAllClick(Sender:TObject);
-begin
- Project.CloseCardsExcluding(Tabs.ActivePageIndex); // close each card except this currently opened
-end;
-
-(* TMainForm.opCloseCardClick *)
-procedure TMainForm.opCloseCardClick(Sender: TObject);
-begin
- Project.CloseCard(Tabs.ActivePageIndex); // close current card
-end;
-
-(* TMainForm.opCopyClick *)
-procedure TMainForm.opCopyClick(Sender:TObject);
-begin
- Project.getCurrentEditor.CopyToClipboard;
-end;
-
-(* TMainForm.opCutClick *)
-procedure TMainForm.opCutClick(Sender:TObject);
-begin
- Project.getCurrentEditor.CutToClipboard;
-end;
-
-(* TMainForm.opPasteClick *)
-procedure TMainForm.opPasteClick(Sender:TObject);
-begin
- Project.getCurrentEditor.PasteFromClipboard;
-end;
-
 (* TMainForm.oProjectSettingsClick *)
 procedure TMainForm.oProjectSettingsClick(Sender: TObject);
 begin
@@ -650,42 +616,6 @@ end;
 procedure TMainForm.oNewModuleClick(Sender: TObject);
 begin
  Project.NewNoNameCard;
-end;
-
-(* TMainForm.opSaveMessagesClick *)
-procedure TMainForm.opSaveMessagesClick(Sender:TObject);
-begin
- // run save dialog
- With TSaveDialog.Create(self) do
-  Try
-   Title  := getLangValue(ls_file_saving);
-   Filter := getLangValue(ls_filter_any_file);
-
-   if (Execute) Then
-    CompileStatus.SaveToFile(FileName);
-  Finally
-   Free;
-  End;
-end;
-
-(* TMainForm.opSaveMessagesToClipboardClick *)
-procedure TMainForm.opSaveMessagesToClipboardClick(Sender:TObject);
-Var Stream: TStringStream;
-begin
- // copy to the clipboard
- Stream := TStringStream.Create('');
- CompileStatus.SaveToStream(Stream);
- Clipboard.SetTextBuf(PChar(Stream.DataString));
- Stream.Free;
-end;
-
-(* TMainForm.opSaveSelectedMessageClick *)
-procedure TMainForm.opSaveSelectedMessageClick(Sender:TObject);
-begin
- if (CompileStatus.Selected = nil) Then // anything selected?
-  Exit;
-
- Clipboard.SetTextBuf(PChar(CompileStatus.Selected.Text)); // copy to the clipboard
 end;
 
 (* TMainForm.oSaveAllClick *)
@@ -740,16 +670,18 @@ begin
   End;
 end;
 
-(* TMainForm.CompileStatusClick *)
-procedure TMainForm.CompileStatusClick(Sender:TObject);
-Var Data: Integer;
+(* TMainForm.FormClose *)
+procedure TMainForm.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+Var XML: TXMLConfigStorage;
 begin
- if (CompileStatus.Selected = nil) Then // nothing is selected
-  Exit;
-
- Data := Integer(CompileStatus.Selected.Data);
- if (Data > 0) Then // when `Data == 0`, it's just an editor's message, not a compiler error, warning or hint, so there's no need to 'raise' it
-  Project.RaiseMessage(Data-1);
+ // @TODO: exception handling
+ XML := TXMLConfigStorage.Create('layout.xml', False);
+ Try
+  DockMaster.SaveLayoutToConfig(XML);
+  XML.WriteToDisk;
+ Finally
+  XML.Free;
+ End;
 end;
 
 (* TMainForm.oOpenClick *)
@@ -776,7 +708,7 @@ begin
     { opening a project }
     if (Project = nil) Then
     Begin
-     CompileStatus.Items.Clear;
+     CompileStatusForm.CompileStatus.Items.Clear;
 
      Project := TProject.Create;
      if (not Project.Open(FileName)) Then // failed
@@ -788,7 +720,7 @@ begin
 
     { opening a module }
     Begin
-     if (not Project.OpenCard(FileName)) Then // failed
+     if (Project.OpenCard(FileName) = nil) Then // failed
       Application.MessageBox(PChar(getLangValue(ls_msg_module_open_failed)), PChar(getLangValue(ls_msg_error)), MB_IconError);
     End;
    End;
@@ -878,39 +810,4 @@ procedure TMainForm.oUndoClick(Sender: TObject);
 begin
  Project.getCurrentEditor.Undo;
 end;
-
-(* TMainForm.Splitter1CanResize *)
-procedure TMainForm.Splitter1CanResize(Sender: TObject; var NewSize: Integer; var Accept: Boolean);
-begin
- Splitter1Factor := Height/NewSize;
- setFloat(sSplitter1, Splitter1Factor);
-end;
-
-(* TMainForm.TabsTabDragDropEx *)
-procedure TMainForm.TabsTabDragDropEx(Sender, Source: TObject; OldIndex,
-  NewIndex: Integer; CopyDrag: Boolean; var Done: Boolean);
-begin
- if (Project <> nil) Then
-  Project.SwapCards(OldIndex, NewIndex);
-end;
-
-(* TMainForm.TabsUpdateTimer *)
-procedure TMainForm.TabsUpdateTimer(Sender: TObject);
-begin
- if (Project = nil) Then // no project created
-  Exit;
-
- if (Project.getCurrentCard = nil) Then // no card opened
-  Exit;
-
- Project.UpdateCards;
-
- With Project.getCurrentEditor do
-  StatusBar.Panels[0].Text := IntToStr(CaretY)+': '+IntToStr(CaretX);
-
- With Project.getCurrentCard do
-  StatusBar.Panels[1].Text := getFileName;
-end;
-
 end.
-

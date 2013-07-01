@@ -1,3 +1,7 @@
+(*
+ Copyright © by Patryk Wychowaniec, 2013
+ All rights reserved.
+*)
 unit uFindForm;
 
 {$mode objfpc}{$H+}
@@ -46,7 +50,7 @@ var
   FindForm: TFindForm;
 
 implementation
-Uses mProject, uMainForm, mLanguages;
+Uses mProject, mLanguages;
 Var ReplaceAll: Boolean;
 
 {$R *.lfm}
@@ -108,7 +112,7 @@ begin
 
  TextToFind := eFind.Text;
 
- Editor := TProject(getProjectPnt).getCurrentEditor;
+ Editor := Project.getCurrentEditor;
 
  Case rgSearchIn.ItemIndex of // search in
   0 { selected text only }:

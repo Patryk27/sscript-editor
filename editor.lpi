@@ -31,24 +31,30 @@
         <LaunchingApplication PathPlusParams="\usr\bin\xterm -T 'Lazarus Run Output' -e $(LazarusDir)\tools\runwait.sh $(TargetCmdLine)"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="5">
+    <RequiredPackages Count="7">
       <Item1>
-        <PackageName Value="SQLDBLaz"/>
+        <PackageName Value="virtualtreeview_package"/>
       </Item1>
       <Item2>
-        <PackageName Value="RunTimeTypeInfoControls"/>
+        <PackageName Value="AnchorDocking"/>
       </Item2>
       <Item3>
-        <PackageName Value="LazControls"/>
+        <PackageName Value="SQLDBLaz"/>
       </Item3>
       <Item4>
-        <PackageName Value="SynEdit"/>
+        <PackageName Value="RunTimeTypeInfoControls"/>
       </Item4>
       <Item5>
-        <PackageName Value="LCL"/>
+        <PackageName Value="LazControls"/>
       </Item5>
+      <Item6>
+        <PackageName Value="SynEdit"/>
+      </Item6>
+      <Item7>
+        <PackageName Value="LCL"/>
+      </Item7>
     </RequiredPackages>
-    <Units Count="9">
+    <Units Count="12">
       <Unit0>
         <Filename Value="editor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -117,6 +123,30 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uFindForm"/>
       </Unit8>
+      <Unit9>
+        <Filename Value="uidentifierlistform.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="IdentifierListForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="uIdentifierListForm"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="ucompilestatusform.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="CompileStatusForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="uCompileStatusForm"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="ucodeeditor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="CodeEditor"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="uCodeEditor"/>
+      </Unit11>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -126,7 +156,8 @@
       <Filename Value="editor"/>
     </Target>
     <SearchPaths>
-      <IncludeFiles Value="$(ProjOutDir)"/>
+      <IncludeFiles Value="$(ProjOutDir);codescan"/>
+      <OtherUnitFiles Value="codescan"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
@@ -149,7 +180,7 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="3">
+    <Exceptions Count="5">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -159,6 +190,12 @@
       <Item3>
         <Name Value="EFOpenError"/>
       </Item3>
+      <Item4>
+        <Name Value="Exception"/>
+      </Item4>
+      <Item5>
+        <Name Value="EParserError"/>
+      </Item5>
     </Exceptions>
   </Debugging>
 </CONFIG>

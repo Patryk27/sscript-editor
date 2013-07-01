@@ -1,3 +1,7 @@
+(*
+ Copyright © by Patryk Wychowaniec, 2013
+ All rights reserved.
+*)
 Unit mLanguages;
 
  Interface
@@ -20,11 +24,20 @@ Unit mLanguages;
 
   ls_new_app, ls_new_lib,
 
-  ls_filter_project, ls_filter_module, ls_filter_any_file,
+  ls_filter_project, ls_filter_module, ls_filter_any_file, ls_filter_text_files,
 
   ls_goto_line_title, ls_goto_line,
   ls_find, ls_replace, ls_replace_msg,
-  ls_find_title, ls_find_not_found
+  ls_find_title, ls_find_not_found,
+
+  ls_declaration_not_found, ls_its_keyword, ls_its_internal_type,
+
+  ls_namespaces, ls_types, ls_functions, ls_variables, ls_constants,
+
+  ls_parser_eof, ls_invalid_int_value, ls_invalid_float_value, ls_string_exceeds_line, ls_expected_identifier, ls_expected_string,
+  ls_expected_int, ls_expected, ls_unexpected,
+  ls_unknown_namespace, ls_unknown_file,
+  ls_codescan_failed
  );
 
  Procedure LoadLanguageFile(const FileName: String);
@@ -164,9 +177,10 @@ Begin
    ls_new_app: Result := 'new application';
    ls_new_lib: Result := 'new library';
 
-   ls_filter_project: Result := 'SScript Editor Project (*.ssp)|*.ssp';
-   ls_filter_module: Result := 'SScript Code (*.ss)|*.ss';
-   ls_filter_any_file: Result := 'All files (*.*)|*.*';
+   ls_filter_project   : Result := 'SScript Editor Project (*.ssp)|*.ssp';
+   ls_filter_module    : Result := 'SScript Code (*.ss)|*.ss';
+   ls_filter_any_file  : Result := 'All files (*.*)|*.*';
+   ls_filter_text_files: Result := 'Text files (*.txt)|*.txt';
 
    ls_goto_line_title: Result := 'Goto line';
    ls_goto_line      : Result := 'Goto line (%d-%d):';
@@ -176,6 +190,31 @@ Begin
    ls_replace_msg   : Result := 'Do you want to replace this occurrence of `%s` with `%s`?';
    ls_find_title    : Result := 'Find';
    ls_find_not_found: Result := 'Expression `%s` not found!';
+
+   ls_declaration_not_found: Result := 'Identifier not found!';
+   ls_its_keyword          : Result := 'It''s a keyword!';
+   ls_its_internal_type    : Result := 'It''s an internal type, it doesn''t have its declaration.';
+
+   ls_namespaces: Result := 'Namespaces';
+   ls_types     : Result := 'Types';
+   ls_functions : Result := 'Functions';
+   ls_variables : Result := 'Variables';
+   ls_constants : Result := 'Constants';
+
+   ls_parser_eof         : Result := 'Unexpected end-of-file';
+   ls_invalid_int_value  : Result := 'Invalid integer value';
+   ls_invalid_float_value: Result := 'Invalid float value';
+   ls_string_exceeds_line: Result := 'String exceeds line';
+   ls_expected_identifier: Result := 'Expected identifier, but `%s` found';
+   ls_expected_string    : Result := 'Expected string, but `%s` found';
+   ls_expected_int       : Result := 'Expected int, but `%s` found';
+   ls_expected           : Result := 'Expected `%s` but `%s` found';
+   ls_unexpected         : Result := '`%s` was unexpected';
+
+   ls_unknown_namespace: Result := 'Unknown namespace: `%s`';
+   ls_unknown_file     : Result := 'Unknown file: `%s`';
+
+   ls_codescan_failed: Result := '%s -> %d: %d - %s';
 
    else
     Exit('<unknown string>');

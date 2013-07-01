@@ -1,3 +1,7 @@
+(*
+ Copyright © by Patryk Wychowaniec, 2013
+ All rights reserved.
+*)
 unit uEvSettingsForm;
 
 {$mode objfpc}{$H+}
@@ -32,7 +36,7 @@ type
     cScrollPastEOL:TCheckBox;
     ColorDialog: TColorDialog;
     CompilerFile_Select: TBitBtn;
-    CompilerFile_Select1: TBitBtn;
+    VMFile_Select: TBitBtn;
     btn_cNumbers: TButton;
     eCompilerFile: TEdit;
     eVMFile: TEdit;
@@ -62,13 +66,11 @@ type
     procedure btn_cOtherClick(Sender: TObject);
     procedure btn_cPrimaryTypesClick(Sender: TObject);
     procedure btn_cStringsClick(Sender: TObject);
-    procedure CompilerFile_Select1Click(Sender: TObject);
+    procedure VMFile_SelectClick(Sender: TObject);
     procedure CompilerFile_SelectClick(Sender: TObject);
     procedure eCompilerFileChange(Sender: TObject);
     procedure eVMFileChange(Sender: TObject);
     procedure FileTimerTimer(Sender: TObject);
-    procedure p_1BeforeShow(ASender: TObject; ANewPage: TPage;
-    ANewIndex: Integer);
     procedure SettingChange(Sender:TObject;Node:TTreeNode);
   private
    Procedure UpdateSampleCode;
@@ -80,7 +82,7 @@ var
   EvSettingsForm: TEvSettingsForm;
 
 implementation
-Uses mSettings, mProject, mLanguages, SynEditSScript, uMainForm, uSyntaxHighlighterChange;
+Uses mSettings, mProject, mLanguages, SynEditSScript, uSyntaxHighlighterChange;
 Const SettingsFile       = mSettings.FileName;
       SettingsFileBackup = mSettings.FileName+'_';
 
@@ -103,25 +105,13 @@ Begin
   DeleteFile(fFile);
 End;
 
-{ TEvSettingsForm }
-
-{ TEvSettingsForm.UpdateSampleCode }
-Procedure TEvSettingsForm.UpdateSampleCode;
-Begin
- if (Highlighter <> nil) Then
-  Highlighter.Free;
-
- Highlighter            := THighlighter.Create(SampleCode);
- SampleCode.Highlighter := Highlighter;
-End;
-
-{ getLanguageName }
+// getLanguageName
 Function getLanguageName(FileName: String): String;
 Begin
  Result := Copy(FileName, 1, LastDelimiter('.', FileName)-1);
 End;
 
-{ SearchLanguages }
+// SearchLanguages
 Procedure SearchLanguages;
 Var M: TSearchRec;
 Begin
@@ -149,7 +139,18 @@ Begin
  End;
 End;
 
-{ TEvSettingsForm.Run }
+// -------------------------------------------------------------------------- //
+(* TEvSettingsForm.UpdateSampleCode *)
+Procedure TEvSettingsForm.UpdateSampleCode;
+Begin
+ if (Highlighter <> nil) Then
+  Highlighter.Free;
+
+ Highlighter            := THighlighter.Create(SampleCode);
+ SampleCode.Highlighter := Highlighter;
+End;
+
+(* TEvSettingsForm.Run *)
 Procedure TEvSettingsForm.Run;
 Begin
  // make a backup of current settings
@@ -176,6 +177,7 @@ Begin
  mDeleteFile(SettingsFileBackup);
 End;
 
+(* TEvSettingsForm.btnSaveClick *)
 procedure TEvSettingsForm.btnSaveClick(Sender: TObject);
 Var Tmp: String;
 begin
@@ -203,13 +205,14 @@ begin
  setString(sLanguage, Tmp);
 
  { refresh controls }
- if (uMainForm.getProjectPnt <> nil) Then // is any project opened?
-  TProject(uMainForm.getProjectPnt).RefreshControls;
+ if (Project <> nil) Then // is any project opened?
+  Project.RefreshControls;
 
  { close form }
  Close;
 end;
 
+(* TEvSettingsForm.btnFontClick *)
 procedure TEvSettingsForm.btnFontClick(Sender: TObject);
 begin
  FontDialog.Font := FetchFont(getFont(sEditorFont));
@@ -221,76 +224,89 @@ begin
  UpdateSampleCode;
 end;
 
+(* TEvSettingsForm.btn_cCommentsClick *)
 procedure TEvSettingsForm.btn_cCommentsClick(Sender: TObject);
 begin
  setFormat(sCommentFormat, SyntaxHighlighterChange.Run(getFormat(sCommentFormat)));
  UpdateSampleCode;
 end;
 
+(* TEvSettingsForm.btn_cIdentifiersClick *)
 procedure TEvSettingsForm.btn_cIdentifiersClick(Sender: TObject);
 begin
  setFormat(sIdentFormat, SyntaxHighlighterChange.Run(getFormat(sIdentFormat)));
  UpdateSampleCode;
 end;
 
+(* TEvSettingsForm.btn_cKeywordsClick *)
 procedure TEvSettingsForm.btn_cKeywordsClick(Sender: TObject);
 begin
  setFormat(sKeywordFormat, SyntaxHighlighterChange.Run(getFormat(sKeywordFormat)));
  UpdateSampleCode;
 end;
 
+(* TEvSettingsForm.btn_cMacrosClick *)
 procedure TEvSettingsForm.btn_cMacrosClick(Sender: TObject);
 begin
  setFormat(sMacroFormat, SyntaxHighlighterChange.Run(getFormat(sMacroFormat)));
  UpdateSampleCode;
 end;
 
+(* TEvSettingsForm.btn_cNumbersClick *)
 procedure TEvSettingsForm.btn_cNumbersClick(Sender: TObject);
 begin
  setFormat(sNumberFormat, SyntaxHighlighterChange.Run(getFormat(sNumberFormat)));
  UpdateSampleCode;
 end;
 
+(* TEvSettingsForm.btn_cOtherClick *)
 procedure TEvSettingsForm.btn_cOtherClick(Sender: TObject);
 begin
  setFormat(sOtherFormat, SyntaxHighlighterChange.Run(getFormat(sOtherFormat)));
  UpdateSampleCode;
 end;
 
+(* TEvSettingsForm.btn_cPrimaryTypesClick *)
 procedure TEvSettingsForm.btn_cPrimaryTypesClick(Sender: TObject);
 begin
  setFormat(sPrimaryTypesFormat, SyntaxHighlighterChange.Run(getFormat(sPrimaryTypesFormat)));
  UpdateSampleCode;
 end;
 
+(* TEvSettingsForm.btn_cStringsClick *)
 procedure TEvSettingsForm.btn_cStringsClick(Sender: TObject);
 begin
  setFormat(sStringFormat, SyntaxHighlighterChange.Run(getFormat(sStringFormat)));
  UpdateSampleCode;
 end;
 
-procedure TEvSettingsForm.CompilerFile_Select1Click(Sender: TObject);
+(* TEvSettingsForm.VMFile_SelectClick *)
+procedure TEvSettingsForm.VMFile_SelectClick(Sender: TObject);
 begin
  if (EXEOpen.Execute) Then
   eVMFile.Text := EXEOpen.FileName;
 end;
 
+(* TEvSettingsForm.CompilerFile_SelectClick *)
 procedure TEvSettingsForm.CompilerFile_SelectClick(Sender: TObject);
 begin
  if (EXEOpen.Execute) Then
   eCompilerFile.Text := EXEOpen.FileName;
 end;
 
+(* TEvSettingsForm.eCompilerFileChange *)
 procedure TEvSettingsForm.eCompilerFileChange(Sender: TObject);
 begin
  CheckTime := 4;
 end;
 
+(* TEvSettingsForm.eVMFileChange *)
 procedure TEvSettingsForm.eVMFileChange(Sender: TObject);
 begin
  CheckTime := 4;
 end;
 
+(* TEvSettingsForm.FileTimerTimer *)
 procedure TEvSettingsForm.FileTimerTimer(Sender: TObject);
 begin
  Dec(CheckTime);
@@ -308,12 +324,7 @@ begin
  End;
 end;
 
-procedure TEvSettingsForm.p_1BeforeShow(ASender: TObject; ANewPage: TPage;
-ANewIndex: Integer);
-begin
-
-end;
-
+(* TEvSettingsForm.SettingChange *)
 procedure TEvSettingsForm.SettingChange(Sender:TObject;Node:TTreeNode);
 Var Page: Integer;
 begin
@@ -330,6 +341,7 @@ begin
  End;
 end;
 
+(* TEvSettingsForm.btnCancelClick *)
 procedure TEvSettingsForm.btnCancelClick(Sender: TObject);
 begin
  // remove config and replace with backup
@@ -341,6 +353,7 @@ begin
  Close;
 end;
 
+(* TEvSettingsForm.btnBGColorClick *)
 procedure TEvSettingsForm.btnBGColorClick(Sender: TObject);
 begin
  ColorDialog.Color := getColor(sEditorBackground);
@@ -349,6 +362,7 @@ begin
  UpdateSampleCode;
 end;
 
+(* TEvSettingsForm.btnFGColorClick *)
 procedure TEvSettingsForm.btnFGColorClick(Sender: TObject);
 begin
  ColorDialog.Color := getColor(sEditorForeground);

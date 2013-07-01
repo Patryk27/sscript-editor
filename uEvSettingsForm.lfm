@@ -9,12 +9,13 @@ object EvSettingsForm: TEvSettingsForm
   ClientWidth = 640
   FormStyle = fsSystemStayOnTop
   Position = poScreenCenter
-  LCLVersion = '1.0.8.0'
+  LCLVersion = '1.0.10.0'
   object Setting: TTreeView
     Left = 0
     Height = 400
     Top = 0
     Width = 240
+    DefaultItemHeight = 18
     ReadOnly = True
     TabOrder = 0
     OnChange = SettingChange
@@ -59,11 +60,10 @@ object EvSettingsForm: TEvSettingsForm
     Height = 400
     Top = 0
     Width = 398
-    PageIndex = 0
+    PageIndex = 1
     TabOrder = 3
     TabStop = True
     object p_1: TPage
-      OnBeforeShow = p_1BeforeShow
       object btnFont: TButton
         Left = 8
         Height = 25
@@ -751,7 +751,7 @@ object EvSettingsForm: TEvSettingsForm
         OnClick = CompilerFile_SelectClick
         TabOrder = 2
       end
-      object CompilerFile_Select1: TBitBtn
+      object VMFile_Select: TBitBtn
         Left = 370
         Height = 23
         Top = 32
@@ -792,7 +792,7 @@ object EvSettingsForm: TEvSettingsForm
           FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
           FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
         }
-        OnClick = CompilerFile_Select1Click
+        OnClick = VMFile_SelectClick
         TabOrder = 3
       end
     end

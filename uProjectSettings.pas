@@ -1,3 +1,7 @@
+(*
+ Copyright © by Patryk Wychowaniec, 2013
+ All rights reserved.
+*)
 unit uProjectSettings;
 
 {$mode objfpc}{$H+}
@@ -66,7 +70,7 @@ Procedure TProjectSettingsForm.Run;
 Var Switch  : TCompilerSwitch;
     VMSwitch: TVMSwitch;
 Begin
- With TProject(getProjectPnt) do
+ With Project do
  Begin
   { read paths }
   eOutputFile.Text     := OutputFile;
@@ -79,7 +83,7 @@ Begin
   rgOptimizationLevel.ItemIndex := OptimizationLevel;
 
   For Switch in TCompilerSwitches Do
-   TCheckBox(FindComponent(getSwitchName(Switch, False))).Checked := Switch in CompilerSwitches;
+   TCheckBox(FindComponent(getCompilerSwitchName(Switch, False))).Checked := Switch in CompilerSwitches;
 
   { read vm switches }
   eVMSwitches.Text := OtherVMSwitches;
@@ -95,7 +99,7 @@ procedure TProjectSettingsForm.btnSaveClick(Sender: TObject);
 Var Switch  : TCompilerSwitch;
     VMSwitch: TVMSwitch;
 begin
- With TProject(getProjectPnt) do
+ With Project do
  Begin
   { save paths }
   OutputFile     := eOutputFile.Text;
@@ -111,7 +115,7 @@ begin
 
   CompilerSwitches := [];
   For Switch in TCompilerSwitches Do
-   if (TCheckBox(FindComponent(getSwitchName(Switch, False))).Checked) Then
+   if (TCheckBox(FindComponent(getCompilerSwitchName(Switch, False))).Checked) Then
     Include(CompilerSwitches, Switch);
 
   { save vm switches }

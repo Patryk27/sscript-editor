@@ -1,10 +1,18 @@
+(*
+ Copyright © by Patryk Wychowaniec, 2013
+ All rights reserved.
+*)
 Unit mFunctions;
 
  Interface
 
  Function MPos(const SubStr, Str: String): Integer;
 
+ Function isKeyword(const Str: String): Boolean;
+ Function isInternalType(const Str: String): Boolean;
+
  Implementation
+Uses Tokens;
 
 (* MPos *)
 {
@@ -32,6 +40,27 @@ Begin
   End;
 
   Inc(I);
+ End;
+End;
+
+(* isKeyword *)
+Function isKeyword(const Str: String): Boolean;
+Var Tmp: String;
+Begin
+ For Tmp in Tokens.Keywords Do
+  if (Str = Tmp) Then
+   Exit(True);
+
+ Exit(False);
+End;
+
+(* isInternalType *)
+Function isInternalType(const Str: String): Boolean;
+Begin
+ Case Str of
+  'any', 'void', 'bool', 'char', 'int', 'float', 'string': Exit(True);
+  else
+   Exit(False);
  End;
 End;
 End.

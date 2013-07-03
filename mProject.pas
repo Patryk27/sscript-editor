@@ -768,7 +768,7 @@ Var Symbol: TSymbol;
 Begin
  Result := nil;
 
- if (CodeScanner = nil) Then
+ if (CodeScanner = nil) or (Project.ParseError.Any) Then
   Exit;
 
  For Symbol in CodeScanner.getSymbolList Do
@@ -797,7 +797,7 @@ Var Symbol: TSymbol;
 Begin
  Result := nil;
 
- if (CodeScanner = nil) Then
+ if (CodeScanner = nil) or (Project.ParseError.Any) Then
   Exit;
 
  For Symbol in CodeScanner.getSymbolList Do
@@ -2364,6 +2364,9 @@ Begin
   Exit;
 
  Card.Parse;
+
+ if (ParseError.Any) Then // do not update tree, if any error was raised.
+  Exit;
 
  With IdentifierListForm do
  Begin

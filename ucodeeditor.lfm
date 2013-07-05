@@ -245,7 +245,6 @@ object CodeEditor: TCodeEditor
     top = 48
   end
   object IdentifierListUpdate: TTimer
-    Interval = 250
     OnTimer = IdentifierListUpdateTimer
     left = 136
     top = 112

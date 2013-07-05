@@ -109,9 +109,8 @@ Unit CodeScan;
 
                        ParsedFile, MainFile, CompilerFile: String;
 
-                       inFunction        : Boolean;
-                       SelectedNamespaces: TNamespaceList;
-                       SymbolList        : TSymbolList;
+                       inFunction: Boolean;
+                       SymbolList: TSymbolList;
 
                        DefaultNamespace, CurrentNamespace: TNamespace;
 
@@ -369,8 +368,9 @@ Procedure TCodeScanner.read_and_mark(TokenUntil: TTokenSet);
 Var BrDeep: Integer;
     Token : TToken_P;
 
-    Symbol   : TPhysicalSymbol;
-    Namespace: TNamespace;
+    Symbol      : TPhysicalSymbol;
+    Namespace   : TNamespace;
+    NamespaceVis: TNamespaceVisibility;
 Begin
  BrDeep := 0;
 
@@ -388,7 +388,7 @@ Begin
    Begin
     Symbol := nil;
 
-    if (Parser.next_t = _DOUBLE_COLON) Then { if next is `::`, we have namespace reference, like `std::newline()` }
+    if (Parser.next_t = _DOUBLE_COLON) Then { if next is `::`, we have a namespace reference, like `std::newline()` }
     Begin
      Parser.eat(_DOUBLE_COLON); // `::`
 
@@ -413,9 +413,11 @@ Begin
 
      if (Symbol = nil) Then
      Begin
-      For Namespace in SelectedNamespaces Do
+      For NamespaceVis in NamespaceVisibilityList Do
       Begin
-       Symbol := Namespace.findPhysSymbol(Token.Value);
+       if (Parser.next(-1) in NamespaceVis.Range) Then
+        Symbol := NamespaceVis.Namespace.findPhysSymbol(Token.Value);
+
        if (Symbol <> nil) Then // symbol found!
         Break;
       End;
@@ -528,14 +530,13 @@ Begin
   Exit;
  End;
 
- DefaultNamespace   := TNamespace.Create(Parser.next, Parser.getCurrentRange, 'self');
- SelectedNamespaces := TNamespaceList.Create;
+ DefaultNamespace := TNamespace.Create(Parser.next, Parser.getCurrentRange, 'self');
 
  SymbolList := TSymbolList.Create;
  SymbolList.Add(TSymbol.Create(stNamespace, DefaultNamespace));
 
  CurrentNamespace := DefaultNamespace;
- SelectedNamespaces.Add(DefaultNamespace);
+ NamespaceVisibilityList.Add(TNamespaceVisibility.Create(Parser.getCurrentRange, DefaultNamespace));
 
  inFunction      := False;
  CurrentFunction := nil;

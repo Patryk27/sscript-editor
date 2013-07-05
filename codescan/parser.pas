@@ -33,6 +33,7 @@ Unit Parser;
 
                 // public methods
                   Constructor Create(Code: TStringList; const TokenFileName: String);
+                  Destructor Destroy; override;
 
                   Function getToken(const Index: uint32): TToken_P;
                   Function getTokenPnt(const Index: uint32): PToken_P;
@@ -141,6 +142,15 @@ Begin
 
  { destroy objects }
  Scanner.Free;
+End;
+
+(* TParser.Destroy *)
+Destructor TParser.Destroy;
+Var Token: PToken_P;
+Begin
+ For Token in TokenList Do
+  Dispose(Token);
+ TokenList.Free;
 End;
 
 (* TParser.getToken *)

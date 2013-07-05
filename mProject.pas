@@ -650,14 +650,6 @@ Begin
  Project.ParseError.Any := False;
  ShouldBeReparsed       := False;
 
- if (IdentifierList <> nil) Then // free previous identifier list
- Begin
-  For Tmp in IdentifierList Do
-   Dispose(Tmp);
-
-  FreeAndNil(IdentifierList);
- End;
-
  if (CodeScanner <> nil) Then // free previous code scanner
   FreeAndNil(CodeScanner);
 
@@ -1964,7 +1956,7 @@ Begin
 
   { check if the output file exists }
   if (not AnyError) and (not FileExists(sOutputFile)) Then
-   AddError(0, 0, 'Output file not found ('+sOutputFile+')! Check compiler''s output.', '', getMainCard.getFileName);
+   AddError(0, 0, Format(getLangValue(ls_output_not_found), [sOutputFile]), '', getMainCard.getFileName);
 
   { show finish message }
   if (not AnyError) Then

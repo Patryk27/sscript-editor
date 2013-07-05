@@ -5,8 +5,6 @@ Var Func: TFunction;
 Begin
  // if function <> function_at_caret then add_ident(read_name()); just_skip_rest_of_the_function_not_parsing_it();
 
- // @TODO: backup 'SelectedNamespaces'
-
  With Parser do
  Begin
   if (next_t <> _LOWER) Then
@@ -48,6 +46,4 @@ Begin
   inFunction      := False;
   CurrentFunction := nil;
  End;
-
- // @TODO: restore 'SelectedNamespaces'
 End;

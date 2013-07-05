@@ -40,6 +40,7 @@ Unit CodeScan;
                   mFunction : TFunction;
 
                   Constructor Create(fType: TSymbolType; fValue: TPhysicalSymbol);
+                  Destructor Destroy; override;
 
                   Function getPhysSymbol: TPhysicalSymbol;
                   Function getName: String;
@@ -74,6 +75,8 @@ Unit CodeScan;
                     SymbolList: TSymbolList;
 
                     Constructor Create(fToken: TToken_P; fRange: TRange; fName: String);
+                    Destructor Destroy; override;
+
                     Function findPhysSymbol(const SymbolName: String): TPhysicalSymbol;
                    End;
 
@@ -83,6 +86,8 @@ Unit CodeScan;
                      SymbolList: TSymbolList;
 
                      Constructor Create(fToken: TToken_P; fRange: TRange; fName: String);
+                     Destructor Destroy; override;
+
                      Function findPhysSymbol(const SymbolName: String): TPhysicalSymbol;
                     End;
 
@@ -141,6 +146,7 @@ Unit CodeScan;
 
                        Constructor Create(Code: TStrings; fFileName, fMainFile, fCompilerFile, fSearchPaths: String);
                        Constructor Create(fFileName, fMainFile, fCompilerFile, fSearchPaths: String);
+                       Destructor Destroy; override;
 
                        Function Parse: TIdentifierList;
 
@@ -166,6 +172,12 @@ Begin
   else
    raise Exception.CreateFmt('TSymbol.Create() -> unknown symbol type: %d', [ord(Typ)]);
  End;
+End;
+
+(* TSymbol.Destroy *)
+Destructor TSymbol.Destroy;
+Begin
+ getPhysSymbol.Free;
 End;
 
 (* TSymbol.getPhysSymbol *)
@@ -227,6 +239,15 @@ Begin
  SymbolList := TSymbolList.Create;
 End;
 
+(* TFunction.Destroy *)
+Destructor TFunction.Destroy;
+Var Symbol: TSymbol;
+Begin
+ For Symbol in SymbolList Do
+  Symbol.Free;
+ SymbolList.Free;
+End;
+
 (* TFunction.findPhysSymbol *)
 Function TFunction.findPhysSymbol(const SymbolName: String): TPhysicalSymbol;
 Var Symbol: TSymbol;
@@ -245,6 +266,15 @@ Begin
  inherited Create(fToken, fRange, fName);
 
  SymbolList := TSymbolList.Create;
+End;
+
+(* TNamespace.Destroy *)
+Destructor TNamespace.Destroy;
+Var Symbol: TSymbol;
+Begin
+ For Symbol in SymbolList Do
+  Symbol.Free;
+ SymbolList.Free;
 End;
 
 (* TNamespace.findPhysSymbol *)
@@ -514,6 +544,31 @@ Begin
  End;
 End;
 
+(* TCodeScanner.Destroy *)
+Destructor TCodeScanner.Destroy;
+Var Ident : PIdentifier;
+    Symbol: TSymbol;
+    NSV   : TNamespaceVisibility;
+Begin
+ { IdentifierList }
+ For Ident in IdentifierList Do
+  Dispose(Ident);
+ IdentifierList.Free;
+
+ { SymbolList }
+ For Symbol in SymbolList Do
+  Symbol.Free;
+ SymbolList.Free;
+
+ { NamespaceVisibilityList }
+ For NSV in NamespaceVisibilityList Do
+  NSV.Free;
+ NamespaceVisibilityList.Free;
+
+ { Parser }
+ Parser.Free;
+End;
+
 (* TCodeScanner.Parse *)
 Function TCodeScanner.Parse: TIdentifierList;
 Begin
@@ -545,7 +600,5 @@ Begin
 
  While (Parser.Can) Do
   ParseToken;
-
- // @TODO: free resources (but not here: in the destructor!)
 End;
 End.

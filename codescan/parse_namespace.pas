@@ -4,8 +4,6 @@ Var Name                    : String;
     Deep                    : Integer;
     Namespace, PrevNamespace: TNamespace;
 Begin
- // @TODO: backup 'SelectedNamespaces'
-
  With Parser do
  Begin
   Name := read_ident;
@@ -30,6 +28,4 @@ Begin
 
   CurrentNamespace := PrevNamespace;
  End;
-
- // @TODO: restore 'SelectedNamespaces'
 End;

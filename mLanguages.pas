@@ -20,7 +20,7 @@ Unit mLanguages;
 
   ls_file_saving, ls_file_opening, ls_module_saving, ls_module_opening, ls_project_saving, ls_project_opening,
 
-  ls_compilation_started, ls_compilation_finished, ls_compilation_stopped,
+  ls_compilation_started, ls_compilation_finished, ls_compilation_stopped, ls_output_not_found,
 
   ls_new_app, ls_new_lib,
 
@@ -138,41 +138,42 @@ Begin
   Case Name of
    ls_title_card_close: Result := 'Closing card';
 
-   ls_msg_env_restart: Result := 'You must restart the environment to see the changes.';
-   ls_msg_card_close: Result := 'You''re about to close an unsaved card.'#13#10'Save it?';
-   ls_msg_file_not_found: Result := 'Cannot find file: %s';
-   ls_msg_module_saving: Result := 'To save a project, each module has to be named and has to have a corresponding file on disk.'#13#10'Open the save dialog again?'#13#10'(if you choose `No`, you''ll stop saving the project)';
+   ls_msg_env_restart             : Result := 'You must restart the environment to see the changes.';
+   ls_msg_card_close              : Result := 'You''re about to close an unsaved card.'#13#10'Save it?';
+   ls_msg_file_not_found          : Result := 'Cannot find file: %s';
+   ls_msg_module_saving           : Result := 'To save a project, each module has to be named and has to have a corresponding file on disk.'#13#10'Open the save dialog again?'#13#10'(if you choose `No`, you''ll stop saving the project)';
    ls_msg_compiler_or_vm_not_found: Result := 'The compiler or virtual machine file cannot be found.';
-   ls_msg_close_last_card: Result := 'You cannot close the last card!';
-   ls_msg_close_main_card: Result := 'You cannot close the main card!';
-   ls_msg_compiler_not_found: Result := 'Compiler file not found!';
-   ls_msg_vm_not_found: Result := 'Virtual machine file not found!';
-   ls_msg_unsaved_files: Result := 'There are unsaved files in your project.'#13#10'Save them?';
-   ls_msg_unsaved_project: Result := 'Your project isn''t saved; you may lose data.'#13#10'Save it?';
-   ls_msg_project_open_failed: Result := 'Couldn''t open project file';
-   ls_msg_project_open_failed_ex: Result := 'Couldn''t open project file: %s';
-   ls_msg_module_open_failed: Result := 'Couldn''t open module file';
-   ls_msg_create_new_project: Result := 'Create a new project (application)?';
-   ls_msg_version_conflict_older: Result := 'This project seems to be created from older version of this editor; you may need to check project settings';
-   ls_msg_version_conflict_newer: Result := 'This project seems to be created from newer version of this editor - it might not work correctly';
+   ls_msg_close_last_card         : Result := 'You cannot close the last card!';
+   ls_msg_close_main_card         : Result := 'You cannot close the main card!';
+   ls_msg_compiler_not_found      : Result := 'Compiler file not found!';
+   ls_msg_vm_not_found            : Result := 'Virtual machine file not found!';
+   ls_msg_unsaved_files           : Result := 'There are unsaved files in your project.'#13#10'Save them?';
+   ls_msg_unsaved_project         : Result := 'Your project isn''t saved; you may lose data.'#13#10'Save it?';
+   ls_msg_project_open_failed     : Result := 'Couldn''t open project file';
+   ls_msg_project_open_failed_ex  : Result := 'Couldn''t open project file: %s';
+   ls_msg_module_open_failed      : Result := 'Couldn''t open module file';
+   ls_msg_create_new_project      : Result := 'Create a new project (application)?';
+   ls_msg_version_conflict_older  : Result := 'This project seems to be created from older version of this editor; you may need to check project settings';
+   ls_msg_version_conflict_newer  : Result := 'This project seems to be created from newer version of this editor - it might not work correctly';
 
-   ls_msg_info: Result := 'Information';
-   ls_msg_warn: Result := 'Warning';
+   ls_msg_info : Result := 'Information';
+   ls_msg_warn : Result := 'Warning';
    ls_msg_error: Result := 'Error';
 
    ls_remove_ext: Result := 'Remove opening *.ssp by a double click';
-   ls_add_ext: Result := 'Open when double click *.ssp file';
+   ls_add_ext   : Result := 'Open when double click *.ssp file';
 
-   ls_file_saving: Result := 'Saving file';
-   ls_file_opening: Result := 'Opening file';
-   ls_project_saving: Result := 'Saving project';
+   ls_file_saving    : Result := 'Saving file';
+   ls_file_opening   : Result := 'Opening file';
+   ls_project_saving : Result := 'Saving project';
    ls_project_opening: Result := 'Opening project';
-   ls_module_saving: Result := 'Saving module';
-   ls_module_opening: Result := 'Opening module';
+   ls_module_saving  : Result := 'Saving module';
+   ls_module_opening : Result := 'Opening module';
 
-   ls_compilation_started: Result := '[ %s ] - Compilation started...';
+   ls_compilation_started : Result := '[ %s ] - Compilation started...';
    ls_compilation_finished: Result := '[ %s ] - Compilation successfully finished; project has been built (%s) :)';
-   ls_compilation_stopped: Result := '[ %s ] - Compilation interrupted by error';
+   ls_compilation_stopped : Result := '[ %s ] - Compilation interrupted by error';
+   ls_output_not_found    : Result := 'Output file not found (%s)! Check compiler''s output.';
 
    ls_new_app: Result := 'new application';
    ls_new_lib: Result := 'new library';

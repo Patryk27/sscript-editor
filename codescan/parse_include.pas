@@ -16,33 +16,36 @@ Begin
   if (not findFile(FileName, RealFile)) Then // if file not found
    raise EParserError.CreateFmt(getLangValue(ls_unknown_file), [FileName]);
 
-  Prev                := CurrentlyParsedFile;
-  CurrentlyParsedFile := RealFile;
-  CodeScanner         := TCodeScanner.Create(RealFile, MainFile, CompilerFile, SearchPathsStr);
-  Try
-   CodeScanner.Parse.Free; // @TODO: free each item
+  if (ParsedFiles.IndexOf(RealFile) > -1) Then // file has been already parsed
+   Exit;
 
-   For NSSymbol in CodeScanner.SymbolList Do
-    if (NSSymbol.Typ = stNamespace) Then
+  Prev                    := CurrentlyParsedFile;
+  CurrentlyParsedFile     := RealFile;
+  CodeScanner             := TCodeScanner.Create(RealFile, MainFile, CompilerFile, SearchPathsStr, False);
+  CodeScanner.ParsedFiles := self.ParsedFiles;
+
+  CodeScanner.Parse;
+
+  For NSSymbol in CodeScanner.SymbolList Do
+   if (NSSymbol.Typ = stNamespace) Then
+   Begin
+    Namespace := NSSymbol.mNamespace;
+
+    TmpNamespace := findNamespace(Namespace.Name);
+
+    if (TmpNamespace = nil) Then
     Begin
-     Namespace := NSSymbol.mNamespace;
-
-     TmpNamespace := findNamespace(Namespace.Name);
-
-     if (TmpNamespace = nil) Then
-     Begin
-      // new namespace
-      SymbolList.Add(TSymbol.Create(stNamespace, Namespace));
-     End Else
-     Begin
-      // namespace extends another one
-      For Symbol in Namespace.SymbolList Do
-       TmpNamespace.SymbolList.Add(Symbol);
-     End;
+     // new namespace
+     SymbolList.Add(TSymbol.Create(stNamespace, Namespace));
+    End Else
+    Begin
+     // namespace extends another one
+     For Symbol in Namespace.SymbolList Do
+      TmpNamespace.SymbolList.Add(Symbol);
     End;
-  Finally
-   CodeScanner.Free;
-  End;
+   End;
+
+  ParsedFiles.Add(RealFile, CodeScanner);
 
   CurrentlyParsedFile := Prev;
  End;

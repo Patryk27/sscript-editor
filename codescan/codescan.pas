@@ -18,6 +18,8 @@ Unit CodeScan;
 
  Type TIdentifierList = specialize TFPGList<PIdentifier>;
 
+ Type TCodeScanner = Class;
+
  // forward declarations
  Type TSymbol         = Class;
       TPhysicalSymbol = Class;
@@ -104,6 +106,9 @@ Unit CodeScan;
 
  Type TNamespaceVisibilityList = specialize TFPGList<TNamespaceVisibility>;
 
+ // TParsedFilesMap
+ Type TParsedFilesMap = specialize TFPGMap<String, TCodeScanner>;
+
  { TCodeScanner }
  Type TCodeScanner = Class
                       Private
@@ -114,14 +119,16 @@ Unit CodeScan;
 
                        ParsedFile, MainFile, CompilerFile: String;
 
+                       isMain: Boolean;
+
                        inFunction: Boolean;
                        SymbolList: TSymbolList;
 
                        DefaultNamespace, CurrentNamespace: TNamespace;
+                       NamespaceVisibilityList           : TNamespaceVisibilityList;
+                       CurrentFunction                   : TFunction;
 
-                       CurrentFunction: TFunction;
-
-                       NamespaceVisibilityList: TNamespaceVisibilityList;
+                       ParsedFiles: TParsedFilesMap;
 
                        Function findNamespace(const Name: String): TNamespace;
                        Function findFile(const FName: String; out FoundFile: String): Boolean;
@@ -144,8 +151,8 @@ Unit CodeScan;
                       Public
                        CurrentlyParsedFile: String;
 
-                       Constructor Create(Code: TStrings; fFileName, fMainFile, fCompilerFile, fSearchPaths: String);
-                       Constructor Create(fFileName, fMainFile, fCompilerFile, fSearchPaths: String);
+                       Constructor Create(Code: TStrings; fFileName, fMainFile, fCompilerFile, fSearchPaths: String; const fIsMain: Boolean);
+                       Constructor Create(fFileName, fMainFile, fCompilerFile, fSearchPaths: String; const fIsMain: Boolean);
                        Destructor Destroy; override;
 
                        Function Parse: TIdentifierList;
@@ -505,7 +512,7 @@ End;
 
 // -------------------------------------------------------------------------- //
 (* TCodeScanner.Create *)
-Constructor TCodeScanner.Create(Code: TStrings; fFileName, fMainFile, fCompilerFile, fSearchPaths: String);
+Constructor TCodeScanner.Create(Code: TStrings; fFileName, fMainFile, fCompilerFile, fSearchPaths: String; const fIsMain: Boolean);
 Var I  : Integer;
     Str: String;
 Begin
@@ -514,6 +521,11 @@ Begin
  MainFile       := fMainFile;
  CompilerFile   := fCompilerFile;
  SearchPathsStr := fSearchPaths;
+
+ isMain := fIsMain;
+ if (isMain) Then
+  ParsedFiles := TParsedFilesMap.Create Else
+  ParsedFiles := nil; // should be set manually then
 
  SearchPaths               := TStringList.Create;
  SearchPaths.Delimiter     := ';';
@@ -532,13 +544,13 @@ Begin
 End;
 
 (* TCodeScanner.Create *)
-Constructor TCodeScanner.Create(fFileName, fMainFile, fCompilerFile, fSearchPaths: String);
+Constructor TCodeScanner.Create(fFileName, fMainFile, fCompilerFile, fSearchPaths: String; const fIsMain: Boolean);
 Var Code: TStringList;
 Begin
  Code := TStringList.Create;
  Code.LoadFromFile(fFileName);
  Try
-  Create(Code, fFileName, fMainFile, fCompilerFile, fSearchPaths);
+  Create(Code, fFileName, fMainFile, fCompilerFile, fSearchPaths, fIsMain);
  Finally
   Code.Free;
  End;
@@ -549,6 +561,8 @@ Destructor TCodeScanner.Destroy;
 Var Ident : PIdentifier;
     Symbol: TSymbol;
     NSV   : TNamespaceVisibility;
+
+//    I: Integer;
 Begin
  { IdentifierList }
  For Ident in IdentifierList Do
@@ -567,11 +581,24 @@ Begin
 
  { Parser }
  Parser.Free;
+
+ { Included files }
+ if (isMain) Then
+ Begin
+  //For I := 0 To ParsedFiles.Count-1 Do
+  // if (ParsedFiles.Data[I] <> nil) and (ParsedFiles.Data[I] <> self) Then
+  //  TCodeScanner(ParsedFiles.Data[I]).Free; // @TODO: WHY THE FUCK THIS DOES NOT WORK?!
+
+  ParsedFiles.Free;
+ End;
 End;
 
 (* TCodeScanner.Parse *)
 Function TCodeScanner.Parse: TIdentifierList;
 Begin
+ if (ParsedFiles = nil) Then
+  raise Exception.Create('ParsedFiles = nil, this was not supposed to happen!');
+
  CurrentlyParsedFile := ParsedFile;
 
  IdentifierList := TIdentifierList.Create;

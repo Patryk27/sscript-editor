@@ -58,7 +58,8 @@ Uses mProject;
 
 (* TIdentifierListForm.IdentifierListDblClick *)
 procedure TIdentifierListForm.IdentifierListDblClick(Sender: TObject);
-Var Editor: TSynEdit;
+Var Card  : TCard;
+    Editor: TSynEdit;
     Data  : TNodeData;
 begin
  With IdentifierListForm do
@@ -71,6 +72,11 @@ begin
   if (Data.Symbol = nil) Then
    Exit;
 
+  Card := Project.getCurrentCard;
+  if (Card = nil) Then
+   Exit;
+  Card.SetFocus;
+
   Editor := Project.getCurrentEditor;
   if (Editor = nil) Then
    Exit;
@@ -78,7 +84,6 @@ begin
   Editor.CaretX := Data.Symbol.getToken.Char;
   Editor.CaretY := Data.Symbol.getToken.Line;
   Editor.SelEnd := Editor.SelStart+Length(Data.Symbol.getToken.Value);
-  Editor.SetFocus;
  End;
 end;
 

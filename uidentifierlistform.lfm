@@ -37,6 +37,6 @@ object IdentifierListForm: TIdentifierListForm
     Interval = 600
     OnTimer = IdentifierListUpdateTimer
     left = 48
-    top = 8
+    top = 32
   end
 end

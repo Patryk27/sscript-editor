@@ -12,7 +12,7 @@ uses
   {$IFDEF WINDOWS} Windows, {$ENDIF}
   Classes, SysUtils, FileUtil, SynEdit, Forms, Controls,
   Graphics, Dialogs, Menus, ExtCtrls, ComCtrls, mSettings, LCLType,
-  AnchorDocking, XMLPropStorage;
+  AnchorDocking;
 
  // types
  Type TState = (stEnabled, stDisabled);
@@ -672,16 +672,7 @@ end;
 
 (* TMainForm.FormClose *)
 procedure TMainForm.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-Var XML: TXMLConfigStorage;
 begin
- // @TODO: exception handling
- XML := TXMLConfigStorage.Create('layout.xml', False);
- Try
-  DockMaster.SaveLayoutToConfig(XML);
-  XML.WriteToDisk;
- Finally
-  XML.Free;
- End;
 end;
 
 (* TMainForm.oOpenClick *)

@@ -570,7 +570,17 @@ End;
 (* TCard.SetFocus *)
 Procedure TCard.SetFocus;
 Begin
+ DockMaster.MakeDockable(CodeEditor);
+
+ CodeEditor.SetFocus;
  CodeEditor.Tabs.ActivePageIndex := Project.CardList.IndexOf(self);
+
+ if (not CodeEditor.Tabs.CanFocus) Then // @TODO
+  raise Exception.Create('CodeEditor.Tabs.CanFocus = False, this was not supposed to happen!');
+
+ CodeEditor.Tabs.SetFocus;
+ CodeEditor.Tabs.ActivePage.SetFocus;
+
  SynEdit.SetFocus;
 End;
 
@@ -630,14 +640,13 @@ End;
 
 (* TCard.Parse *)
 Procedure TCard.Parse(const ForceParse: Boolean=False);
-Var Tmp         : PIdentifier;
-    Msg, ErrFile: String;
+Var Msg, ErrFile: String;
     Card        : TCard;
 
     null_token: TToken_P;
     null_range: TRange;
 Begin
- // @TODO: if some card doesn't have to be reparsed, let the parser use its CodeScanner.
+ // @TODO: if some card doesn't have to be reparsed, let the parser use its CodeScanner instead of parsing it again.
 
  if (Parsing) or ((not ForceParse) and (not ShouldBeReparsed)) Then
   Exit;
@@ -654,7 +663,7 @@ Begin
   FreeAndNil(CodeScanner);
 
  Parsing     := True;
- CodeScanner := TCodeScanner.Create(SynEdit.Lines, getFileName, Project.getMainCard.getFileName, getString(sCompilerFile), Project.IncludePath); // parse!
+ CodeScanner := TCodeScanner.Create(SynEdit.Lines, getFileName, Project.getMainCard.getFileName, getString(sCompilerFile), Project.IncludePath, True); // parse!
  Try
   Try
    IdentifierList := CodeScanner.Parse;

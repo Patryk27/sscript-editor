@@ -56,7 +56,8 @@ begin
  DockMaster.MakeDockable(IdentifierListForm);
  DockMaster.MakeDockable(CodeEditor);
 
- if (FileExists('layout.xml')) Then // load layout (if possible)
+ { load layout (if possible) }
+ if (FileExists('layout.xml')) Then
  Begin
   XML := TXMLConfigStorage.Create('layout.xml', True);
   Try
@@ -66,10 +67,19 @@ begin
   End;
  End;
 
- LoadLanguageFile(ExtractFilePath(ParamStr(0))+'lang/'+getString(sLanguage)); // load language
+ { load language }
+ LoadLanguageFile(ExtractFilePath(ParamStr(0))+'lang/'+getString(sLanguage));
 
+ { run application }
  Application.Run;
 
- // @TODO: save layout
+ { save layout }
+ XML := TXMLConfigStorage.Create('layout.xml', False);
+ Try
+  DockMaster.SaveLayoutToConfig(XML);
+  XML.WriteToDisk;
+ Finally
+  XML.Free;
+ End;
 end.
 

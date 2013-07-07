@@ -513,8 +513,9 @@ Begin
 
     if (Execute) Then
     Begin
-     self.FileName := FileName;
-     self.Named    := True;
+     self.FileName         := FileName;
+     self.Named            := True;
+     self.ShouldBeReparsed := True;
 
      ReCaption(ExtractFileName(FileName));
     End Else

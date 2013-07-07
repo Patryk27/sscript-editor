@@ -12,23 +12,23 @@
           <Bounds Width="1595" Height="804" SplitterPos="1595"/>
           <Anchors Align="Left"/>
           <Item1 Name="CodeEditor" Type="Control">
-            <Bounds Width="1397" Height="618"/>
+            <Bounds Width="1397" Height="650"/>
             <Anchors Right="AnchorDockSplitter3" Bottom="AnchorDockSplitter2"/>
           </Item1>
           <Item2 Name="AnchorDockSplitter2" Type="SplitterHorizontal">
-            <Bounds Top="618" Width="1397" Height="4"/>
+            <Bounds Top="650" Width="1397" Height="4"/>
             <Anchors Right="AnchorDockSplitter3"/>
           </Item2>
           <Item3 Name="CompileStatusForm" Type="Control">
-            <Bounds Top="622" Width="1397" Height="182"/>
+            <Bounds Top="654" Width="1397" Height="150"/>
             <Anchors Top="AnchorDockSplitter2" Right="AnchorDockSplitter3"/>
           </Item3>
-          <Item4 Name="AnchorDockSplitter3" Type="SplitterVertical">
-            <Bounds Left="1397" Width="4" Height="804"/>
-          </Item4>
-          <Item5 Name="IdentifierListForm" Type="Control">
+          <Item4 Name="IdentifierListForm" Type="Control">
             <Bounds Left="1401" Width="194" Height="804"/>
             <Anchors Left="AnchorDockSplitter3"/>
+          </Item4>
+          <Item5 Name="AnchorDockSplitter3" Type="SplitterVertical">
+            <Bounds Left="1397" Width="4" Height="804"/>
           </Item5>
         </Item1>
       </Item1>

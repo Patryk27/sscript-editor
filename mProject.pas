@@ -278,8 +278,8 @@ Begin
    Begin
     UpdateIntellisense;
     Intellisense.Execute('',
-                         CodeEditor.Left+SynEdit.Left+SynEdit.CaretXPix+6,
-                         CodeEditor.Top+SynEdit.CaretYPix+SynEdit.Font.Size+CodeEditor.Panel1.Height+75);
+                         MainForm.Left+CodeEditor.Left+SynEdit.Left+SynEdit.CaretXPix+12,
+                         MainForm.Top+CodeEditor.Top+SynEdit.CaretYPix+SynEdit.Font.Size+CodeEditor.Panel1.Height+84);
    End;
   End;
  End;

@@ -61,7 +61,7 @@ begin
  Begin
   XML := TXMLConfigStorage.Create('layout.xml', True);
   Try
-   DockMaster.LoadLayoutFromConfig(XML, False);
+   DockMaster.LoadLayoutFromConfig(XML, True);
   Finally
    XML.Free;
   End;

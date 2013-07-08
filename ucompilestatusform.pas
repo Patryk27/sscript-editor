@@ -10,7 +10,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  Menus, ClipBrd, AnchorDocking;
+  Menus, ClipBrd;
 
 type
 

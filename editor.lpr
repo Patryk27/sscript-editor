@@ -26,19 +26,21 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, SysUtils, Forms, lazcontrols,
-  runtimetypeinfocontrols, anchordockpkg, AnchorDocking, uMainForm, uProjectSettings,
+  runtimetypeinfocontrols, uMainForm, uProjectSettings,
   uAboutForm, uEvSettingsForm, uSyntaxHighlighterChange, Controls,
 
   mLanguages, mSettings, uCompilerOutput, uFindForm,
   uIdentifierListForm, uCompileStatusForm, uCodeEditor, virtualtreeview_package,
-  Dialogs, XMLPropStorage;
+  Dialogs, mLayout;
 
 {$R *.res}
 
-Var XML: TXMLConfigStorage;
 begin
  RequireDerivedFormResource := True;
  Application.Initialize;
+
+ DefaultFormatSettings.DecimalSeparator := '.';
+ Application.Title                      := 'SScript Editor';
 
  Application.CreateForm(TMainForm, MainForm);
  Application.CreateForm(TProjectSettingsForm, ProjectSettingsForm);
@@ -51,35 +53,19 @@ begin
  Application.CreateForm(TCompileStatusForm, CompileStatusForm);
  Application.CreateForm(TCodeEditor, CodeEditor);
 
- DockMaster.MakeDockSite(MainForm, [akTop, akLeft, akRight, akBottom], admrpChild);
- DockMaster.MakeDockable(CompileStatusForm);
- DockMaster.MakeDockable(IdentifierListForm);
- DockMaster.MakeDockable(CodeEditor);
-
- { load layout (if possible) }
- if (FileExists('layout.xml')) Then
- Begin
-  XML := TXMLConfigStorage.Create('layout.xml', True);
-  Try
-   DockMaster.LoadLayoutFromConfig(XML, True);
-  Finally
-   XML.Free;
-  End;
- End;
+ { load layout }
+ if (FileExists(LayoutFile)) Then
+  LoadLayout(LayoutFile) Else
+  SetDefaultLayout;
 
  { load language }
  LoadLanguageFile(ExtractFilePath(ParamStr(0))+'lang/'+getString(sLanguage));
+ MainForm.OnLanguageLoaded;
 
  { run application }
  Application.Run;
 
  { save layout }
- XML := TXMLConfigStorage.Create('layout.xml', False);
- Try
-  DockMaster.SaveLayoutToConfig(XML);
-  XML.WriteToDisk;
- Finally
-  XML.Free;
- End;
+ SaveLayout(LayoutFile);
 end.
 

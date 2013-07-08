@@ -7,6 +7,8 @@ Begin
  With Parser do
  Begin
   Name := read_ident;
+  eat(_BRACKET3_OP);
+  Inc(CurrentDeep);
 
   Namespace := findNamespace(Name);
   if (Namespace = nil) Then // new namespace

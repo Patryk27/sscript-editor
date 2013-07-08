@@ -4,14 +4,14 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="131">
+    <Units Count="141">
       <Unit0>
         <Filename Value="editor.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="editor"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="50"/>
-        <CursorPos X="50" Y="68"/>
+        <TopLine Value="15"/>
+        <CursorPos X="77" Y="54"/>
         <UsageCount Value="208"/>
       </Unit0>
       <Unit1>
@@ -21,10 +21,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uMainForm"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="657"/>
-        <CursorPos X="6" Y="675"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
         <UsageCount Value="208"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -97,8 +98,8 @@
         <UnitName Value="uCompilerOutput"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="1" Y="5"/>
-        <UsageCount Value="98"/>
+        <CursorPos X="92" Y="6"/>
+        <UsageCount Value="108"/>
       </Unit7>
       <Unit8>
         <Filename Value="ufindform.pas"/>
@@ -110,7 +111,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="5"/>
-        <UsageCount Value="84"/>
+        <UsageCount Value="94"/>
       </Unit8>
       <Unit9>
         <Filename Value="uidentifierlistform.pas"/>
@@ -119,13 +120,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uIdentifierListForm"/>
-        <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="57"/>
-        <CursorPos X="22" Y="74"/>
-        <UsageCount Value="53"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
+        <TopLine Value="1"/>
+        <CursorPos X="52" Y="17"/>
+        <UsageCount Value="63"/>
       </Unit9>
       <Unit10>
         <Filename Value="ucompilestatusform.pas"/>
@@ -136,8 +134,8 @@
         <UnitName Value="uCompileStatusForm"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="1" Y="5"/>
-        <UsageCount Value="53"/>
+        <CursorPos X="68" Y="17"/>
+        <UsageCount Value="63"/>
       </Unit10>
       <Unit11>
         <Filename Value="ucodeeditor.pas"/>
@@ -147,9 +145,9 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uCodeEditor"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="85"/>
-        <CursorPos X="12" Y="95"/>
-        <UsageCount Value="52"/>
+        <TopLine Value="139"/>
+        <CursorPos X="43" Y="149"/>
+        <UsageCount Value="62"/>
       </Unit11>
       <Unit12>
         <Filename Value="uintellisenseform.pas"/>
@@ -172,20 +170,18 @@
       <Unit14>
         <Filename Value="mProject.pas"/>
         <UnitName Value="mProject"/>
-        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="2220"/>
-        <CursorPos X="63" Y="2230"/>
+        <TopLine Value="2387"/>
+        <CursorPos X="55" Y="2411"/>
         <UsageCount Value="103"/>
-        <Loaded Value="True"/>
       </Unit14>
       <Unit15>
         <Filename Value="C:\lazarus\lcl\dialogs.pp"/>
         <UnitName Value="Dialogs"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="23"/>
-        <CursorPos X="39" Y="39"/>
-        <UsageCount Value="5"/>
+        <TopLine Value="484"/>
+        <CursorPos X="100" Y="506"/>
+        <UsageCount Value="10"/>
       </Unit15>
       <Unit16>
         <Filename Value="SynEditSScript.pas"/>
@@ -230,8 +226,8 @@
         <Filename Value="C:\lazarus\lcl\controls.pp"/>
         <UnitName Value="Controls"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="2112"/>
-        <CursorPos X="22" Y="2130"/>
+        <TopLine Value="1000"/>
+        <CursorPos X="3" Y="1016"/>
         <UsageCount Value="10"/>
       </Unit21>
       <Unit22>
@@ -252,9 +248,9 @@
         <Filename Value="C:\lazarus\lcl\forms.pp"/>
         <UnitName Value="Forms"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="666"/>
-        <CursorPos X="14" Y="684"/>
-        <UsageCount Value="9"/>
+        <TopLine Value="52"/>
+        <CursorPos X="19" Y="70"/>
+        <UsageCount Value="10"/>
       </Unit24>
       <Unit25>
         <Filename Value="C:\lazarus\components\lazcontrols\extendednotebook.pas"/>
@@ -292,9 +288,9 @@
         <Filename Value="C:\lazarus\lcl\stdctrls.pp"/>
         <UnitName Value="StdCtrls"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="593"/>
-        <CursorPos X="14" Y="610"/>
-        <UsageCount Value="9"/>
+        <TopLine Value="1033"/>
+        <CursorPos X="3" Y="1049"/>
+        <UsageCount Value="10"/>
       </Unit29>
       <Unit30>
         <Filename Value="C:\lazarus\lcl\include\buttons.inc"/>
@@ -440,12 +436,10 @@
       <Unit49>
         <Filename Value="mLanguages.pas"/>
         <UnitName Value="mLanguages"/>
-        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="120"/>
-        <CursorPos X="33" Y="128"/>
-        <UsageCount Value="68"/>
-        <Loaded Value="True"/>
+        <TopLine Value="19"/>
+        <CursorPos X="19" Y="21"/>
+        <UsageCount Value="71"/>
       </Unit49>
       <Unit50>
         <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\objpas\typinfo.pp"/>
@@ -623,9 +617,9 @@
         <Filename Value="C:\lazarus\lcl\lcltype.pp"/>
         <UnitName Value="LCLType"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="125"/>
-        <CursorPos X="3" Y="143"/>
-        <UsageCount Value="9"/>
+        <TopLine Value="56"/>
+        <CursorPos X="3" Y="72"/>
+        <UsageCount Value="10"/>
       </Unit73>
       <Unit74>
         <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\typinfo.pp"/>
@@ -699,9 +693,9 @@
       <Unit83>
         <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\classes\classesh.inc"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="92"/>
-        <CursorPos X="3" Y="110"/>
-        <UsageCount Value="6"/>
+        <TopLine Value="1766"/>
+        <CursorPos X="15" Y="1770"/>
+        <UsageCount Value="10"/>
       </Unit83>
       <Unit84>
         <Filename Value="C:\lazarus\components\synedit\syneditkeycmds.pp"/>
@@ -714,9 +708,9 @@
       <Unit85>
         <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\inc\systemh.inc"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="853"/>
-        <CursorPos X="11" Y="869"/>
-        <UsageCount Value="5"/>
+        <TopLine Value="237"/>
+        <CursorPos X="3" Y="253"/>
+        <UsageCount Value="10"/>
       </Unit85>
       <Unit86>
         <Filename Value="mFunctions.pas"/>
@@ -729,13 +723,10 @@
       <Unit87>
         <Filename Value="codescan\codescan.pas"/>
         <UnitName Value="CodeScan"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="4"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="547"/>
-        <CursorPos X="3" Y="565"/>
-        <UsageCount Value="38"/>
-        <Loaded Value="True"/>
+        <TopLine Value="91"/>
+        <CursorPos X="55" Y="48"/>
+        <UsageCount Value="41"/>
       </Unit87>
       <Unit88>
         <Filename Value="codescan\scanner.pas"/>
@@ -749,8 +740,8 @@
         <Filename Value="codescan\parser.pas"/>
         <UnitName Value="Parser"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="55" Y="76"/>
+        <TopLine Value="82"/>
+        <CursorPos X="36" Y="102"/>
         <UsageCount Value="31"/>
       </Unit89>
       <Unit90>
@@ -778,9 +769,9 @@
       <Unit93>
         <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\win\wininc\defines.inc"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="43"/>
-        <CursorPos X="6" Y="59"/>
-        <UsageCount Value="5"/>
+        <TopLine Value="4713"/>
+        <CursorPos X="6" Y="4731"/>
+        <UsageCount Value="10"/>
       </Unit93>
       <Unit94>
         <Filename Value="codescan\parse_function.pas"/>
@@ -793,12 +784,10 @@
       <Unit95>
         <Filename Value="codescan\parse_include.pas"/>
         <UnitName Value="parse_include"/>
-        <EditorIndex Value="5"/>
         <WindowIndex Value="0"/>
         <TopLine Value="17"/>
         <CursorPos X="22" Y="5"/>
-        <UsageCount Value="36"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="35"/>
       </Unit95>
       <Unit96>
         <Filename Value="codescan\parse_use.pas"/>
@@ -829,7 +818,7 @@
         <UnitName Value="parse_namespace"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
+        <CursorPos X="89" Y="30"/>
         <UsageCount Value="33"/>
       </Unit99>
       <Unit100>
@@ -851,25 +840,25 @@
         <Filename Value="C:\lazarus\lcl\graphics.pp"/>
         <UnitName Value="Graphics"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1342"/>
-        <CursorPos X="44" Y="1372"/>
-        <UsageCount Value="9"/>
+        <TopLine Value="1114"/>
+        <CursorPos X="15" Y="1131"/>
+        <UsageCount Value="10"/>
       </Unit102>
       <Unit103>
         <Filename Value="C:\lazarus\components\anchordocking\anchordocking.pas"/>
         <UnitName Value="AnchorDocking"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="4106"/>
-        <CursorPos X="81" Y="4087"/>
-        <UsageCount Value="10"/>
+        <TopLine Value="554"/>
+        <CursorPos X="14" Y="571"/>
+        <UsageCount Value="11"/>
       </Unit103>
       <Unit104>
         <Filename Value="C:\lazarus\lcl\xmlpropstorage.pas"/>
         <UnitName Value="XMLPropStorage"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="181"/>
-        <CursorPos X="15" Y="99"/>
-        <UsageCount Value="6"/>
+        <TopLine Value="69"/>
+        <CursorPos X="3" Y="75"/>
+        <UsageCount Value="10"/>
       </Unit104>
       <Unit105>
         <Filename Value="C:\lazarus\components\anchordocking\anchordockoptionsdlg.pas"/>
@@ -882,8 +871,8 @@
       <Unit106>
         <Filename Value="C:\lazarus\lcl\include\customform.inc"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1804"/>
-        <CursorPos X="47" Y="1810"/>
+        <TopLine Value="444"/>
+        <CursorPos X="7" Y="446"/>
         <UsageCount Value="10"/>
       </Unit106>
       <Unit107>
@@ -1068,87 +1057,107 @@
         <CursorPos X="51" Y="383"/>
         <UsageCount Value="10"/>
       </Unit130>
+      <Unit131>
+        <Filename Value="C:\lazarus\lcl\graphtype.pp"/>
+        <UnitName Value="GraphType"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="21"/>
+        <CursorPos X="3" Y="39"/>
+        <UsageCount Value="10"/>
+      </Unit131>
+      <Unit132>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-image\src\fpcanvas.pp"/>
+        <UnitName Value="FPCanvas"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="140"/>
+        <CursorPos X="14" Y="157"/>
+        <UsageCount Value="10"/>
+      </Unit132>
+      <Unit133>
+        <Filename Value="C:\lazarus\lcl\lazconfigstorage.pas"/>
+        <UnitName Value="LazConfigStorage"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="66"/>
+        <CursorPos X="3" Y="30"/>
+        <UsageCount Value="10"/>
+      </Unit133>
+      <Unit134>
+        <Filename Value="mLayout.pas"/>
+        <UnitName Value="mLayout"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="76"/>
+        <CursorPos X="51" Y="96"/>
+        <UsageCount Value="14"/>
+      </Unit134>
+      <Unit135>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\winunits-base\src\uxtheme.pp"/>
+        <UnitName Value="UxTheme"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1608"/>
+        <CursorPos X="65" Y="1617"/>
+        <UsageCount Value="10"/>
+      </Unit135>
+      <Unit136>
+        <Filename Value="C:\lazarus\lcl\actnlist.pas"/>
+        <UnitName Value="ActnList"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="355"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="10"/>
+      </Unit136>
+      <Unit137>
+        <Filename Value="C:\lazarus\lcl\buttons.pp"/>
+        <UnitName Value="Buttons"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="125"/>
+        <CursorPos X="3" Y="141"/>
+        <UsageCount Value="10"/>
+      </Unit137>
+      <Unit138>
+        <Filename Value="C:\lazarus\lcl\menus.pp"/>
+        <UnitName Value="Menus"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="286"/>
+        <CursorPos X="3" Y="302"/>
+        <UsageCount Value="10"/>
+      </Unit138>
+      <Unit139>
+        <Filename Value="C:\lazarus\lcl\lclclasses.pp"/>
+        <UnitName Value="LCLClasses"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="29"/>
+        <CursorPos X="3" Y="48"/>
+        <UsageCount Value="10"/>
+      </Unit139>
+      <Unit140>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\packages\fcl-process\src\process.pp"/>
+        <UnitName Value="process"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="98"/>
+        <CursorPos X="17" Y="113"/>
+        <UsageCount Value="10"/>
+      </Unit140>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="19" HistoryIndex="18">
+    <JumpHistory Count="4" HistoryIndex="3">
       <Position1>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="576" Column="1" TopLine="562"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="726" Column="8" TopLine="703"/>
       </Position1>
       <Position2>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="577" Column="1" TopLine="562"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="729" Column="5" TopLine="709"/>
       </Position2>
       <Position3>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="579" Column="1" TopLine="562"/>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="225" Column="36" TopLine="205"/>
       </Position3>
       <Position4>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="584" Column="2" TopLine="562"/>
-      </Position4>
-      <Position5>
-        <Filename Value="uidentifierlistform.pas"/>
-        <Caret Line="78" Column="1" TopLine="57"/>
-      </Position5>
-      <Position6>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="573" Column="1" TopLine="562"/>
-      </Position6>
-      <Position7>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="574" Column="1" TopLine="562"/>
-      </Position7>
-      <Position8>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="576" Column="1" TopLine="562"/>
-      </Position8>
-      <Position9>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="577" Column="1" TopLine="562"/>
-      </Position9>
-      <Position10>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="579" Column="1" TopLine="562"/>
-      </Position10>
-      <Position11>
-        <Filename Value="uidentifierlistform.pas"/>
-        <Caret Line="78" Column="1" TopLine="57"/>
-      </Position11>
-      <Position12>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="579" Column="37" TopLine="562"/>
-      </Position12>
-      <Position13>
         <Filename Value="uMainForm.pas"/>
-        <Caret Line="15" Column="16" TopLine="1"/>
-      </Position13>
-      <Position14>
-        <Filename Value="codescan\codescan.pas"/>
-        <Caret Line="590" Column="1" TopLine="564"/>
-      </Position14>
-      <Position15>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="665" Column="34" TopLine="634"/>
-      </Position15>
-      <Position16>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="655" Column="79" TopLine="653"/>
-      </Position16>
-      <Position17>
-        <Filename Value="codescan\codescan.pas"/>
-        <Caret Line="588" Column="46" TopLine="99"/>
-      </Position17>
-      <Position18>
-        <Filename Value="mProject.pas"/>
-        <Caret Line="2310" Column="18" TopLine="2282"/>
-      </Position18>
-      <Position19>
-        <Filename Value="codescan\codescan.pas"/>
-        <Caret Line="586" Column="36" TopLine="573"/>
-      </Position19>
+        <Caret Line="743" Column="35" TopLine="729"/>
+      </Position4>
     </JumpHistory>
   </ProjectSession>
   <Debugging>

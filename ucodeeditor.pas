@@ -10,13 +10,14 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, ExtendedNotebook, Forms, Controls, Graphics,
-  Dialogs, ExtCtrls, Menus, AnchorDocking, LCLType, StdCtrls;
+  Dialogs, ExtCtrls, Menus, LCLType, StdCtrls, ComCtrls;
 
 type
 
   { TCodeEditor }
 
   TCodeEditor = class(TForm)
+    Panel1: TPanel;
     CurrentFunction: TEdit;
     MenuItem10: TMenuItem;
     opFindDeclaration: TMenuItem;
@@ -26,7 +27,7 @@ type
     opCopy: TMenuItem;
     opCut: TMenuItem;
     opPaste: TMenuItem;
-    Panel1: TPanel;
+    StatusBar: TStatusBar;
     SynEditPopup: TPopupMenu;
     Tabs: TExtendedNotebook;
     TabsPopup: TPopupMenu;
@@ -186,10 +187,10 @@ begin
  Project.UpdateCards;
 
  With Project.getCurrentEditor do
-  MainForm.StatusBar.Panels[0].Text := IntToStr(CaretY)+': '+IntToStr(CaretX);
+  CodeEditor.StatusBar.Panels[0].Text := IntToStr(CaretY)+': '+IntToStr(CaretX);
 
  With Project.getCurrentCard do
-  MainForm.StatusBar.Panels[1].Text := getFileName;
+  CodeEditor.StatusBar.Panels[1].Text := getFileName;
 end;
 
 end.

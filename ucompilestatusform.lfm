@@ -1,20 +1,22 @@
 object CompileStatusForm: TCompileStatusForm
   Left = 425
-  Height = 292
+  Height = 131
   Top = 171
-  Width = 433
+  Width = 640
+  BorderStyle = bsSizeToolWin
   Caption = 'Compile Status'
-  ClientHeight = 292
-  ClientWidth = 433
+  ClientHeight = 131
+  ClientWidth = 640
   OnCreate = FormCreate
   LCLVersion = '1.0.10.0'
   object CompileStatus: TTreeView
     Left = 0
-    Height = 292
+    Height = 131
     Top = 0
-    Width = 433
+    Width = 640
     Align = alClient
     DefaultItemHeight = 18
+    Images = MessagesImageList
     ParentShowHint = False
     PopupMenu = CompileStatusPopup
     ReadOnly = True

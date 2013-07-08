@@ -8,7 +8,7 @@ Unit mProject;
  Interface
  Uses uMainForm, CodeScan, Tokens, LCLType, FileUtil, Classes, ComCtrls, Controls, Graphics, SynEdit, SynEditSScript, FGL,
       SynEditMiscClasses, SynHighlighterPas, SynHighlighterCpp, SynHighlighterJava, SynHighlighterIni, VirtualTrees,
-      AnchorDocking, SynCompletion, mIntellisense;
+      SynCompletion, mIntellisense, Process;
 
  Type TProjectType = (ptApplication, ptLibrary);
 
@@ -142,6 +142,8 @@ Unit mProject;
                    VMSwitches     : TVMSwitches;
                    OtherVMSwitches: String;
 
+                   VMProcess: TProcess;
+
                    // methods
                    Constructor Create;
                    Destructor Destroy; override;
@@ -165,6 +167,7 @@ Unit mProject;
 
                    Function Compile: Boolean;
                    Procedure Run;
+                   Procedure StopProgram;
 
                    Function isEverythingSaved: Boolean;
                    Function getCurrentCard: TCard;
@@ -183,7 +186,7 @@ Unit mProject;
 
  Implementation
 Uses mSettings, mLanguages, uIdentifierListForm, uCompileStatusForm, uCodeEditor, Parser,
-     Dialogs, SysUtils, Forms, DOM, XMLWrite, XMLRead, TypInfo, Process;
+     Dialogs, SysUtils, Forms, DOM, XMLWrite, XMLRead, TypInfo;
 
 { getCompilerSwitchName }
 Function getCompilerSwitchName(const S: TCompilerSwitch; DeleteFirstChar: Boolean=True): String;
@@ -265,7 +268,7 @@ Begin
   Begin
    if (Project.ParseError.Any) Then // cannot open Intellisense if parsing wasn't successful
    Begin
-    if (Project.ParseError.FileName = 'main.ss') and (not Project.Named) Then
+    if (Project.ParseError.FileName = 'main.ss') and (not Project.Named) Then // special case
      Card := Project.FindCard('main.ss') Else
      Card := Project.OpenCard(Project.ParseError.FileName);
 
@@ -280,8 +283,8 @@ Begin
    Begin
     UpdateIntellisense;
     Intellisense.Execute('',
-                         MainForm.Left+CodeEditor.Left+SynEdit.Left+SynEdit.CaretXPix+12,
-                         MainForm.Top+CodeEditor.Top+SynEdit.CaretYPix+SynEdit.Font.Size+CodeEditor.Panel1.Height+84);
+                         CodeEditor.Left+SynEdit.Left+SynEdit.CaretXPix+12,
+                         CodeEditor.Top+SynEdit.CaretYPix+SynEdit.Font.Size+CodeEditor.Panel1.Height+64);
    End;
   End;
  End;
@@ -599,8 +602,7 @@ End;
 (* TCard.SetFocus *)
 Procedure TCard.SetFocus;
 Begin
- DockMaster.MakeDockable(CodeEditor);
-
+ CodeEditor.Show;
  CodeEditor.SetFocus;
  CodeEditor.Tabs.ActivePageIndex := Project.CardList.IndexOf(self);
 
@@ -677,11 +679,11 @@ Var Msg, ErrFile: String;
 Begin
  // @TODO: if some card doesn't have to be reparsed, let the parser use its CodeScanner instead of parsing it again.
 
- if (Parsing) or ((not ForceParse) and (not ShouldBeReparsed)) Then
+ if (Parsing) or ((not ForceParse) and (not ShouldBeReparsed)) or (CompareText(ExtractFileExt(getFileName), '.ss') <> 0) Then
   Exit;
 
  With CompileStatusForm.CompileStatus do // clear parser's error message
-  if (Items.GetLastNode.Data = Pointer($CAFEBABE)) Then
+  if (Items.GetLastNode <> nil) and (Items.GetLastNode.Data = Pointer($CAFEBABE)) Then
    Items.Delete(Items.GetLastNode);
 
  Parsing                := False;
@@ -725,7 +727,7 @@ Begin
 
     With CompileStatusForm.CompileStatus do
     Begin
-     if (Items.GetLastNode.Data = Pointer($CAFEBABE)) Then
+     if (Items.GetLastNode <> nil) and (Items.GetLastNode.Data = Pointer($CAFEBABE)) Then
       Items.GetLastNode.Text := Msg Else
       With Items.Add(nil, Msg) do
       Begin
@@ -798,10 +800,6 @@ Function TCard.GetNamespaceAtCaret: TNamespace;
      Result := Symbol.mNamespace;
      Exit;
     End;
-
-    if (Symbol.Typ = stNamespace) Then
-     For Tmp in Symbol.mNamespace.SymbolList Do
-      ParseSymbol(Tmp);
    End;
 
 Var Symbol: TSymbol;
@@ -1078,6 +1076,8 @@ Begin
  ProjectType := ptApplication;
 
  ParseError.Any := False;
+
+ VMProcess := nil;
 End;
 
 (* TProject.Destroy *)
@@ -1841,7 +1841,7 @@ Begin
  if (not Save) Then
   Exit(False);
 
- DockMaster.MakeDockable(CompileStatusForm);
+ CompileStatusForm.Show;
 
  MessageList.Clear;
 
@@ -2036,14 +2036,13 @@ End;
  Runs project.
 }
 Procedure TProject.Run;
-Var sOutputFile, CommandLine: String;
-    Switch                  : TVMSwitch;
-    Tries                   : Integer = 0;
-
-    {$IFDEF LINUX}
-     Process: TProcess;
-    {$ENDIF}
+Var TmpCaption, sOutputFile, CCommandLine: String;
+    Switch                               : TVMSwitch;
+    Tries                                : Integer = 0;
 Begin
+ if (VMProcess <> nil) Then // another VM process is already running
+  Exit;
+
  if (ProjectType = ptLibrary) Then // cannot run a library
   Exit;
 
@@ -2063,39 +2062,61 @@ Begin
   Inc(Tries);
   Sleep(50);
 
-  if (Tries > 20) Then
+  if (Tries > 20) Then // output file not found
+  Begin
+   Application.MessageBox(PChar(Format(getLangValue(ls_outputfile_not_found), [sOutputFile])), PChar(getLangValue(ls_msg_error)), MB_IconError);
    Exit;
+  End;
  End;
 
  { generate command line }
- CommandLine := '';
- {$IFDEF WINDOWS}
-  CommandLine := sOutputFile;
- {$ENDIF}
+ CCommandLine := '';
 
  For Switch in VMSwitches Do
-  CommandLine += ' -'+getVMSwitchName(Switch, True);
+  CCommandLine += ' -'+getVMSwitchName(Switch, True);
 
- CommandLine += ' '+OtherVMSwitches;
+ CCommandLine += ' '+OtherVMSwitches;
 
  { run program }
- {$IFDEF LINUX}
-  Process := TProcess.Create(nil);
+ VMProcess := TProcess.Create(nil);
 
-  With Process do
+ With VMProcess do
+ Begin
+  Options          := [];
+  CurrentDirectory := ExtractFilePath(ParamStr(0));
+
+  {$IFDEF LINUX}
+   Options += [poUsePipes];
+   CommandLine := 'xterm -e ''sh run.sh "'+getString(sVMFile)+'" "'+sOutputFile+'" "'+CCommandLine+'";read''';
+  {$ELSE}
+   CommandLine := '"'+getString(sVMFile)+'" "'+sOutputFile+'" '+CCommandLine;
+  {$ENDIF}
+ End;
+
+ TmpCaption       := MainForm.Caption;
+ MainForm.Caption := sCaption+' [ '+getLangValue(ls_vm_running)+' ]';
+
+ VMProcess.Execute;
+ While (VMProcess <> nil) and (VMProcess.Running) Do
+  Application.ProcessMessages;
+
+ MainForm.Caption := TmpCaption;
+
+ FreeAndNil(VMProcess);
+End;
+
+(* TProject.StopProgram *)
+{
+ Halts virtual machine.
+}
+Procedure TProject.StopProgram;
+Begin
+ if (VMProcess = nil) Then
+  Application.MessageBox(PChar(getLangValue(ls_vm_instance_not_running)), PChar(getLangValue(ls_msg_info)), MB_IconInformation) Else
   Begin
-   Options          := [poUsePipes];
-   CommandLine      := 'xterm -e ''sh run.sh "'+getString(sVMFile)+'" "'+sOutputFile+'" "'+CommandLine+'";read''';
-   CurrentDirectory := ExtractFilePath(ParamStr(0));
+   VMProcess.Terminate(0);
+   FreeAndNil(VMProcess);
   End;
-
-  Process.Execute;
-  While (Process.Running) Do ;
-
-  Process.Free;
- {$ELSE}
-  ExecuteProcess(getString(sVMFile), CommandLine, []);
- {$ENDIF}
 End;
 
 (* TProject.isEverythingSaved *)
@@ -2377,6 +2398,9 @@ Var Card  : TCard;
 
        if (Cnsts^.ChildCount = 0) Then
         DeleteNode(Cnsts);
+
+       if (Symbol.getName = 'self') and (Ns^.ChildCount = 0) Then // @TODO
+        DeleteNode(Ns);
       End;
      End Else
 

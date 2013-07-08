@@ -121,11 +121,17 @@ Caption=Ustawienia projektu
 [MainForm_menuCompile]
 Caption=Uruchom
 
-[MainForm_oCompileAndRun]
-Caption=Kompiluj i uruchom
+[MainForm_oRun]
+Caption=Uruchom
 
 [MainForm_oBuild]
-Caption=Buduj
+Caption=Kompiluj
+
+[MainForm_oBuildAndRun]
+Caption=Kompiluj i uruchom
+
+[MainForm_oStopProgram]
+Caption=Zatrzymaj wykonywanie
 
 [MainForm_oShowCompilerOutput]
 Caption=Pokaż wyjście kompilatora
@@ -264,6 +270,12 @@ Caption=Komunikaty
 
 [MainForm_oIdentifierList]
 Caption=Lista identyfikatorów
+
+[MainForm_oLayoutManager]
+Caption=Menedżer układów okien
+
+[MainForm_oResetLayout]
+Caption=Zresetuj układ okien
 
 [CodeEditor]
 Caption=Edytor kodu
@@ -456,6 +468,7 @@ msg_module_open_failed=Nie można było otworzyć pliku modułu.
 msg_create_new_project=Stworzyć nowy projekt (aplikację)?
 msg_version_conflict_older=Ten projekt został utworzony za pomocą starszego edytora niż Twój; być może niektóre ustawienia w projekcie będziesz musiał poprawić.
 msg_version_conflict_newer=Ten projekt został utworzony za pomocą nowszego edytora niż Twój - nie wszystko może działać poprawnie.
+msg_stop_vm=Zakończyć działanie wirtualnej maszyny?
 
 msg_info=Informacja
 msg_warn=Ostrzeżenie
@@ -474,6 +487,8 @@ module_opening=Otwieranie modułu
 compilation_started=[ %s ] - Kompilacja rozpoczęta
 compilation_finished=[ %s ] - Kompilacja zakończona powodzeniem; projekt zbudowany poprawnie (%s) :)
 compilation_stopped=[ %s ] - Kompilacja przerwana błędem
+output_not_found=Plik wyjściowy nie został odnaleziony (%s)! Sprawdź logi kompilatora.
+outputfile_not_found=Plik programu nie został odnaleziony (%s)!
 
 new_app=nowa aplikacja
 new_lib=nowa biblioteka
@@ -514,3 +529,6 @@ unexpected=`%s` było nieoczekiwane
 
 unknown_namespace=Nieznana przestrzeń nazw: `%s`
 unknown_file=Nieznany plik: `%s`
+
+vm_running=program uruchomiony
+vm_instance_not_running=Wirtualna maszyna nie została uruchomiona.

@@ -64,7 +64,7 @@ Uses mLanguages, SysUtils;
 
 Type EParserError = Class(Exception);
 
-// TToken_P in TRange
+// `TToken_P` in `TRange`
 Operator in (Token: TToken_P; Range: TRange): Boolean;
 Begin
  Result := (Token.Line >= Range.PBegin.Line) and (Token.Line <= Range.PEnd.Line);

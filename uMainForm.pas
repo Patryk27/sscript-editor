@@ -9,10 +9,8 @@ unit uMainForm;
 interface
 
 uses
-  {$IFDEF WINDOWS} Windows, {$ENDIF}
   Classes, SysUtils, FileUtil, SynEdit, Forms, Controls,
-  Graphics, Dialogs, Menus, ExtCtrls, ComCtrls, mSettings, LCLType,
-  AnchorDocking;
+  Graphics, Dialogs, Menus, ExtCtrls, mSettings, LCLType, Buttons;
 
  // types
  Type TState = (stEnabled, stDisabled);
@@ -20,7 +18,19 @@ uses
 type
   { TMainForm }
   TMainForm = class(TForm)
+    bbNewModule: TBitBtn;
+    bbOpen: TBitBtn;
+    bbSave: TBitBtn;
+    bbSaveAll: TBitBtn;
+    bbStopProgram: TBitBtn;
+    bbRun: TBitBtn;
     menuCode: TMenuItem;
+    MenuItem1: TMenuItem;
+    oStopProgram: TMenuItem;
+    MenuItem7: TMenuItem;
+    oRun: TMenuItem;
+    oResetLayout: TMenuItem;
+    oLayoutManager: TMenuItem;
     menuWindow: TMenuItem;
     oIdentifierList: TMenuItem;
     oCompileStatus: TMenuItem;
@@ -60,7 +70,7 @@ type
     oSaveAs: TMenuItem;
     oSaveAll: TMenuItem;
     oBuild: TMenuItem;
-    oCompileAndRun: TMenuItem;
+    oBuildAndRun: TMenuItem;
     oNewProject: TMenuItem;
     MenuItem2: TMenuItem;
     menuEdit: TMenuItem;
@@ -75,13 +85,10 @@ type
     oNewModule: TMenuItem;
     MenuItem4: TMenuItem;
     oOpen: TMenuItem;
-    StatusBar: TStatusBar;
-    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    UpdateTimer: TTimer;
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormDropFiles(Sender: TObject; const FileNames: Array of String);
-    procedure FormResize(Sender: TObject);
-    procedure FormShow(Sender: TObject);
     procedure oCodeEditorClick(Sender: TObject);
     procedure oCommentSelectedClick(Sender: TObject);
     procedure oCompileStatusClick(Sender: TObject);
@@ -91,6 +98,8 @@ type
     procedure oFindNextClick(Sender: TObject);
     procedure oFindPrevClick(Sender: TObject);
     procedure oGotoLineClick(Sender: TObject);
+    procedure oResetLayoutClick(Sender: TObject);
+    procedure oRunClick(Sender: TObject);
     procedure oSelectAllClick(Sender: TObject);
     procedure oSelectLineClick(Sender: TObject);
     procedure oSelectWordClick(Sender: TObject);
@@ -104,7 +113,7 @@ type
     procedure oProjectSettingsClick(Sender: TObject);
     procedure oExitClick(Sender: TObject);
     procedure oOpenProjectClick(Sender: TObject);
-    procedure oCompileAndRunClick(Sender: TObject);
+    procedure oBuildAndRunClick(Sender: TObject);
     procedure oNewModuleClick(Sender: TObject);
     procedure oSaveAllClick(Sender: TObject);
     procedure oSaveAsClick(Sender: TObject);
@@ -115,14 +124,18 @@ type
     procedure oOpenClick(Sender: TObject);
     procedure oPasteClick(Sender: TObject);
     procedure oRedoClick(Sender: TObject);
+    procedure oStopProgramClick(Sender: TObject);
     procedure oUncommentSelectedClick(Sender: TObject);
     procedure oUndoClick(Sender: TObject);
+    procedure UpdateTimerTimer(Sender: TObject);
 
   private
    Procedure RecentlyOpened_Click(Sender: TObject);
    Procedure AppIdle(Sender: TObject; var Done: Boolean);
 
   public
+   Procedure OnLanguageLoaded;
+
    Procedure setMainMenu(State: TState);
    Procedure UpdateRecentlyOpened;
   end;
@@ -144,7 +157,7 @@ type
  Procedure AddRecentlyOpened(const FileName: String);
 
  Implementation
-Uses mProject, mLanguages, mFunctions, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm, uIdentifierListForm,
+Uses mProject, mLanguages, mFunctions, mLayout, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm, uIdentifierListForm,
      uCompileStatusForm, uCodeEditor;
 
 {$R *.lfm}
@@ -267,6 +280,52 @@ Begin
  End;
 End;
 
+(* TMainForm.onLanguageLoaded *)
+Procedure TMainForm.onLanguageLoaded;
+Var FileName, MsgText: String;
+
+  // Map
+  Procedure Map(const Button: TBitBtn; const MenuItem: TMenuItem);
+  Begin
+   Button.Glyph := MenuItem.Bitmap;
+   Button.Hint  := MenuItem.Caption;
+  End;
+
+Begin
+ { set icons and hints }
+ Map(bbNewModule, oNewModule);
+ Map(bbOpen, oOpen);
+ Map(bbSave, oSave);
+ Map(bbSaveAll, oSaveAll);
+ Map(bbRun, oBuildAndRun);
+ Map(bbStopProgram, oStopProgram);
+
+ { if specified in parameter, try to open a project }
+ SetCurrentDir(ExtractFilePath(ParamStr(1)));
+
+ FileName := ParamStr(1);
+ if (FileExists(FileName)) and (CompareText(ExtractFileExt(FileName), '.ssp') = 0) Then // check for file existence, and also check the file extension
+ Begin
+  Project := TProject.Create;
+  if (not Project.Open(FileName)) Then // is failed to open
+  Begin
+   MsgText := Format(getLangValue(ls_msg_project_open_failed_ex), [FileName]);
+   Application.MessageBox(PChar(MsgText), PChar(getLangValue(ls_msg_error)), MB_IconError);
+   Project.Free;
+  End;
+ End Else
+
+ { or else open recent project, if set }
+ if (getBoolean(sOpenRecentProject)) Then
+ Begin
+  FileName := getString(sRecentProject);
+  Project  := TProject.Create;
+
+  if (not Project.Open(FileName)) Then // try to open
+   Project.Free;
+ End;
+End;
+
 (* TMainForm.setMainMenu *)
 Procedure TMainForm.setMainMenu(State: TState);
 Var B: Boolean;
@@ -275,8 +334,19 @@ Begin
  B := (State = stEnabled);
 
  For C := 0 To ComponentCount-1 Do // iterate each component
- Begin
+  if (Components[C] is TControl) Then
+  Begin
+   With Components[C] as TControl do
+   Begin
+    Case Tag of
+     1: Enabled := B;
+     2: Enabled := not B;
+    End;
+   End;
+  End Else
+
   if (Components[C] is TMenuItem) Then
+  Begin
    With Components[C] as TMenuItem do
    Begin
     Case Tag of
@@ -284,22 +354,20 @@ Begin
      2: Enabled := not B;
     End;
    End;
- End;
+  End;
 End;
 
 (* TMainForm.FormCreate *)
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+ ShowHint := True;
+
  // set some values
- DefaultFormatSettings.DecimalSeparator := '.';
- Application.Title                      := Caption;
- Application.OnIdle                     := @AppIdle;
+ Application.OnIdle := @AppIdle;
+ DoubleBuffered     := True;
+ Caption            := sCaption;
 
  setMainMenu(stDisabled);
-
- Caption        := sCaption;
- DoubleBuffered := True;
-
  UpdateRecentlyOpened;
 end;
 
@@ -342,50 +410,10 @@ begin
   Project.OpenCard(FileNames[I]);
 end;
 
-(* TMainForm.FormResize *)
-procedure TMainForm.FormResize(Sender: TObject);
-begin
-end;
-
-(* TMainForm.FormShow *)
-procedure TMainForm.FormShow(Sender: TObject);
-Var FileName, tText: String;
-begin
- { if specified in parameter, try to open a project }
- SetCurrentDir(ExtractFilePath(ParamStr(1)));
-
- FileName := ParamStr(1);
- if (FileExists(FileName)) and (CompareText(ExtractFileExt(FileName), '.ssp') = 0) Then // check for file existence, and also check the file extension
- Begin
-  Project := TProject.Create;
-  if (not Project.Open(FileName)) Then // is failed to open
-  Begin
-   tText := Format(getLangValue(ls_msg_project_open_failed_ex), [FileName]);
-   Application.MessageBox(PChar(tText), PChar(getLangValue(ls_msg_error)), MB_IconError);
-   Project.Free;
-  End;
- End Else
-
- { open recent project, if set }
- if (getBoolean(sOpenRecentProject)) Then
- Begin
-  FileName := getString(sRecentProject);
-  Project  := TProject.Create;
-
-  if (not Project.Open(FileName)) Then // try to open
-   Project.Free;
- End;
-
- {$IFDEF WINDOWS}
-  ShowWindow(Handle, SW_SHOWMAXIMIZED);
-  BringToFront;
- {$ENDIF}
-end;
-
 (* TMainForm.oCodeEditorClick *)
 procedure TMainForm.oCodeEditorClick(Sender: TObject);
 begin
- DockMaster.MakeDockable(CodeEditor);
+ CodeEditor.Show;
 end;
 
 (* TMainForm.oCommentSelectedClick *)
@@ -432,13 +460,13 @@ end;
 (* TMainForm.oCompileStatusClick *)
 procedure TMainForm.oCompileStatusClick(Sender: TObject);
 begin
- DockMaster.MakeDockable(CompileStatusForm);
+ CompileStatusForm.Show;
 end;
 
 (* TMainForm.oIdentifierListClick *)
 procedure TMainForm.oIdentifierListClick(Sender: TObject);
 begin
- DockMaster.MakeDockable(IdentifierListForm);
+ IdentifierListForm.Show;
 end;
 
 (* TMainForm.oReplaceClick *)
@@ -492,6 +520,18 @@ begin
   if (TryStrToInt(LineStr, Line)) Then
    Project.getCurrentEditor.CaretY := Line;
  End;
+end;
+
+(* TMainForm.oResetLayout *)
+procedure TMainForm.oResetLayoutClick(Sender: TObject);
+begin
+ mLayout.SetDefaultLayout;
+end;
+
+(* TMainForm.oRunClick *)
+procedure TMainForm.oRunClick(Sender: TObject);
+begin
+ Project.Run;
 end;
 
 (* TMainForm.oSelectAllClick *)
@@ -606,7 +646,7 @@ begin
 end;
 
 (* TMainForm.oCompileAndRunClick *)
-procedure TMainForm.oCompileAndRunClick(Sender: TObject);
+procedure TMainForm.oBuildAndRunClick(Sender: TObject);
 begin
  if (Project.Compile) Then
   Project.Run;
@@ -659,6 +699,23 @@ end;
 (* TMainForm.FormCloseQuery *)
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
+ if (Project <> nil) and (Project.VMProcess <> nil) Then // if VM is running
+ Begin
+  Case MessageDlg(getLangValue(ls_msg_info), getLangValue(ls_msg_stop_vm), mtConfirmation, [mbYes, mbNo], 0) of
+   mrYes:
+   Begin
+    Project.VMProcess.Terminate(0);
+    FreeAndNil(Project.VMProcess);
+   End;
+
+   mrNo:
+   Begin
+    CanClose := False;
+    Exit;
+   End;
+  End;
+ End;
+
  CanClose := SaveProject;
 
  // save current project as a "Recent" and add it into the "Recently opened" list (if possible)
@@ -668,11 +725,6 @@ begin
    setString(sRecentProject, Project.FileName);
    AddRecentlyOpened(Project.FileName);
   End;
-end;
-
-(* TMainForm.FormClose *)
-procedure TMainForm.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-begin
 end;
 
 (* TMainForm.oOpenClick *)
@@ -688,8 +740,8 @@ begin
     Filter := getLangValue(ls_filter_project);
    End Else
    Begin // in other case - oShowCompilerOutput module opening dialog
-    Title  := getLangValue(ls_module_opening);
-    Filter := getLangValue(ls_filter_module);
+    Title  := getLangValue(ls_file_opening);
+    Filter := getLangValue(ls_filter_any_file);
    End;
 
    Options := [ofPathMustExist, ofFileMustExist];
@@ -731,6 +783,12 @@ end;
 procedure TMainForm.oRedoClick(Sender: TObject);
 begin
  Project.getCurrentEditor.Redo;
+end;
+
+(* TMainForm.oStopProgram *)
+procedure TMainForm.oStopProgramClick(Sender: TObject);
+begin
+ Project.StopProgram;
 end;
 
 (* TMainForm.oUncommentSelectedClick *)
@@ -800,5 +858,16 @@ end;
 procedure TMainForm.oUndoClick(Sender: TObject);
 begin
  Project.getCurrentEditor.Undo;
+end;
+
+(* TMainForm.UpdateTimerTimer *)
+procedure TMainForm.UpdateTimerTimer(Sender: TObject);
+begin
+ bbStopProgram.Enabled := (Project <> nil) and (Project.VMProcess <> nil);
+ bbRun.Enabled         := (Project <> nil) and (not bbStopProgram.Enabled);
+ oRun.Enabled          := bbRun.Enabled;
+ oBuild.Enabled        := bbRun.Enabled;
+ oBuildAndRun.Enabled  := bbRun.Enabled;
+ oStopProgram.Enabled  := bbStopProgram.Enabled;
 end;
 end.

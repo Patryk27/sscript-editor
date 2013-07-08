@@ -10,7 +10,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, VirtualTrees, SynEdit, AnchorDocking, CodeScan;
+  ExtCtrls, VirtualTrees, SynEdit, CodeScan;
 
   Type PNodeData = ^TNodeData;
        TNodeData = Record
@@ -98,7 +98,7 @@ end;
 procedure TIdentifierListForm.IdentifierListFreeNode(Sender: TBaseVirtualTree;
   Node: PVirtualNode);
 begin
-// Dispose(IdentifierList.GetNodeData(Node));
+// Dispose(PNodeData(IdentifierList.GetNodeData(Node)));
 end;
 
 (* TIdentifierListForm.IdentifierListGetNodeDataSize *)

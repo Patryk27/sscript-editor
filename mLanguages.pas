@@ -12,7 +12,7 @@ Unit mLanguages;
   ls_msg_card_close, ls_msg_env_restart, ls_msg_file_not_found, ls_msg_module_saving, ls_msg_compiler_or_vm_not_found,
   ls_msg_close_last_card, ls_msg_close_main_card, ls_msg_compiler_not_found, ls_msg_vm_not_found, ls_msg_unsaved_files,
   ls_msg_unsaved_project, ls_msg_project_open_failed, ls_msg_project_open_failed_ex, ls_msg_module_open_failed, ls_msg_create_new_project,
-  ls_msg_version_conflict_older, ls_msg_version_conflict_newer,
+  ls_msg_version_conflict_older, ls_msg_version_conflict_newer, ls_msg_stop_vm,
 
   ls_msg_info, ls_msg_warn, ls_msg_error,
 
@@ -20,7 +20,7 @@ Unit mLanguages;
 
   ls_file_saving, ls_file_opening, ls_module_saving, ls_module_opening, ls_project_saving, ls_project_opening,
 
-  ls_compilation_started, ls_compilation_finished, ls_compilation_stopped, ls_output_not_found,
+  ls_compilation_started, ls_compilation_finished, ls_compilation_stopped, ls_output_not_found, ls_outputfile_not_found,
 
   ls_new_app, ls_new_lib,
 
@@ -37,7 +37,9 @@ Unit mLanguages;
   ls_parser_eof, ls_invalid_int_value, ls_invalid_float_value, ls_string_exceeds_line, ls_expected_identifier, ls_expected_string,
   ls_expected_int, ls_expected, ls_unexpected,
   ls_unknown_namespace, ls_unknown_file,
-  ls_codescan_failed
+  ls_codescan_failed,
+
+  ls_vm_running, ls_vm_instance_not_running
  );
 
  Procedure LoadLanguageFile(const FileName: String);
@@ -155,6 +157,7 @@ Begin
    ls_msg_create_new_project      : Result := 'Create a new project (application)?';
    ls_msg_version_conflict_older  : Result := 'This project seems to be created from older version of this editor; you may need to check project settings';
    ls_msg_version_conflict_newer  : Result := 'This project seems to be created from newer version of this editor - it might not work correctly';
+   ls_msg_stop_vm                 : Result := 'Terminate virtual machine?';
 
    ls_msg_info : Result := 'Information';
    ls_msg_warn : Result := 'Warning';
@@ -174,6 +177,7 @@ Begin
    ls_compilation_finished: Result := '[ %s ] - Compilation successfully finished; project has been built (%s) :)';
    ls_compilation_stopped : Result := '[ %s ] - Compilation interrupted by error';
    ls_output_not_found    : Result := 'Output file not found (%s)! Check compiler''s output.';
+   ls_outputfile_not_found: Result := 'Program file not found (%s)!';
 
    ls_new_app: Result := 'new application';
    ls_new_lib: Result := 'new library';
@@ -216,6 +220,9 @@ Begin
    ls_unknown_file     : Result := 'Unknown file: `%s`';
 
    ls_codescan_failed: Result := '%s -> %d: %d - %s';
+
+   ls_vm_running             : Result := 'VM instance running';
+   ls_vm_instance_not_running: Result := 'VM instance is not running';
 
    else
     Exit('<unknown string>');

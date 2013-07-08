@@ -1,8 +1,9 @@
 object IdentifierListForm: TIdentifierListForm
-  Left = 536
+  Left = 385
   Height = 391
-  Top = 142
+  Top = 127
   Width = 228
+  BorderStyle = bsSizeToolWin
   Caption = 'Identifier list'
   ClientHeight = 391
   ClientWidth = 228

@@ -49,6 +49,7 @@ Unit mProject;
                 Procedure Intellisense_OnShow(Sender: TObject);
                 Procedure Intellisense_OnHide(Sender: TObject);
                 Procedure Intellisense_OnCodeCompletion(var Value: String; SourceValue: String; var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char; Shift: TShiftState);
+                Procedure Intellisense_OnKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
                Public
                 Property getFileName: String read FileName;
@@ -68,6 +69,7 @@ Unit mProject;
 
                 Procedure Parse(const ForceParse: Boolean=False);
 
+                Function GetCharAtCaret: Char;
                 Function GetTokenPAtCaret: TToken_P;
                 Function GetNamespaceAtCaret: TNamespace;
                 Function GetFunctionAtCaret: TFunction;
@@ -411,6 +413,31 @@ Begin
  Delete(Value, 1, Pos('|', Value));
 End;
 
+(* TCard.Intellisense_OnKeyDown *)
+Procedure TCard.Intellisense_OnKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+Begin
+ Case Key of
+  { left }
+  VK_LEFT:
+  Begin
+   if (SynEdit.Lines[SynEdit.CaretY-1][SynEdit.CaretX-1] in ['a'..'z', 'A'..'Z', '0'..'9', '_']) Then
+    SynEdit.CaretX := SynEdit.CaretX-1;
+
+   UpdateIntellisense;
+  End;
+
+  { right }
+  VK_RIGHT:
+  Begin
+   SynEdit.CaretX := SynEdit.CaretX+1;
+   if (Length(GetIdentifierAtCaret) = 0) Then
+    SynEdit.CaretX := SynEdit.CaretX-1;
+
+   UpdateIntellisense;
+  End;
+ End;
+End;
+
 (* TCard.Create *)
 {
  Creates a card with cation `fCaption` and loads into it file named `fFileName`
@@ -468,6 +495,7 @@ Begin
   OnPaintItem      := @Intellisense_OnPaintItem;
   OnSearchPosition := @Intellisense_OnSearchPosition;
   OnCodeCompletion := @Intellisense_OnCodeCompletion;
+  OnKeyDown        := @Intellisense_OnKeyDown;
 
   TheForm.OnShow := @Intellisense_OnShow;
   TheForm.OnHide := @Intellisense_OnHide;
@@ -737,6 +765,16 @@ Begin
   End;
 End;
 
+(* TCard.GetCharAtCaret *)
+{
+ Returns char located at editor's caret.
+}
+Function TCard.GetCharAtCaret: Char;
+Begin
+ With SynEdit do
+  Exit(Lines[CaretY-1][CaretX]);
+End;
+
 (* TCard.GetTokenPAtCaret *)
 {
  Returns `Tokens.Token_P` located at editor's caret.
@@ -847,7 +885,8 @@ End;
 
 (* TCard.GetNamespacesAtCaret *)
 Function TCard.GetNamespacesAtCaret: TStringList;
-Var NS       : TNamespaceVisibility;
+Var NSV      : TNamespaceVisibility;
+    Symbol   : TSymbol;
     Token    : TToken_P;
     Line     : String;
     Tmp, PosX: Integer;
@@ -859,9 +898,16 @@ Begin
 
  Token := GetTokenPAtCaret;
 
- For NS in CodeScanner.getNamespaceVisibilityList Do
-  if (Token in NS.Range) Then
-   Result.Add(NS.Namespace.Name);
+ For NSV in CodeScanner.getNamespaceVisibilityList Do
+  if (Token in NSV.Range) Then
+   Result.Add(NSV.Namespace.Name);
+
+ For Symbol in CodeScanner.getSymbolList Do
+  if (Symbol.Typ = stNamespace) and (Token in Symbol.mNamespace.Range) Then
+  Begin
+   Result.Add(Symbol.getName);
+   Break; // namespaces cannot be inlined in each other, so just stop.
+  End;
 
  // `namespace::identifier` construction
  Line := SynEdit.LineText;

@@ -6,6 +6,8 @@ object CodeEditor: TCodeEditor
   Caption = 'Code Editor'
   ClientHeight = 309
   ClientWidth = 714
+  OnCreate = FormCreate
+  OnDropFiles = FormDropFiles
   LCLVersion = '1.0.10.0'
   object Tabs: TExtendedNotebook
     Left = 0

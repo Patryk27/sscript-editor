@@ -448,6 +448,30 @@ Caption=Anuluj
 [FindForm_btnReplaceAll]
 Caption=Zastąp wszystko
 
+[LayoutManagerForm]
+Caption=Menedżer układów okien
+
+[LayoutManagerForm_Label1]
+Caption=Zapisane układy:
+
+[LayoutManagerForm_Label2]
+Caption=(naciśnij, by obejrzeć)
+
+[LayoutManagerForm_Label3]
+Caption=Aktualny układ:
+
+[LayoutManagerForm_btnSaveCurrent]
+Caption=Zapisz aktualny
+
+[LayoutManagerForm_btnApplySelected]
+Caption=Zastosuj wybrany
+
+[LayoutManagerForm_opRenameSelected]
+Caption=Zmień nazwę
+
+[LayoutManagerForm_opRemoveSelected]
+Caption=Usuń
+
 [Strings]
 title_card_close=Zamykanie karty
 
@@ -469,6 +493,10 @@ msg_create_new_project=Stworzyć nowy projekt (aplikację)?
 msg_version_conflict_older=Ten projekt został utworzony za pomocą starszego edytora niż Twój; być może niektóre ustawienia w projekcie będziesz musiał poprawić.
 msg_version_conflict_newer=Ten projekt został utworzony za pomocą nowszego edytora niż Twój - nie wszystko może działać poprawnie.
 msg_stop_vm=Zakończyć działanie wirtualnej maszyny?
+msg_layout_name=Nazwa układu:
+msg_layout_already_exists=Układ o takiej nazwie już istnieje!
+msg_nothing_is_selected=Nic nie zostało wybrane!
+msg_layout_remove=Chcesz usunąć układ o nazwie '%s'?
 
 msg_info=Informacja
 msg_warn=Ostrzeżenie

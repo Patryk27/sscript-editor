@@ -5,6 +5,7 @@
 unit uMainForm;
 
 {$mode objfpc}{$H+}
+{.$APPTYPE CONSOLE}
 
 interface
 
@@ -85,6 +86,7 @@ type
     oNewModule: TMenuItem;
     MenuItem4: TMenuItem;
     oOpen: TMenuItem;
+    LayoutSaveTimer: TTimer;
     UpdateTimer: TTimer;
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
@@ -93,6 +95,7 @@ type
     procedure oCommentSelectedClick(Sender: TObject);
     procedure oCompileStatusClick(Sender: TObject);
     procedure oIdentifierListClick(Sender: TObject);
+    procedure oLayoutManagerClick(Sender: TObject);
     procedure oReplaceClick(Sender: TObject);
     procedure oFindClick(Sender: TObject);
     procedure oFindNextClick(Sender: TObject);
@@ -158,7 +161,7 @@ type
 
  Implementation
 Uses mProject, mLanguages, mFunctions, mLayout, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm, uIdentifierListForm,
-     uCompileStatusForm, uCodeEditor;
+     uCompileStatusForm, uCodeEditor, uLayoutManagerForm;
 
 {$R *.lfm}
 
@@ -469,6 +472,12 @@ begin
  IdentifierListForm.Show;
 end;
 
+(* TMainForm.oLayoutManagerClick *)
+procedure TMainForm.oLayoutManagerClick(Sender: TObject);
+begin
+ LayoutManagerForm.Run;
+end;
+
 (* TMainForm.oReplaceClick *)
 procedure TMainForm.oReplaceClick(Sender: TObject);
 begin
@@ -525,7 +534,8 @@ end;
 (* TMainForm.oResetLayout *)
 procedure TMainForm.oResetLayoutClick(Sender: TObject);
 begin
- mLayout.SetDefaultLayout;
+ CurrentLayout.Reset;
+ CurrentLayout.Apply;
 end;
 
 (* TMainForm.oRunClick *)
@@ -729,6 +739,7 @@ end;
 
 (* TMainForm.oOpenClick *)
 procedure TMainForm.oOpenClick(Sender: TObject);
+Var I: Integer;
 begin
  // create open dialog
  With TOpenDialog.Create(MainForm) do
@@ -749,15 +760,21 @@ begin
    if (Execute) Then
    Begin
     { opening a project }
-    if (Project = nil) Then
+    if (Project = nil) or (CompareText(ExtractFileExt(FileName), '.ssp') = 0) Then
     Begin
-     CompileStatusForm.CompileStatus.Items.Clear;
-
-     Project := TProject.Create;
-     if (not Project.Open(FileName)) Then // failed
+     if (SaveProject) Then
      Begin
-      Application.MessageBox(PChar(getLangValue(ls_msg_project_open_failed)), PChar(getLangValue(ls_msg_error)), MB_IconError);
-      FreeAndNil(Project);
+      CompileStatusForm.CompileStatus.Items.Clear;
+
+      For I := 0 To CodeEditor.Tabs.PageCount-1 Do
+       CodeEditor.Tabs.Pages[0].Free;
+
+      Project := TProject.Create;
+      if (not Project.Open(FileName)) Then // failed
+      Begin
+       Application.MessageBox(PChar(getLangValue(ls_msg_project_open_failed)), PChar(getLangValue(ls_msg_error)), MB_IconError);
+       FreeAndNil(Project);
+      End;
      End;
     End Else
 
@@ -869,5 +886,11 @@ begin
  oBuild.Enabled        := bbRun.Enabled;
  oBuildAndRun.Enabled  := bbRun.Enabled;
  oStopProgram.Enabled  := bbStopProgram.Enabled;
+
+ if (Project <> nil) Then
+ Begin
+  oNewProject.Enabled  := bbRun.Enabled;
+  oOpenProject.Enabled := bbRun.Enabled;
+ End;
 end;
 end.

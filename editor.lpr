@@ -17,10 +17,8 @@
  along with SScript Compiler; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA 
 *)
+{$MODE OBJFPC}{$H+}
 program editor;
-
-{$mode objfpc}{$H+}
-
 uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads,
@@ -31,7 +29,7 @@ uses
 
   mLanguages, mSettings, uCompilerOutput, uFindForm,
   uIdentifierListForm, uCompileStatusForm, uCodeEditor, virtualtreeview_package,
-  Dialogs, mLayout;
+  Dialogs, mLayout, uLayoutManagerForm;
 
 {$R *.res}
 
@@ -52,11 +50,10 @@ begin
  Application.CreateForm(TIdentifierListForm, IdentifierListForm);
  Application.CreateForm(TCompileStatusForm, CompileStatusForm);
  Application.CreateForm(TCodeEditor, CodeEditor);
+ Application.CreateForm(TLayoutManagerForm, LayoutManagerForm);
 
  { load layout }
- if (FileExists(LayoutFile)) Then
-  LoadLayout(LayoutFile) Else
-  SetDefaultLayout;
+ mLayout.Reload;
 
  { load language }
  LoadLanguageFile(ExtractFilePath(ParamStr(0))+'lang/'+getString(sLanguage));
@@ -66,6 +63,7 @@ begin
  Application.Run;
 
  { save layout }
- SaveLayout(LayoutFile);
+ CurrentLayout.Update;
+ CurrentLayout.SaveToFile(getString(sLayoutFile));
 end.
 

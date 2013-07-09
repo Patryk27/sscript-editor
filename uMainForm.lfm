@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 419
+  Left = 502
   Height = 54
-  Top = 146
+  Top = 178
   Width = 566
   AllowDropFiles = True
   Caption = 'SScript Editor'
@@ -1453,6 +1453,7 @@ object MainForm: TMainForm
           FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
         }
         ShortCut = 122
+        OnClick = oLayoutManagerClick
       end
       object oResetLayout: TMenuItem
         Caption = 'Reset layout'

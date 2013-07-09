@@ -793,7 +793,6 @@ Function TCard.GetNamespaceAtCaret: TNamespace;
 
    // ParseSymbol
    Procedure ParseSymbol(Symbol: TSymbol);
-   Var Tmp: TSymbol;
    Begin
     if (Symbol.Typ = stNamespace) and (Symbol.getToken.FileName = FileName) and (GetTokenPAtCaret in Symbol.getRange) Then
     Begin

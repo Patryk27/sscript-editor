@@ -13,7 +13,7 @@ Unit mSettings;
                   sNumberFormat, sStringFormat, sCommentFormat, sMacroFormat, sPrimaryTypesFormat,
                   sOtherFormat, sEditorBackground, sEditorForeground, sEditorFont,
                   sRecentlyOpened, sScrollPastEOL, sOpenRecentProject, sRecentProject, sAddBrackets,
-                  sLanguage,
+                  sLanguage, sLayoutFile,
                   sIntellisenseWidth, sIntellisenseHeight);
 
  { TSyntaxFormat }
@@ -51,9 +51,13 @@ Unit mSettings;
   '',
   'false',
   '',
+  '%homedir%/layouts/default.xml',
   '350',
   '300'
  );
+
+ Function getAppDir: String;
+ Function getLayoutDir: String;
 
  Procedure ReloadConfig;
  Procedure FreeConfig;
@@ -79,6 +83,8 @@ Unit mSettings;
  Procedure setColor(S: TSetting; Value: TColor);
  Procedure setRecentlyOpened(S: TStringList);
  Procedure setBoolean(S: TSetting; Value: Boolean);
+
+ Procedure DeleteSetting(S: TSetting);
 
  Implementation
 Uses uMainForm, IniFiles, SysUtils, TypInfo;
@@ -109,14 +115,27 @@ Begin
  Result := IntToStr(LW);
 End;
 
-{ ReloadConfig }
+// -------------------------------------------------------------------------- //
+(* getAppDir *)
+Function getAppDir: String;
+Begin
+ Result := ExtractFilePath(ParamStr(0));
+End;
+
+(* getLayoutDir *)
+Function getLayoutDir: String;
+Begin
+ Result := getAppDir+'layouts'+DirectorySeparator;
+End;
+
+(* ReloadConfig *)
 Procedure ReloadConfig;
 Begin
  FreeConfig;
  Ini := TIniFile.Create(ExtractFilePath(ParamStr(0))+FileName);
 End;
 
-{ FreeConfig }
+(* FreeConfig *)
 Procedure FreeConfig;
 Begin
  if (Ini <> nil) Then
@@ -124,13 +143,13 @@ Begin
  Ini := nil;
 End;
 
-{ getName }
+(* getName *)
 Function getName(S: TSetting): String;
 Begin
  Result := GetEnumName(TypeInfo(TSetting), Integer(S));
 End;
 
-{ CreateFont }
+(* CreateFont *)
 Function CreateFont(F: Graphics.TFont): TFont;
 Begin
  Result.Name      := F.Name;
@@ -140,7 +159,7 @@ Begin
  Result.Underline := F.Underline;
 End;
 
-{ FetchFont }
+(* FetchFont *)
 Function FetchFont(F: TFont): Graphics.TFont;
 Begin
  Result := Graphics.TFont.Create;
@@ -152,28 +171,30 @@ Begin
  Result.Underline := F.Underline;
 End;
 
-{ getString }
+(* getString *)
 Function getString(S: TSetting): String;
 Begin
  Result := Ini.ReadString('settings', getName(S), DefaultValues[S]);
+
+ Result := StringReplace(Result, '%homedir%', getAppDir, [rfReplaceAll]); // replace inline macros
 
  if (S in [sCompilerFile, sVMFile]) Then // make absolute path (if required)
   Result := CreateAbsolutePath(Result, ExtractFilePath(ParamStr(0)));
 End;
 
-{ getInteger }
+(* getInteger *)
 Function getInteger(S: TSetting): Integer;
 Begin
  Result := Ini.ReadInteger('settings', getName(S), StrToInt(DefaultValues[S]));
 End;
 
-{ getFloat }
+(* getFloat *)
 Function getFloat(S: TSetting): Extended;
 Begin
  Result := Ini.ReadFloat('settings', getName(S), StrToFloat(DefaultValues[S]));
 End;
 
-{ getFormat }
+(* getFormat *)
 Function getFormat(S: TSetting): TSyntaxFormat;
 Var Str   : String;
     Values: TStringList;
@@ -193,7 +214,7 @@ Begin
  Values.Free;
 End;
 
-{ getFont }
+(* getFont *)
 Function getFont(S: TSetting): TFont;
 Var Str   : String;
     Values: TStringList;
@@ -210,44 +231,44 @@ Begin
  Result.Underline := s2b(Values[4]);
 End;
 
-{ getColor }
+(* getColor *)
 Function getColor(S: TSetting): TColor;
 Begin
  Result := Ini.ReadInteger('settings', getName(S), StrToInt(DefaultValues[S]));
 End;
 
-{ getRecentlyOpened }
+(* getRecentlyOpened *)
 Function getRecentlyOpened: TStringList;
 Begin
  Result := TStringList.Create;
  ExtractStrings([','], [], PChar(getString(sRecentlyOpened)), Result);
 End;
 
-{ getBoolean }
+(* getBoolean *)
 Function getBoolean(S: TSetting): Boolean;
 Begin
  Result := s2b(getString(S));
 End;
 
-{ setString }
+(* setString *)
 Procedure setString(S: TSetting; Value: String);
 Begin
  Ini.WriteString('settings', getName(S), Value);
 End;
 
-{ setInteger }
+(* setInteger *)
 Procedure setInteger(S: TSetting; Value: Integer);
 Begin
  Ini.WriteInteger('settings', getName(S), Value);
 End;
 
-{ setFloat }
+(* setFloat *)
 Procedure setFloat(S: TSetting; Value: Extended);
 Begin
  Ini.WriteFloat('settings', getName(S), Value);
 End;
 
-{ setFormat }
+(* setFormat *)
 Procedure setFormat(S: TSetting; Value: TSyntaxFormat);
 Var Str: String;
 Begin
@@ -257,7 +278,7 @@ Begin
  Ini.WriteString('settings', getName(S), Str);
 End;
 
-{ setFont }
+(* setFont *)
 Procedure setFont(S: TSetting; Value: TFont);
 Var Str: String;
 Begin
@@ -266,13 +287,13 @@ Begin
  Ini.WriteString('settings', getName(S), Str);
 End;
 
-{ setColor }
+(* setColor *)
 Procedure setColor(S: TSetting; Value: TColor);
 Begin
  Ini.WriteInteger('settings', getName(S), Value );
 End;
 
-{ setRecentlyOpened }
+(* setRecentlyOpened *)
 Procedure setRecentlyOpened(S: TStringList);
 Var Save, Str: String;
 Begin
@@ -289,10 +310,16 @@ Begin
  MainForm.UpdateRecentlyOpened;
 End;
 
-{ setBoolean }
+(* setBoolean *)
 Procedure setBoolean(S: TSetting; Value: Boolean);
 Begin
  setString(S, b2s(Value));
+End;
+
+(* DeleteSetting *)
+Procedure DeleteSetting(S: TSetting);
+Begin
+ Ini.DeleteKey('settings', getName(S));
 End;
 
 initialization

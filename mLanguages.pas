@@ -12,7 +12,8 @@ Unit mLanguages;
   ls_msg_card_close, ls_msg_env_restart, ls_msg_file_not_found, ls_msg_module_saving, ls_msg_compiler_or_vm_not_found,
   ls_msg_close_last_card, ls_msg_close_main_card, ls_msg_compiler_not_found, ls_msg_vm_not_found, ls_msg_unsaved_files,
   ls_msg_unsaved_project, ls_msg_project_open_failed, ls_msg_project_open_failed_ex, ls_msg_module_open_failed, ls_msg_create_new_project,
-  ls_msg_version_conflict_older, ls_msg_version_conflict_newer, ls_msg_stop_vm,
+  ls_msg_version_conflict_older, ls_msg_version_conflict_newer, ls_msg_stop_vm, ls_msg_layout_name, ls_msg_layout_already_exists,
+  ls_msg_nothing_is_selected, ls_msg_layout_remove,
 
   ls_msg_info, ls_msg_warn, ls_msg_error,
 
@@ -158,6 +159,10 @@ Begin
    ls_msg_version_conflict_older  : Result := 'This project seems to be created from older version of this editor; you may need to check project settings';
    ls_msg_version_conflict_newer  : Result := 'This project seems to be created from newer version of this editor - it might not work correctly';
    ls_msg_stop_vm                 : Result := 'Terminate virtual machine?';
+   ls_msg_layout_name             : Result := 'Layout name:';
+   ls_msg_layout_already_exists   : Result := 'Layout with this name already exists!';
+   ls_msg_nothing_is_selected     : Result := 'Nothing is selected!';
+   ls_msg_layout_remove           : Result := 'Do you want to remove layout named ''%s''?';
 
    ls_msg_info : Result := 'Information';
    ls_msg_warn : Result := 'Warning';

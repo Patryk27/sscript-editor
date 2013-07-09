@@ -35,6 +35,8 @@ type
     CurrentFunctionUpdate: TTimer;
     IdentifierListUpdate: TTimer;
     procedure CurrentFunctionUpdateTimer(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
     procedure IdentifierListUpdateTimer(Sender: TObject);
     procedure opCloseAllClick(Sender: TObject);
     procedure opCloseCardClick(Sender: TObject);
@@ -166,6 +168,18 @@ begin
    CurrentFunction.Text := '';
  End Else
   CurrentFunction.Text := '';
+end;
+
+(* TCodeEditor.FormCreate *)
+procedure TCodeEditor.FormCreate(Sender: TObject);
+begin
+ AllowDropFiles := True;
+end;
+
+(* TCodeEditor.FormDropFiles *)
+procedure TCodeEditor.FormDropFiles(Sender: TObject; const FileNames: Array of String);
+begin
+ MainForm.FormDropFiles(Sender, FileNames);
 end;
 
 (* TCodeEditor.IdentifierListUpdateTimer *)

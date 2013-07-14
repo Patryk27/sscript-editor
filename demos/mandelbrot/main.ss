@@ -7,7 +7,7 @@ function<int> main()
  set_size(141, 54);
 
  const w1=140, h1=52, recen=-2.2, imcen=0.15, r=2.28, w2 = 24, h2 = 31;
- var<float> s, rec, imc, re, im, re1, re2, im2, x, y;
+ var<float> s, rec, imc, re, im, re2, im2, x, y;
 
  s = 2*r/w1;
 

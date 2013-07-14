@@ -140,9 +140,16 @@ begin
  Try
   if (InputQuery(Caption, getLangValue(ls_msg_layout_name), Selected.Name)) Then
   Begin
-   DeleteFile(FileName);
    NewFile := getLayoutDir+GenerateLayoutFileName(Selected.Name);
 
+   if (FileExists(NewFile)) or (Layouts.IndexOfName(Selected.Name) > -1) Then // if layout already exists
+   Begin
+    Case MessageDlg(Caption, Format(getLangValue(ls_msg_replace_layout), [Selected.Name]), mtConfirmation, [mbYes, mbNo], 0) of
+     mrNo: Exit;
+    End;
+   End;
+
+   DeleteFile(FileName);
    Selected.SaveToFile(NewFile);
 
    if (FileName = getString(sLayoutFile)) Then // if changed name of currently selected layout // @TODO: CompareFilenames?
@@ -169,11 +176,11 @@ begin
  Begin
   FileName := getLayoutDir+GenerateLayoutFileName(LayoutName);
 
-  if (FileExists(FileName)) or (Layouts.IndexOfName(Name) > -1) Then // if layout already exists
+  if (FileExists(FileName)) or (Layouts.IndexOfName(LayoutName) > -1) Then // if layout already exists
   Begin
-   Application.MessageBox(PChar(getLangValue(ls_msg_layout_already_exists)), PChar(getLangValue(ls_msg_error)), MB_IconError);
-   btnSaveCurrent.Click;
-   Exit;
+   Case MessageDlg(Caption, Format(getLangValue(ls_msg_replace_layout), [LayoutName]), mtConfirmation, [mbYes, mbNo], 0) of
+    mrNo: Exit;
+   End;
   End;
 
   Layout := TLayout.Create(CurrentLayout);

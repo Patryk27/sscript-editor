@@ -494,7 +494,7 @@ msg_version_conflict_older=Ten projekt został utworzony za pomocą starszego ed
 msg_version_conflict_newer=Ten projekt został utworzony za pomocą nowszego edytora niż Twój - nie wszystko może działać poprawnie.
 msg_stop_vm=Zakończyć działanie wirtualnej maszyny?
 msg_layout_name=Nazwa układu:
-msg_layout_already_exists=Układ o takiej nazwie już istnieje!
+msg_replace_layout=Chcesz zastąpić układ o nazwie '%s'?
 msg_nothing_is_selected=Nic nie zostało wybrane!
 msg_layout_remove=Chcesz usunąć układ o nazwie '%s'?
 

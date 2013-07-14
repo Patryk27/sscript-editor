@@ -9,10 +9,12 @@
         <Filename Value="editor.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="editor"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="35"/>
-        <CursorPos X="52" Y="54"/>
+        <TopLine Value="33"/>
+        <CursorPos X="68" Y="43"/>
         <UsageCount Value="208"/>
+        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="uMainForm.pas"/>
@@ -21,7 +23,6 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uMainForm"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
@@ -99,7 +100,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="92" Y="6"/>
-        <UsageCount Value="115"/>
+        <UsageCount Value="116"/>
       </Unit7>
       <Unit8>
         <Filename Value="ufindform.pas"/>
@@ -111,7 +112,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="5"/>
-        <UsageCount Value="101"/>
+        <UsageCount Value="102"/>
       </Unit8>
       <Unit9>
         <Filename Value="uidentifierlistform.pas"/>
@@ -123,7 +124,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="52" Y="17"/>
-        <UsageCount Value="70"/>
+        <UsageCount Value="71"/>
       </Unit9>
       <Unit10>
         <Filename Value="ucompilestatusform.pas"/>
@@ -135,7 +136,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="68" Y="17"/>
-        <UsageCount Value="70"/>
+        <UsageCount Value="71"/>
       </Unit10>
       <Unit11>
         <Filename Value="ucodeeditor.pas"/>
@@ -147,7 +148,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="166"/>
         <CursorPos X="29" Y="173"/>
-        <UsageCount Value="69"/>
+        <UsageCount Value="70"/>
       </Unit11>
       <Unit12>
         <Filename Value="ulayoutmanagerform.pas"/>
@@ -156,10 +157,13 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uLayoutManagerForm"/>
+        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="124"/>
-        <CursorPos X="83" Y="135"/>
-        <UsageCount Value="26"/>
+        <TopLine Value="167"/>
+        <CursorPos X="100" Y="176"/>
+        <UsageCount Value="27"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit12>
       <Unit13>
         <Filename Value="uintellisenseform.pas"/>
@@ -191,7 +195,7 @@
         <Filename Value="C:\lazarus\lcl\dialogs.pp"/>
         <UnitName Value="Dialogs"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="570"/>
+        <TopLine Value="481"/>
         <CursorPos X="10" Y="496"/>
         <UsageCount Value="10"/>
       </Unit16>
@@ -448,10 +452,13 @@
       <Unit50>
         <Filename Value="mLanguages.pas"/>
         <UnitName Value="mLanguages"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="181"/>
-        <CursorPos X="56" Y="190"/>
-        <UsageCount Value="73"/>
+        <TopLine Value="153"/>
+        <CursorPos X="93" Y="163"/>
+        <UsageCount Value="74"/>
+        <Loaded Value="True"/>
       </Unit50>
       <Unit51>
         <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\objpas\typinfo.pp"/>
@@ -705,8 +712,8 @@
       <Unit84>
         <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\classes\classesh.inc"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="688"/>
-        <CursorPos X="14" Y="704"/>
+        <TopLine Value="1756"/>
+        <CursorPos X="14" Y="1772"/>
         <UsageCount Value="10"/>
       </Unit84>
       <Unit85>
@@ -1195,7 +1202,7 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="7" HistoryIndex="6">
+    <JumpHistory Count="11" HistoryIndex="10">
       <Position1>
         <Filename Value="uMainForm.pas"/>
         <Caret Line="8" Column="3" TopLine="1"/>
@@ -1224,6 +1231,22 @@
         <Filename Value="uMainForm.pas"/>
         <Caret Line="377" Column="22" TopLine="349"/>
       </Position7>
+      <Position8>
+        <Filename Value="ulayoutmanagerform.pas"/>
+        <Caret Line="135" Column="83" TopLine="124"/>
+      </Position8>
+      <Position9>
+        <Filename Value="ulayoutmanagerform.pas"/>
+        <Caret Line="180" Column="42" TopLine="161"/>
+      </Position9>
+      <Position10>
+        <Filename Value="ulayoutmanagerform.pas"/>
+        <Caret Line="179" Column="60" TopLine="161"/>
+      </Position10>
+      <Position11>
+        <Filename Value="ulayoutmanagerform.pas"/>
+        <Caret Line="172" Column="53" TopLine="161"/>
+      </Position11>
     </JumpHistory>
   </ProjectSession>
   <Debugging>

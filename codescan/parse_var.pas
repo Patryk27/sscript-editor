@@ -41,16 +41,20 @@ Var Cnst: TVariable;
 Begin
  With Parser do
  Begin
-  Name := read_ident;
-  Cnst := TVariable.Create(next(-1), getCurrentRange, Name);
+  While (true) Do
+  Begin
+   Name := read_ident;
+   Cnst := TVariable.Create(next(-1), getCurrentRange, Name);
 
-   if (inFunction) Then
-    CurrentFunction.SymbolList.Add(TSymbol.Create(stConstant, Cnst)) Else
-    CurrentNamespace.SymbolList.Add(TSymbol.Create(stConstant, Cnst));
+    if (inFunction) Then
+     CurrentFunction.SymbolList.Add(TSymbol.Create(stConstant, Cnst)) Else
+     CurrentNamespace.SymbolList.Add(TSymbol.Create(stConstant, Cnst));
 
-  eat(_EQUAL);
+   eat(_EQUAL);
 
-  //Cnst.Value := read_tokens(_SEMICOLON);
-  read_and_mark([_SEMICOLON]);
+   read_and_mark([_COMMA, _SEMICOLON]);
+   if (next_t(-1) = _SEMICOLON) Then
+    Exit;
+  End;
  End;
 End;

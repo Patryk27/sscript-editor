@@ -7,14 +7,12 @@ Begin
  With Parser do
  Begin
   Name := read_ident;
-  eat(_BRACKET3_OP);
-  Inc(CurrentDeep);
 
   Namespace := findNamespace(Name);
   if (Namespace = nil) Then // new namespace
   Begin
    Namespace := TNamespace.Create(next(-1), getCurrentRange, Name);
-   SymbolList.Add(TSymbol.Create(stNamespace, Namespace));
+   NamespaceList.Add(Namespace);
   End Else
   Begin
    AddIdentifier(Namespace, Parser.next(-1)); // add identifier reference

@@ -67,6 +67,9 @@ Type EParserError = Class(Exception);
 // `TToken_P` in `TRange`
 Operator in (Token: TToken_P; Range: TRange): Boolean;
 Begin
+ if (Token.FileName <> Range.PBegin.FileName) or (Token.FileName <> Range.PEnd.FileName) Then
+  Exit(False);
+
  Result := (Token.Line >= Range.PBegin.Line) and (Token.Line <= Range.PEnd.Line);
 
  if (Result) Then

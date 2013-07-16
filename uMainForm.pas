@@ -5,7 +5,6 @@
 unit uMainForm;
 
 {$mode objfpc}{$H+}
-{.$APPTYPE CONSOLE}
 
 interface
 

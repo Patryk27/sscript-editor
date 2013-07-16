@@ -3,7 +3,7 @@ Procedure TCodeScanner.ParseInclude;
 Var FileName, RealFile     : String;
     CodeScanner            : TCodeScanner;
     Namespace, TmpNamespace: TNamespace;
-    NSSymbol, Symbol       : TSymbol;
+    Symbol                 : TSymbol;
 
     Prev: String;
 Begin
@@ -26,24 +26,21 @@ Begin
 
   CodeScanner.Parse;
 
-  For NSSymbol in CodeScanner.SymbolList Do
-   if (NSSymbol.Typ = stNamespace) Then
+  For Namespace in CodeScanner.NamespaceList Do
+  Begin
+   TmpNamespace := findNamespace(Namespace.Name);
+
+   if (TmpNamespace = nil) Then
    Begin
-    Namespace := NSSymbol.mNamespace;
-
-    TmpNamespace := findNamespace(Namespace.Name);
-
-    if (TmpNamespace = nil) Then
-    Begin
-     // new namespace
-     SymbolList.Add(TSymbol.Create(stNamespace, Namespace));
-    End Else
-    Begin
-     // namespace extends another one
-     For Symbol in Namespace.SymbolList Do
-      TmpNamespace.SymbolList.Add(Symbol);
-    End;
+    // new namespace
+    NamespaceList.Add(Namespace);
+   End Else
+   Begin
+    // namespace extends another one
+    For Symbol in Namespace.SymbolList Do
+     TmpNamespace.SymbolList.Add(Symbol);
    End;
+  End;
 
   ParsedFiles.Add(RealFile, CodeScanner);
 

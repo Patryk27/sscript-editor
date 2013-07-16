@@ -216,7 +216,7 @@ Var NS: TStringList;
 Begin
  NS := GetNamespacesAtCaret;
  Try
-  MakeIntellisenseIdentifierList(Intellisense.ItemList, CodeScanner.getSymbolList, NS, GetFunctionNameAtCaret, GetIdentifierAtCaret);
+  MakeIntellisenseIdentifierList(Intellisense.ItemList, CodeScanner.getNamespaceList, NS, GetFunctionNameAtCaret, GetIdentifierAtCaret);
  Finally
   NS.Free;
  End;
@@ -704,7 +704,7 @@ Begin
     With Project.ParseError do
     Begin
      Any      := True;
-     FileName := CodeScanner.CurrentlyParsedFile; // file, where the error has been raised
+     FileName := CodeScanner.CurrentlyParsedFile; // file where the error has been raised
      Line     := CodeScanner.getParser.next(-1).Line;
      Char     := CodeScanner.getParser.next(-1).Char;
 
@@ -743,7 +743,7 @@ Begin
  End;
 
  if (CodeScanner <> nil) Then
-  With CodeScanner.getSymbolList do
+  With CodeScanner.getNamespaceList.First.SymbolList do
   Begin
    // these identifiers are not visible in the identifier list, but they are in the Intellisense form
    null_token.Char     := 0;
@@ -790,26 +790,15 @@ End;
 
 (* TCard.GetNamespaceAtCaret *)
 Function TCard.GetNamespaceAtCaret: TNamespace;
-
-   // ParseSymbol
-   Procedure ParseSymbol(Symbol: TSymbol);
-   Begin
-    if (Symbol.Typ = stNamespace) and (Symbol.getToken.FileName = FileName) and (GetTokenPAtCaret in Symbol.getRange) Then
-    Begin
-     Result := Symbol.mNamespace;
-     Exit;
-    End;
-   End;
-
-Var Symbol: TSymbol;
 Begin
- Result := nil;
-
  if (CodeScanner = nil) or (Project.ParseError.Any) Then
-  Exit;
+  Exit(nil);
 
- For Symbol in CodeScanner.getSymbolList Do
-  ParseSymbol(Symbol);
+ For Result in CodeScanner.getNamespaceList Do
+  if (Result.Token.FileName = FileName) and (GetTokenPAtCaret in Result.Range) Then
+   Exit;
+
+ Exit(nil);
 End;
 
 (* TCard.GetFunctionAtCaret *)
@@ -830,15 +819,17 @@ Function TCard.GetFunctionAtCaret: TFunction;
       ParseSymbol(Tmp);
    End;
 
-Var Symbol: TSymbol;
+Var NS    : TNamespace;
+    Symbol: TSymbol;
 Begin
  Result := nil;
 
  if (CodeScanner = nil) or (Project.ParseError.Any) Then
   Exit;
 
- For Symbol in CodeScanner.getSymbolList Do
-  ParseSymbol(Symbol);
+ For NS in CodeScanner.getNamespaceList Do
+  For Symbol in NS.SymbolList Do
+   ParseSymbol(Symbol);
 End;
 
 (* TCard.GetIdentifierAtCaret *)
@@ -883,7 +874,7 @@ End;
 (* TCard.GetNamespacesAtCaret *)
 Function TCard.GetNamespacesAtCaret: TStringList;
 Var NSV      : TNamespaceVisibility;
-    Symbol   : TSymbol;
+    NS       : TNamespace;
     Token    : TToken_P;
     Line     : String;
     Tmp, PosX: Integer;
@@ -899,10 +890,10 @@ Begin
   if (Token in NSV.Range) Then
    Result.Add(NSV.Namespace.Name);
 
- For Symbol in CodeScanner.getSymbolList Do
-  if (Symbol.Typ = stNamespace) and (Token in Symbol.mNamespace.Range) Then
+ For NS in CodeScanner.getNamespaceList Do
+  if (Token in NS.Range) Then
   Begin
-   Result.Add(Symbol.getName);
+   Result.Add(NS.Name);
    Break; // namespaces cannot be inlined in each other, so just stop.
   End;
 
@@ -2220,8 +2211,7 @@ End;
 
 (* TProject.UpdateIdentifierList *)
 Procedure TProject.UpdateIdentifierList;
-Var Card  : TCard;
-    Symbol: TSymbol;
+Var Card: TCard;
 
     // MarkAllAsRemoved
     Procedure MarkAllAsRemoved;
@@ -2357,51 +2347,12 @@ Var Card  : TCard;
 
     // ParseSymbol
     Procedure ParseSymbol(Node: PVirtualNode; Symbol: TSymbol);
-    Var Ns, Types, Funcs, Vars, Cnsts: PVirtualNode;
-        Tmp                          : TSymbol;
     Begin
      if (Symbol = nil) Then // shouldn't really happen
       Exit;
 
      if (AnsiCompareFileName(Symbol.getPhysSymbol.Token.FileName, Card.FileName) <> 0) Then
       Exit;
-
-     { namespace }
-     if (Symbol.Typ = stNamespace) Then
-     Begin
-      Ns := AddNode(Node, Symbol, 0); // @TODO: nice icon
-
-      Types := AddNode(Ns, getLangValue(ls_types), 0);
-      Funcs := AddNode(Ns, getLangValue(ls_functions), 0);
-      Vars  := AddNode(Ns, getLangValue(ls_variables), 0);
-      Cnsts := AddNode(Ns, getLangValue(ls_constants), 0);
-
-      For Tmp in Symbol.mNamespace.SymbolList Do
-       Case Tmp.Typ of
-        stType    : ParseSymbol(Types, Tmp);
-        stFunction: ParseSymbol(Funcs, Tmp);
-        stVariable: ParseSymbol(Vars, Tmp);
-        stConstant: ParseSymbol(Cnsts, Tmp);
-       End;
-
-      With IdentifierListForm.IdentifierList do // remove empty nodes
-      Begin
-       if (Types^.ChildCount = 0) Then
-        DeleteNode(Types);
-
-       if (Funcs^.ChildCount = 0) Then
-        DeleteNode(Funcs);
-
-       if (Vars^.ChildCount = 0) Then
-        DeleteNode(Vars);
-
-       if (Cnsts^.ChildCount = 0) Then
-        DeleteNode(Cnsts);
-
-       if (Symbol.getName = 'self') and (Ns^.ChildCount = 0) Then // @TODO
-        DeleteNode(Ns);
-      End;
-     End Else
 
      { function }
      if (Symbol.Typ = stFunction) Then
@@ -2428,6 +2379,46 @@ Var Card  : TCard;
      End;
     End;
 
+    // ParseNamespace
+    Procedure ParseNamespace(const Namespace: TNamespace);
+    Var Ns, Types, Funcs, Vars, Cnsts: PVirtualNode;
+        Tmp                          : TSymbol;
+    Begin
+     Ns := AddNode(nil, Namespace.Name, 0); // @TODO: nice icon
+
+     Types := AddNode(Ns, getLangValue(ls_types), 0);
+     Funcs := AddNode(Ns, getLangValue(ls_functions), 0);
+     Vars  := AddNode(Ns, getLangValue(ls_variables), 0);
+     Cnsts := AddNode(Ns, getLangValue(ls_constants), 0);
+
+     For Tmp in Namespace.SymbolList Do
+      Case Tmp.Typ of
+       stType    : ParseSymbol(Types, Tmp);
+       stFunction: ParseSymbol(Funcs, Tmp);
+       stVariable: ParseSymbol(Vars, Tmp);
+       stConstant: ParseSymbol(Cnsts, Tmp);
+      End;
+
+     With IdentifierListForm.IdentifierList do // remove empty nodes
+     Begin
+      if (Types^.ChildCount = 0) Then
+       DeleteNode(Types);
+
+      if (Funcs^.ChildCount = 0) Then
+       DeleteNode(Funcs);
+
+      if (Vars^.ChildCount = 0) Then
+       DeleteNode(Vars);
+
+      if (Cnsts^.ChildCount = 0) Then
+       DeleteNode(Cnsts);
+
+      if (Ns^.ChildCount = 0) Then
+       DeleteNode(Ns);
+     End;
+    End;
+
+Var NS: TNamespace;
 Begin
  Card := getCurrentCard;
 
@@ -2448,8 +2439,8 @@ Begin
   if (Card.CodeScanner <> nil) Then
    With Card.CodeScanner do
    Begin
-    For Symbol in getSymbolList Do
-     ParseSymbol(nil, Symbol);
+    For NS in getNamespaceList Do
+     ParseNamespace(NS);
    End;
 
   // @TODO: show program's dependencies (includes)

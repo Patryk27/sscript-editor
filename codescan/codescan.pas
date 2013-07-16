@@ -121,8 +121,8 @@ Unit CodeScan;
 
                        isMain: Boolean;
 
-                       inFunction: Boolean;
-                       SymbolList: TSymbolList;
+                       inFunction   : Boolean;
+                       NamespaceList: TNamespaceList;
 
                        DefaultNamespace, CurrentNamespace: TNamespace;
                        NamespaceVisibilityList           : TNamespaceVisibilityList;
@@ -158,7 +158,7 @@ Unit CodeScan;
                        Function Parse: TIdentifierList;
 
                        Property getParser: TParser read Parser;
-                       Property getSymbolList: TSymbolList read SymbolList;
+                       Property getNamespaceList: TNamespaceList read NamespaceList;
                        Property getNamespaceVisibilityList: TNamespaceVisibilityList read NamespaceVisibilityList;
                       End;
 
@@ -306,11 +306,11 @@ End;
 // -------------------------------------------------------------------------- //
 (* TCodeScanner.findNamespace *)
 Function TCodeScanner.findNamespace(const Name: String): TNamespace;
-Var Symbol: TSymbol;
+Var Symbol: TNamespace;
 Begin
- For Symbol in SymbolList Do
-  if (Symbol.getName = Name) Then
-   Exit(Symbol.mNamespace);
+ For Symbol in NamespaceList Do
+  if (Symbol.Name = Name) Then
+   Exit(Symbol);
 
  Exit(nil);
 End;
@@ -425,7 +425,7 @@ Begin
    Begin
     Symbol := nil;
 
-    if (Parser.next_t = _DOUBLE_COLON) Then { if next is `::`, we have a namespace reference, like `std::newline()` }
+    if (Parser.next_t = _DOUBLE_COLON) and (Parser.next_t(2) = _IDENTIFIER) Then { if next is `::`, we have a namespace reference, like `std::newline()` }
     Begin
      Parser.eat(_DOUBLE_COLON); // `::`
 
@@ -558,21 +558,19 @@ End;
 
 (* TCodeScanner.Destroy *)
 Destructor TCodeScanner.Destroy;
-Var Ident : PIdentifier;
-    Symbol: TSymbol;
-    NSV   : TNamespaceVisibility;
-
-//    I: Integer;
+Var Ident: PIdentifier;
+    NSV  : TNamespaceVisibility;
+    NS   : TNamespace;
 Begin
  { IdentifierList }
  For Ident in IdentifierList Do
   Dispose(Ident);
  IdentifierList.Free;
 
- { SymbolList }
- For Symbol in SymbolList Do
-  Symbol.Free;
- SymbolList.Free;
+ { NamespaceList }
+ For NS in NamespaceList Do
+  NS.Free;
+ NamespaceList.Free;
 
  { NamespaceVisibilityList }
  For NSV in NamespaceVisibilityList Do
@@ -605,17 +603,13 @@ Begin
  Result         := IdentifierList;
 
  NamespaceVisibilityList := TNamespaceVisibilityList.Create;
+ NamespaceList           := TNamespaceList.Create;
 
  if (Parser.getTokenList.Count = 0) Then
- Begin
-  SymbolList := TSymbolList.Create;
   Exit;
- End;
 
  DefaultNamespace := TNamespace.Create(Parser.next, Parser.getCurrentRange, 'self');
-
- SymbolList := TSymbolList.Create;
- SymbolList.Add(TSymbol.Create(stNamespace, DefaultNamespace));
+ NamespaceList.Add(DefaultNamespace);
 
  CurrentNamespace := DefaultNamespace;
  NamespaceVisibilityList.Add(TNamespaceVisibility.Create(Parser.getCurrentRange, DefaultNamespace));

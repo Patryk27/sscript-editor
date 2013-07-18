@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   <config>
-    <version>31</version>
+    <version>33</version>
     <project_type>0</project_type>
     <card_count>1</card_count>
     <opened_card>0</opened_card>
@@ -18,9 +18,10 @@
   </compiler>
   <vm>
     <switches></switches>
+    <gc_memory_limit>128</gc_memory_limit>
+    <gc_memory_limit_unit>1</gc_memory_limit_unit>
     <c_time>0</c_time>
     <c_wait>1</c_wait>
-    <c_err>0</c_err>
   </vm>
   <card_0>
     <caption>main.ss</caption>

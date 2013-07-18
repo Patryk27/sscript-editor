@@ -1,6 +1,6 @@
 @("stdlib\\stdio.ss")
 
-function<string> test() in "library.ssm";
+function<string> test() [library="library.ssm"];
 
 use std;
 

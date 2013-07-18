@@ -18,13 +18,19 @@ function<int> main()
              result = 0;
 
   if (ch == '+')
-   result = n1+n2; else
+  {
+   result = n1+n2;
+  } else
 
   if (ch == '-')
-   result = n1-n2; else
+  {
+   result = n1-n2;
+  } else
 
   if (ch == '*')
-   result = n1*n2; else
+  {
+   result = n1*n2;
+  } else
 
   if (ch == '/')
   {
@@ -33,11 +39,11 @@ function<int> main()
     result = n1/n2;
   } else
 
-   {
-    println("Unknown operation: "+ch);
-    newline();
-    continue;
-   }
+  {
+   println("Unknown operation: "+ch);
+   newline();
+   continue;
+  }
 
   println("Result: "+fltstr(result));
   newline();

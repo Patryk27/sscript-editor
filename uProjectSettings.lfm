@@ -61,7 +61,7 @@ object ProjectSettingsForm: TProjectSettingsForm
     Height = 394
     Top = 0
     Width = 387
-    PageIndex = 0
+    PageIndex = 2
     TabOrder = 3
     TabStop = True
     object p_2: TPage
@@ -222,29 +222,58 @@ object ProjectSettingsForm: TProjectSettingsForm
         Caption = 'Display program''s work time when finished (-time)'
         TabOrder = 1
       end
-      object eVMSwitches: TEdit
-        Left = 96
-        Height = 23
-        Top = 371
-        Width = 288
-        TabOrder = 2
-        Text = 'eVMSwitches'
-      end
       object Label9: TLabel
         Left = 0
         Height = 16
-        Top = 376
+        Top = 128
         Width = 82
         Caption = 'Other switches:'
         ParentColor = False
       end
-      object c_err: TCheckBox
+      object Label1: TLabel
         Left = 0
-        Height = 19
-        Top = 56
-        Width = 181
-        Caption = 'Display detailed error log (-err)'
+        Height = 16
+        Top = 72
+        Width = 172
+        Caption = 'Garbage collector memory limit:'
+        ParentColor = False
+      end
+      object mVMOtherSwitches: TMemo
+        Left = 0
+        Height = 250
+        Top = 144
+        Width = 384
+        Font.CharSet = EASTEUROPE_CHARSET
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        Font.Pitch = fpFixed
+        Font.Quality = fqDraft
+        ParentFont = False
+        ScrollBars = ssVertical
+        TabOrder = 2
+      end
+      object eGCMemoryLimit: TSpinEdit
+        Left = 0
+        Height = 23
+        Top = 88
+        Width = 280
+        MaxValue = 10000000
         TabOrder = 3
+      end
+      object cbGCMemoryLimit: TComboBox
+        Left = 284
+        Height = 23
+        Top = 88
+        Width = 100
+        ItemHeight = 15
+        ItemIndex = 0
+        Items.Strings = (
+          'bytes'
+          'megabytes'
+          'gigabytes'
+        )
+        TabOrder = 4
+        Text = 'bytes'
       end
     end
   end

@@ -83,6 +83,7 @@ Unit mProject;
       TMessage = Record
                   Line, Char    : Integer;
                   FileName, Text: String;
+                  isError       : Boolean;
                  End;
 
  // lists
@@ -94,7 +95,7 @@ Unit mProject;
  Type TCompilerSwitches = Set of TCompilerSwitch;
 
  // TVMSwitches
- Type TVMSwitch = (c_time, c_wait, c_err);
+ Type TVMSwitch = (c_time, c_wait);
  Type TVMSwitches = Set of TVMSwitch;
 
  { TProject }
@@ -139,8 +140,10 @@ Unit mProject;
                    CompilerOutput       : String;
 
                    // vm
-                   VMSwitches     : TVMSwitches;
-                   OtherVMSwitches: String;
+                   VMSwitches       : TVMSwitches;
+                   OtherVMSwitches  : String;
+                   GCMemoryLimit    : Integer;
+                   GCMemoryLimitUnit: Integer;
 
                    VMProcess: TProcess;
 
@@ -1109,6 +1112,9 @@ Begin
  VMSwitches      := [c_wait]; // `-wait` is enabled by default
  OtherVMSwitches := '';
 
+ GCMemoryLimit     := 128;
+ GCMemoryLimitUnit := 1; // MB
+
  IncludePath    := '$file;$compiler';
  ProjectType    := Typ;
  OutputFile     := '';
@@ -1183,7 +1189,7 @@ Var Doc               : TXMLDocument;
     Switch  : TCompilerSwitch;
     VMSwitch: TVMSwitch;
 
-  // WriteValue
+  { WriteValue }
   Procedure WriteValue(const Root: TDomNode; sName, sValue: String);
   Var Value: TDomNode;
   Begin
@@ -1194,13 +1200,13 @@ Var Doc               : TXMLDocument;
    Root.AppendChild(Node);
   End;
 
-  // WriteValue
+  { WriteValue }
   Procedure WriteValue(const Root: TDomNode; Name: String; Value: Integer);
   Begin
    WriteValue(Root, Name, IntToStr(Value));
   End;
 
-  // WriteValue
+  { WriteValue }
   Procedure WriteValue(const Root: TDomNode; Name: String; Value: Extended);
   Begin
    WriteValue(Root, Name, FloatToStr(Value));
@@ -1292,6 +1298,8 @@ Begin
   Parent := Doc.CreateElement('vm');
 
   WriteValue(Parent, 'switches', OtherVMSwitches);
+  WriteValue(Parent, 'gc_memory_limit', GCMemoryLimit);
+  WriteValue(Parent, 'gc_memory_limit_unit', GCMemoryLimitUnit);
 
   For VMSwitch in TVMSwitches Do
    WriteValue(Parent, getVMSwitchName(VMSwitch, False), Integer(VMSwitch in VMSwitches));
@@ -1381,7 +1389,7 @@ Var Doc         : TXMLDocument;
 
     Version: Single;
 
-  // ReadStringValue
+  { ReadStringValue }
   Function ReadStringValue(Node: TDOMNode; Name: String): String;
   Begin
    if (Node = nil) Then // parent node does not exist
@@ -1395,7 +1403,7 @@ Var Doc         : TXMLDocument;
    Result := Node.TextContent;
   End;
 
-  // ReadIntegerValue
+  { ReadIntegerValue }
   Function ReadIntegerValue(const Node: TDOMNode; const Name: String; const Default: Integer=0): Integer;
   Var Tmp: String;
   Begin
@@ -1405,7 +1413,7 @@ Var Doc         : TXMLDocument;
     Result := Default;
   End;
 
-  // ReadFloatValue
+  { ReadFloatValue }
   Function ReadFloatValue(const Node: TDOMNode; const Name: String; const Default: Integer=0): Extended;
   Var Tmp: String;
   Begin
@@ -1459,7 +1467,9 @@ Begin
    { read vm data }
    Parent := Root.FindNode('vm');
 
-   OtherVMSwitches := ReadStringValue(Parent, 'switches');
+   OtherVMSwitches   := ReadStringValue(Parent, 'switches');
+   GCMemoryLimit     := ReadIntegerValue(Parent, 'gc_memory_limit');
+   GCMemoryLimitUnit := ReadIntegerValue(Parent, 'gc_memory_limit_unit');
 
    VMSwitches := [];
    For VMSwitch in TVMSwitches Do
@@ -1691,7 +1701,7 @@ End;
 
 (* TProject.Compile *)
 {
- Compiles project.
+ Compiles the project.
 }
 Function TProject.Compile: Boolean;
 Type TMessageIcon = (miNone, miHint, miWarn, miError);
@@ -1713,8 +1723,9 @@ Var sOutputFile: String;
     Base, Message, mFileName, Posi: String;
 
     AnyError: Boolean = False;
+    TmpBool : Boolean;
 
-  // AddUserSwitches
+  { AddUserSwitches }
   Procedure AddUserSwitches;
   Var SwitchesList    : TStringList;
       Switches, Switch: String;
@@ -1745,7 +1756,7 @@ Var sOutputFile: String;
    End;
   End;
 
-  // AddText
+  { AddText }
   Procedure AddText(const Str: String; Icon: TMessageIcon=miNone; DataInt: Integer=0);
   Begin
    With CompileStatusForm.CompileStatus do
@@ -1757,7 +1768,7 @@ Var sOutputFile: String;
     End;
   End;
 
-  // AddError
+  { AddError }
   Procedure AddError(Line, Char: Integer; Base, Message, FileName: String);
   Var Card: TCard;
       Info: PMessage;
@@ -1792,13 +1803,14 @@ Var sOutputFile: String;
     Info^.Char     := Char;
     Info^.FileName := FileName;
     Info^.Text     := Message;
+    Info^.isError  := True;
     MessageList.Add(Info);
 
     AddText(Base, miError, MessageList.Count);
    End;
   End;
 
-  // AddMsg
+  { AddMsg }
   Procedure AddMsg(Icon: TMessageIcon; Line, Char: Integer; Base, Message, FileName: String);
   Var Card: TCard;
       Info: PMessage;
@@ -1817,6 +1829,7 @@ Var sOutputFile: String;
    Info^.Char     := Char;
    Info^.FileName := FileName;
    Info^.Text     := Message;
+   Info^.isError  := False;
    MessageList.Add(Info);
 
    AddText(Base, Icon, MessageList.Count);
@@ -2013,7 +2026,15 @@ Begin
  For Card in CardList Do // enable editors
   Card.SynEdit.Enabled := True;
 
- if (MessageList.Count > 0) Then // raise first message
+ TmpBool := False;
+ For I := 0 To MessageList.Count-1 Do // raise first error message
+  if (MessageList[I]^.isError) Then
+  Begin
+   RaiseMessage(I);
+   TmpBool := True;
+   Break;
+  End;
+ if (not TmpBool) and (MessageList.Count > 0) Then
   RaiseMessage(0);
 
  Application.ProcessMessages; // process LCL
@@ -2026,9 +2047,42 @@ End;
  Runs project.
 }
 Procedure TProject.Run;
-Var TmpCaption, sOutputFile, CCommandLine: String;
-    Switch                               : TVMSwitch;
-    Tries                                : Integer = 0;
+Const GCMemoryLimitUnits: Array[0..2] of String = ('', 'M', 'G');
+Var TmpCaption, sOutputFile: String;
+    Switch                 : TVMSwitch;
+    Tries                  : Integer = 0;
+
+  { AddUserSwitches }
+  Procedure AddUserSwitches;
+  Var SwitchesList    : TStringList;
+      Switches, Switch: String;
+      I               : uint32;
+  Begin
+   SwitchesList      := TStringList.Create;
+   SwitchesList.Text := StringReplace(OtherVMSwitches, '|', sLineBreak, [rfReplaceAll]); // get user switches
+
+   Try
+    For Switches in SwitchesList Do
+    Begin
+     Switches += ' ';
+     Switch   := '';
+
+     For I := 1 To Length(Switches) Do
+      if (Switches[I] = ' ') Then
+      Begin
+       if (Length(Switch) = 0) Then
+        Continue;
+
+       VMProcess.Parameters.Add(Switch);
+       Switch := '';
+      End Else
+       Switch += Switches[I];
+    End;
+   Finally
+    SwitchesList.Free;
+   End;
+  End;
+
 Begin
  if (VMProcess <> nil) Then // another VM process is already running
   Exit;
@@ -2059,30 +2113,27 @@ Begin
   End;
  End;
 
- { generate command line }
- CCommandLine := '';
-
- For Switch in VMSwitches Do
-  CCommandLine += ' -'+getVMSwitchName(Switch, True);
-
- CCommandLine += ' '+OtherVMSwitches;
-
- { run program }
+ { create VM instance }
  VMProcess := TProcess.Create(nil);
 
  With VMProcess do
  Begin
   Options          := [];
   CurrentDirectory := ExtractFilePath(ParamStr(0));
-
-  {$IFDEF LINUX}
-   Options += [poUsePipes];
-   CommandLine := 'xterm -e ''sh run.sh "'+getString(sVMFile)+'" "'+sOutputFile+'" "'+CCommandLine+'";read''';
-  {$ELSE}
-   CommandLine := '"'+getString(sVMFile)+'" "'+sOutputFile+'" '+CCommandLine;
-  {$ENDIF}
+  Executable       := getString(sVMFile);
  End;
 
+ { generate command line }
+ VMProcess.Parameters.Add(sOutputFile);
+
+ For Switch in VMSwitches Do
+  VMProcess.Parameters.Add('-'+getVMSwitchName(Switch, True));
+
+ VMProcess.Parameters.AddStrings(['-gc', IntToStr(GCMemoryLimit)+GCMemoryLimitUnits[GCMemoryLimitUnit]]);
+
+ AddUserSwitches;
+
+ { process LCL }
  TmpCaption       := MainForm.Caption;
  MainForm.Caption := sCaption+' [ '+getLangValue(ls_vm_running)+' ]';
 

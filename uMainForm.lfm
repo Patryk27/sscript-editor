@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 502
+  Left = 642
   Height = 54
-  Top = 178
+  Top = 216
   Width = 566
   AllowDropFiles = True
   Caption = 'SScript Editor'

@@ -11,7 +11,7 @@
         <UnitName Value="editor"/>
         <WindowIndex Value="0"/>
         <TopLine Value="33"/>
-        <CursorPos X="68" Y="43"/>
+        <CursorPos X="30" Y="56"/>
         <UsageCount Value="208"/>
       </Unit0>
       <Unit1>
@@ -39,7 +39,7 @@
         <UnitName Value="uProjectSettings"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="1" Y="5"/>
+        <CursorPos X="1" Y="94"/>
         <UsageCount Value="212"/>
       </Unit2>
       <Unit3>
@@ -99,7 +99,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="92" Y="6"/>
-        <UsageCount Value="116"/>
+        <UsageCount Value="120"/>
       </Unit7>
       <Unit8>
         <Filename Value="ufindform.pas"/>
@@ -111,7 +111,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="5"/>
-        <UsageCount Value="102"/>
+        <UsageCount Value="106"/>
       </Unit8>
       <Unit9>
         <Filename Value="uidentifierlistform.pas"/>
@@ -123,7 +123,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="52" Y="17"/>
-        <UsageCount Value="71"/>
+        <UsageCount Value="75"/>
       </Unit9>
       <Unit10>
         <Filename Value="ucompilestatusform.pas"/>
@@ -135,7 +135,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="68" Y="17"/>
-        <UsageCount Value="71"/>
+        <UsageCount Value="75"/>
       </Unit10>
       <Unit11>
         <Filename Value="ucodeeditor.pas"/>
@@ -147,7 +147,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="166"/>
         <CursorPos X="29" Y="173"/>
-        <UsageCount Value="70"/>
+        <UsageCount Value="74"/>
       </Unit11>
       <Unit12>
         <Filename Value="ulayoutmanagerform.pas"/>
@@ -159,7 +159,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="167"/>
         <CursorPos X="100" Y="176"/>
-        <UsageCount Value="27"/>
+        <UsageCount Value="31"/>
       </Unit12>
       <Unit13>
         <Filename Value="uintellisenseform.pas"/>
@@ -183,8 +183,8 @@
         <Filename Value="mProject.pas"/>
         <UnitName Value="mProject"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="54" Y="13"/>
+        <TopLine Value="75"/>
+        <CursorPos X="51" Y="84"/>
         <UsageCount Value="103"/>
       </Unit15>
       <Unit16>
@@ -199,9 +199,9 @@
         <Filename Value="SynEditSScript.pas"/>
         <UnitName Value="SynEditSScript"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="20" Y="5"/>
-        <UsageCount Value="96"/>
+        <TopLine Value="174"/>
+        <CursorPos X="35" Y="183"/>
+        <UsageCount Value="98"/>
       </Unit17>
       <Unit18>
         <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\inc\systemh.inc"/>
@@ -300,8 +300,8 @@
         <Filename Value="C:\lazarus\lcl\stdctrls.pp"/>
         <UnitName Value="StdCtrls"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="566"/>
-        <CursorPos X="14" Y="582"/>
+        <TopLine Value="394"/>
+        <CursorPos X="33" Y="396"/>
         <UsageCount Value="10"/>
       </Unit30>
       <Unit31>
@@ -449,8 +449,8 @@
         <Filename Value="mLanguages.pas"/>
         <UnitName Value="mLanguages"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="153"/>
-        <CursorPos X="49" Y="157"/>
+        <TopLine Value="219"/>
+        <CursorPos X="47" Y="222"/>
         <UsageCount Value="74"/>
       </Unit50>
       <Unit51>
@@ -736,9 +736,9 @@
         <Filename Value="codescan\codescan.pas"/>
         <UnitName Value="CodeScan"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="325"/>
-        <CursorPos X="41" Y="341"/>
-        <UsageCount Value="41"/>
+        <TopLine Value="398"/>
+        <CursorPos X="77" Y="428"/>
+        <UsageCount Value="44"/>
       </Unit88>
       <Unit89>
         <Filename Value="codescan\scanner.pas"/>
@@ -752,9 +752,9 @@
         <Filename Value="codescan\parser.pas"/>
         <UnitName Value="Parser"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="82"/>
-        <CursorPos X="36" Y="102"/>
-        <UsageCount Value="31"/>
+        <TopLine Value="83"/>
+        <CursorPos X="108" Y="94"/>
+        <UsageCount Value="34"/>
       </Unit90>
       <Unit91>
         <Filename Value="codescan\tokens.pas"/>
@@ -789,17 +789,17 @@
         <Filename Value="codescan\parse_function.pas"/>
         <UnitName Value="parse_function"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="4"/>
-        <CursorPos X="1" Y="1"/>
-        <UsageCount Value="32"/>
+        <TopLine Value="19"/>
+        <CursorPos X="27" Y="47"/>
+        <UsageCount Value="34"/>
       </Unit95>
       <Unit96>
         <Filename Value="codescan\parse_include.pas"/>
         <UnitName Value="parse_include"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="17"/>
-        <CursorPos X="22" Y="5"/>
-        <UsageCount Value="35"/>
+        <TopLine Value="1"/>
+        <CursorPos X="60" Y="41"/>
+        <UsageCount Value="37"/>
       </Unit96>
       <Unit97>
         <Filename Value="codescan\parse_use.pas"/>
@@ -830,8 +830,8 @@
         <UnitName Value="parse_namespace"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="89" Y="30"/>
-        <UsageCount Value="33"/>
+        <CursorPos X="58" Y="18"/>
+        <UsageCount Value="36"/>
       </Unit100>
       <Unit101>
         <Filename Value="codescan\parse_var.pas"/>
@@ -998,9 +998,9 @@
         <Filename Value="mIntellisense.pas"/>
         <UnitName Value="mIntellisense"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="5"/>
-        <UsageCount Value="15"/>
+        <TopLine Value="38"/>
+        <CursorPos X="17" Y="72"/>
+        <UsageCount Value="18"/>
       </Unit122>
       <Unit123>
         <Filename Value="C:\lazarus\components\synedit\syneditplugins.pas"/>
@@ -1195,56 +1195,7 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="12" HistoryIndex="11">
-      <Position1>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="8" Column="3" TopLine="1"/>
-      </Position1>
-      <Position2>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="886" Column="41" TopLine="853"/>
-      </Position2>
-      <Position3>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="767" Column="29" TopLine="750"/>
-      </Position3>
-      <Position4>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="78" Column="133" TopLine="73"/>
-      </Position4>
-      <Position5>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="93" Column="23" TopLine="73"/>
-      </Position5>
-      <Position6>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="166" Column="40" TopLine="153"/>
-      </Position6>
-      <Position7>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="377" Column="22" TopLine="349"/>
-      </Position7>
-      <Position8>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="17" Column="66" TopLine="46"/>
-      </Position8>
-      <Position9>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="54" Column="18" TopLine="47"/>
-      </Position9>
-      <Position10>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="66" Column="13" TopLine="47"/>
-      </Position10>
-      <Position11>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="62" Column="65" TopLine="47"/>
-      </Position11>
-      <Position12>
-        <Filename Value="uMainForm.pas"/>
-        <Caret Line="162" Column="47" TopLine="138"/>
-      </Position12>
-    </JumpHistory>
+    <JumpHistory Count="0" HistoryIndex="-1"/>
   </ProjectSession>
   <Debugging>
     <Watches Count="4">

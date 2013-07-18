@@ -47,10 +47,10 @@ Unit mLanguages;
  Function getLangValue(const Name: LString): String;
 
  Implementation
-Uses mSettings, Forms, Classes, TypInfo, IniFiles, SysUtils, Dialogs, ComCtrls, ExtCtrls;
+Uses mSettings, Forms, Classes, TypInfo, IniFiles, SysUtils, Dialogs, ComCtrls, ExtCtrls, StdCtrls;
 Const Properties: Array[1..3] of string = ('Caption', 'Hint', 'Text');
 
-{ LoadLanguageFile }
+(* LoadLanguageFile *)
 Procedure LoadLanguageFile(const FileName: String);
 Var Form, I, P   : Integer;
     Comp         : TComponent;
@@ -104,6 +104,16 @@ Begin
       End;
      End;
 
+     { TComboBox }
+     if (Comp is TComboBox) Then
+     Begin
+      With (Comp as TComboBox) do
+      Begin
+       For P := 0 To Items.Count-1 Do
+        Items[P] := Ini.ReadString(FormName+'_'+Comp.Name, IntToStr(P), Items[P]);
+      End;
+     End;
+
      { other control's properties }
      For P := Low(Properties) To High(Properties) Do
       if (isPublishedProp(Comp, Properties[P])) Then
@@ -120,7 +130,7 @@ Begin
  Ini.Free;
 End;
 
-{ getLStringName }
+(* getLStringName *)
 Function getLStringName(const Name: LString): String;
 Begin
  Result := GetEnumName(TypeInfo(LString), Integer(Name));
@@ -128,7 +138,7 @@ Begin
  Delete(Result, 1, 3); // remove `ls_`
 End;
 
-{ getLangValue }
+(* getLangValue *)
 Function getLangValue(const Name: LString): String;
 Var Ini: TIniFile;
 Begin

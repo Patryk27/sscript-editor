@@ -178,7 +178,12 @@ Caption=Zapisz
 Caption=Anuluj
 
 [ProjectSettingsForm_Label1]
-Caption=Kompilator:
+Caption=Limit pamięci dla odśmiecacza (garbage collector-a):
+
+[ProjectSettingsForm_cbGCMemoryLimit]
+0=bajty
+1=megabajty
+2=gigabajty
 
 [ProjectSettingsForm_eCompilerFile]
 Text=eCompilerFile

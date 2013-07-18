@@ -10,7 +10,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
-  StdCtrls, Buttons;
+  StdCtrls, Buttons, Spin;
 
 type
 
@@ -18,13 +18,15 @@ type
 
   TProjectSettingsForm = class(TForm)
     Bevel1: TBevel;
-    c_err:TCheckBox;
+    cbGCMemoryLimit: TComboBox;
+    Label1: TLabel;
+    mVMOtherSwitches: TMemo;
     mOtherSwitches: TMemo;
     rgOptimizationLevel: TRadioGroup;
+    eGCMemoryLimit: TSpinEdit;
     _Cconst:TCheckBox;
     c_time:TCheckBox;
     c_wait:TCheckBox;
-    eVMSwitches:TEdit;
     eHeaderFile: TEdit;
     eBytecodeOutput: TEdit;
     Label7: TLabel;
@@ -63,9 +65,7 @@ Uses uMainForm, mProject;
 
 {$R *.lfm}
 
-{ TProjectSettingsForm }
-
-{ TProjectSettingsForm.Run }
+(* TProjectSettingsForm.Run *)
 Procedure TProjectSettingsForm.Run;
 Var Switch  : TCompilerSwitch;
     VMSwitch: TVMSwitch;
@@ -86,7 +86,9 @@ Begin
    TCheckBox(FindComponent(getCompilerSwitchName(Switch, False))).Checked := Switch in CompilerSwitches;
 
   { read vm switches }
-  eVMSwitches.Text := OtherVMSwitches;
+  mVMOtherSwitches.Text     := StringReplace(OtherVMSwitches, '|', sLineBreak, [rfReplaceAll]);
+  eGCMemoryLimit.Value      := GCMemoryLimit;
+  cbGCMemoryLimit.ItemIndex := GCMemoryLimitUnit;
 
   For VMSwitch in TVMSwitches Do
    TCheckBox(FindComponent(getVMSwitchName(VMSwitch, False))).Checked := VMSwitch in VMSwitches;
@@ -95,6 +97,7 @@ Begin
  ShowModal;
 End;
 
+(* TProjectSettingsForm.btnSaveClick *)
 procedure TProjectSettingsForm.btnSaveClick(Sender: TObject);
 Var Switch  : TCompilerSwitch;
     VMSwitch: TVMSwitch;
@@ -107,8 +110,6 @@ begin
   HeaderFile     := eHeaderFile.Text;
 
   { save compiler paths and switches }
-  // if (Pos(mOtherSwitches.Text, '|') > 0) Then ...
-
   OtherCompilerSwitches := StringReplace(mOtherSwitches.Text, sLineBreak, '|', [rfReplaceAll]);
   IncludePath           := eIncludePath.Text;
   OptimizationLevel     := rgOptimizationLevel.ItemIndex;
@@ -119,7 +120,9 @@ begin
     Include(CompilerSwitches, Switch);
 
   { save vm switches }
-  OtherVMSwitches := eVMSwitches.Text;
+  OtherVMSwitches   := StringReplace(mVMOtherSwitches.Text, sLineBreak, '|', [rfReplaceAll]);
+  GCMemoryLimit     := eGCMemoryLimit.Value;
+  GCMemoryLimitUnit := cbGCMemoryLimit.ItemIndex;
 
   VMSwitches := [];
   For VMSwitch in TVMSwitches Do
@@ -136,7 +139,8 @@ begin
  Close;
 end;
 
-procedure TProjectSettingsForm.SettingChange(Sender:TObject;Node:TTreeNode);
+(* TProjectSettingsForm.SettingChange *)
+procedure TProjectSettingsForm.SettingChange(Sender:TObject; Node:TTreeNode);
 Var Page: Integer;
 begin
  With Setting do
@@ -152,6 +156,7 @@ begin
  End;
 end;
 
+(* TProject.SettingsForm.btnCancelClick *)
 procedure TProjectSettingsForm.btnCancelClick(Sender: TObject);
 begin
  Close;

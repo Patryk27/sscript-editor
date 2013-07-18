@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   <config>
-    <version>0.3</version>
+    <version>33</version>
     <project_type>1</project_type>
-    <compiler>compiler\compiler.exe</compiler>
-    <vm>compiler\vm.exe</vm>
     <card_count>1</card_count>
     <opened_card>0</opened_card>
     <output_file>library.ssm</output_file>
@@ -14,24 +12,22 @@
   <compiler>
     <switches></switches>
     <include_path>$file;$compiler</include_path>
+    <optimization_level>2</optimization_level>
     <_initcode>0</_initcode>
     <_Cconst>0</_Cconst>
-    <_Or>0</_Or>
-    <_Of>0</_Of>
-    <_Op>0</_Op>
-    <_O1>1</_O1>
   </compiler>
   <vm>
     <switches></switches>
+    <gc_memory_limit>128</gc_memory_limit>
+    <gc_memory_limit_unit>1</gc_memory_limit_unit>
     <c_time>0</c_time>
     <c_wait>1</c_wait>
-    <c_err>0</c_err>
   </vm>
   <card_0>
     <caption>library_main.ss</caption>
-    <file>.\library_main.ss</file>
-    <caret_x>8</caret_x>
-    <caret_y>11</caret_y>
+    <file>library_main.ss</file>
+    <caret_x>25</caret_x>
+    <caret_y>9</caret_y>
     <is_main>1</is_main>
   </card_0>
 </project>

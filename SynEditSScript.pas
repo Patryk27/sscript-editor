@@ -8,7 +8,7 @@ Unit SynEditSScript;
  Interface
  Uses Classes, Dialogs, SysUtils, Graphics, SynEditHighlighter;
 
- Type TRangeState = (rsUnknown, rsCStyleComment);
+ Type TRangeState = (rsUnknown, rsCStyleComment, rsBytecode);
       TToken = (tNone, tIdent, tMacro, tString, tNumber, tShortComment, tLongComment);
 
  Type THighlighter = Class(TSynCustomHighlighter)
@@ -44,7 +44,7 @@ Unit SynEditSScript;
  Implementation
 Uses mSettings, SynEdit;
 
-{ CreateAttri }
+(* CreateAttri *)
 Function CreateAttri(S: TSetting): TSynHighlighterAttributes;
 Var F    : TSyntaxFormat;
     Style: TFontStyles = [];
@@ -67,7 +67,7 @@ Begin
   Result.Background := F.BGColor;
 End;
 
-{ THighlighter.Create }
+(* THighlighter.Create *)
 Constructor THighlighter.Create(AOwner: TComponent);
 Begin
  if not (AOwner is TSynEdit) Then
@@ -112,7 +112,7 @@ Begin
  fRange := rsUnknown;
 End;
 
-{ THighligter.SetLine }
+(* THighligter.SetLine *)
 Procedure THighlighter.SetLine(const NewValue: String; LineNumber: Integer);
 Begin
  inherited;
@@ -121,7 +121,7 @@ Begin
  Next;
 End;
 
-{ THighlighter.Next }
+(* THighlighter.Next *)
 Procedure THighlighter.Next;
 Const AlNum  = ['_', 'a'..'z', 'A'..'Z', '0'..'9'];
       Num    = ['0'..'9'];
@@ -129,7 +129,7 @@ Const AlNum  = ['_', 'a'..'z', 'A'..'Z', '0'..'9'];
 Var Len              : Integer;
     StringOpened, Dot: Boolean;
 
-(* ReadString *)
+{ ReadString }
 // Term - terminator char ( ' or " )
 Function ReadString(const Term: Char): Boolean;
 Begin
@@ -308,20 +308,20 @@ Begin
  End;
 End;
 
-{ THighlighter.GetEol }
+(* THighlighter.GetEol *)
 Function THighlighter.GetEol: Boolean;
 Begin
  Result := fTokenPos > Length(fLineText);
 End;
 
-{ THighlighter.GetTokenEx }
+(* THighlighter.GetTokenEx *)
 Procedure THighlighter.GetTokenEx(out TokenStart: PChar; out TokenLength: Integer);
 Begin
  TokenStart  := @fLineText[fTokenPos];
  TokenLength := fTokenEnd - fTokenPos;
 End;
 
-{ THighlighter.GetTokenAttribute }
+(* THighlighter.GetTokenAttribute *)
 Function THighlighter.GetTokenAttribute: TSynHighlighterAttributes;
 Var Keyword: String = '';
 Begin
@@ -338,7 +338,7 @@ Begin
   { keyword }
   Case Keyword of
    'function', 'var', 'const', 'return', 'naked', 'for', 'if', 'else', 'while', 'break', 'continue',
-   'in', 'do', 'private', 'public', 'type', 'new', 'delete', 'namespace', 'use', 'cast', 'try', 'catch', 'throw': Exit(fKeywordAttri);
+   'in', 'do', 'private', 'public', 'type', 'new', 'namespace', 'use', 'cast', 'try', 'catch', 'throw': Exit(fKeywordAttri);
    'void', 'null', 'bool', 'char', 'int', 'float', 'string', 'enum': Exit(fPrimaryTypesAttri);
   End;
 
@@ -356,31 +356,31 @@ Begin
  Exit(fOtherAttri);
 End;
 
-{ THighlighter.GetToken }
+(* THighlighter.GetToken *)
 Function THighlighter.GetToken: String;
 Begin
  Result := Copy(fLineText, fTokenPos, fTokenEnd-fTokenPos);
 End;
 
-{ THighlighter.GetTokenPos }
+(* THighlighter.GetTokenPos *)
 Function THighlighter.GetTokenPos: Integer;
 Begin
  Result := fTokenPos-1;
 End;
 
-{ THighlighter.GetDefaultAttribute }
+(* THighlighter.GetDefaultAttribute *)
 Function THighlighter.GetDefaultAttribute(Index: Integer): TSynHighlighterAttributes;
 Begin
  Case Index of
   SYN_ATTR_COMMENT: Result := fCommentAttri;
   SYN_ATTR_IDENTIFIER: Result := fIdentifierAttri;
 //  SYN_ATTR_STRING: Result := fStringAttri;
-  //SYN_ATTR_WHITESPACE: Result := fSpaceAttri;
+//  SYN_ATTR_WHITESPACE: Result := fSpaceAttri;
   else Result := nil;
  End;
 End;
 
-{ THighlighter.GetTokenKind }
+(* THighlighter.GetTokenKind *)
 Function THighlighter.GetTokenKind: Integer;
 Var A: TSynHighlighterAttributes;
 Begin
@@ -412,19 +412,19 @@ Begin
   Result := 8;
 End;
 
-{ THighlighter.GetRange }
+(* THighlighter.GetRange *)
 Function THighlighter.GetRange: Pointer;
 Begin
  Result := Pointer(fRange);
 End;
 
-{ THighlighter.SetRange }
+(* THighlighter.SetRange *)
 Procedure THighlighter.SetRange(Value: Pointer);
 Begin
  fRange := TRangeState(Value);
 End;
 
-{ THighlighter.ResetRange }
+(* THighlighter.ResetRange *)
 Procedure THighlighter.ResetRange;
 Begin
  fRange := rsUnknown;

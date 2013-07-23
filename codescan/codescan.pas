@@ -143,13 +143,16 @@ Unit CodeScan;
 
                        Procedure ParseToken;
 
+                       Function findSymbol(const SymbolName: String): TPhysicalSymbol;
+
+                       Procedure read_type;
                        Procedure read_and_mark(TokenUntil: TTokenSet);
 
                        Procedure AddIdentifier(Identifier: TIdentifier);
                        Procedure AddIdentifier(RefTo: TPhysicalSymbol; Token: TToken_P);
 
                       Public
-                       CurrentlyParsedFile: String;
+                       Var CurrentlyParsedFile: String;
 
                        Constructor Create(Code: TStrings; fFileName, fMainFile, fCompilerFile, fSearchPaths: String; const fIsMain: Boolean);
                        Constructor Create(fFileName, fMainFile, fCompilerFile, fSearchPaths: String; const fIsMain: Boolean);
@@ -400,20 +403,84 @@ Begin
  End;
 End;
 
+(* TCodeScanner.findSymbol *)
+Function TCodeScanner.findSymbol(const SymbolName: String): TPhysicalSymbol;
+Var NamespaceVis: TNamespaceVisibility;
+Begin
+ Result := nil;
+
+ if (inFunction) Then
+  Result := CurrentFunction.findPhysSymbol(SymbolName);
+
+ if (Result = nil) Then
+  Result := CurrentNamespace.findPhysSymbol(SymbolName);
+
+ if (Result = nil) Then
+ Begin
+  For NamespaceVis in NamespaceVisibilityList Do
+  Begin
+   if (Parser.next(-1) in NamespaceVis.Range) Then
+    Result := NamespaceVis.Namespace.findPhysSymbol(SymbolName);
+
+   if (Result <> nil) Then // symbol found!
+    Break;
+   End;
+  End;
+End;
+
+(* TCodeScanner.read_type *)
+Procedure TCodeScanner.read_type;
+Var Token: TToken_P;
+Begin
+ Token := Parser.read;
+
+ if (Token.Token = _IDENTIFIER) Then
+ Begin
+  // type_name
+
+  AddIdentifier(findSymbol(VarToStr(Token.Value)), Token);
+ End Else
+
+ if (Token.Token = _FUNCTION) Then
+ Begin
+  // function<return type>(parameter list)
+
+  Parser.eat(_LOWER);
+  read_type;
+  Parser.eat(_GREATER);
+
+  if (Parser.next_t <> _BRACKET1_OP) Then
+   Parser.eat(_BRACKET1_OP);
+  read_and_mark([_BRACKET1_CL]);
+ End Else
+
+  raise EParserError.CreateFmt(getLangValue(ls_unexpected), [VarToStr(Token.Value)]);
+
+ With Parser do
+  While (next_t = _BRACKET2_OP) Do
+  Begin
+   eat(_BRACKET2_OP);
+   eat(_BRACKET2_CL);
+  End;
+End;
+
 (* TCodeScanner.read_and_mark *)
 Procedure TCodeScanner.read_and_mark(TokenUntil: TTokenSet);
 Var BrDeep: Integer;
     Token : TToken_P;
 
-    Symbol      : TPhysicalSymbol;
-    Namespace   : TNamespace;
-    NamespaceVis: TNamespaceVisibility;
+    Symbol   : TPhysicalSymbol;
+    Namespace: TNamespace;
 Begin
  BrDeep := 0;
 
  Repeat
   Token := Parser.read;
+
   if (BrDeep < 0) Then
+   Exit;
+
+  if (Token.Token in TokenUntil) and (Token.Token in [_BRACKET1_OP, _BRACKET2_OP, _BRACKET3_OP, _BRACKET1_CL, _BRACKET2_CL, _BRACKET3_CL]) and (BrDeep = 0) Then
    Exit;
 
   Case Token.Token of
@@ -425,42 +492,23 @@ Begin
    Begin
     Symbol := nil;
 
-    if (Parser.next_t = _DOUBLE_COLON) and (Parser.next_t(2) = _IDENTIFIER) Then { if next is `::`, we have a namespace reference, like `std::newline()` }
+    if (Parser.next_t = _DOUBLE_COLON) and (Parser.next_t(1) = _IDENTIFIER) Then { if next is `::`, we have a namespace reference, like `std::newline()` }
     Begin
      Parser.eat(_DOUBLE_COLON); // `::`
 
      Namespace := findNamespace(Token.Value);
      if (Namespace <> nil) Then
      Begin
-      AddIdentifier(Namespace, Parser.next(-2));
+      AddIdentifier(Namespace, Token);
 
       Symbol := Namespace.findPhysSymbol(Parser.read_ident);
 
-      if (Symbol <> nil) Then
-       AddIdentifier(Symbol, Parser.next(-1));
+      AddIdentifier(Symbol, Parser.next(-1));
      End Else
-      Parser.eat(_IDENTIFIER);
+      raise EParserError.CreateFmt(getLangValue(ls_unknown_namespace), [VarToStr(Token.Value)]);
     End Else
     Begin
-     if (inFunction) Then
-      Symbol := CurrentFunction.findPhysSymbol(Token.Value);
-
-     if (Symbol = nil) Then
-      Symbol := CurrentNamespace.findPhysSymbol(Token.Value);
-
-     if (Symbol = nil) Then
-     Begin
-      For NamespaceVis in NamespaceVisibilityList Do
-      Begin
-       if (Parser.next(-1) in NamespaceVis.Range) Then
-        Symbol := NamespaceVis.Namespace.findPhysSymbol(Token.Value);
-
-       if (Symbol <> nil) Then // symbol found!
-        Break;
-      End;
-     End;
-
-     AddIdentifier(Symbol, Parser.next(-1));
+     AddIdentifier(findSymbol(Token.Value), Parser.next(-1));
     End;
    End;
 

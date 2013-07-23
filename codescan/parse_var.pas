@@ -6,7 +6,8 @@ Begin
  With Parser do
  Begin
   eat(_LOWER); // `<`
-  read_and_mark([_GREATER]); // [var type] + `>`
+  read_type;
+  eat(_GREATER);
 
   While (true) Do
   Begin

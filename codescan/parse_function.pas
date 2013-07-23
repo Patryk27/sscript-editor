@@ -1,10 +1,8 @@
 (* TCodeScanner.ParseFunction *)
-// @TODO: circular references
 Procedure TCodeScanner.ParseFunction;
 Var Func: TFunction;
+    Vari: TVariable;
 Begin
- // if function <> function_at_caret then add_ident(read_name()); just_skip_rest_of_the_function_not_parsing_it();
-
  With Parser do
  Begin
   if (next_t <> _LOWER) Then
@@ -18,9 +16,32 @@ Begin
   CurrentNamespace.SymbolList.Add(TSymbol.Create(stFunction, Func));
 
   { parameter list }
-  if (next_t <> _BRACKET1_OP) Then
-   eat(_BRACKET1_OP);
-  read_and_mark([_BRACKET1_CL]);
+  eat(_BRACKET1_OP);
+
+  While (next_t <> _BRACKET1_CL) Do
+  Begin
+   read_type;
+
+   if (next_t = _IDENTIFIER) Then
+   Begin
+    Vari      := TVariable.Create(next, Parser.getCurrentRange(0), '');
+    Vari.Name := read_ident;
+    Func.SymbolList.Add(TSymbol.Create(stVariable, Vari));
+   End;
+
+   if (next_t = _EQUAL) Then
+   Begin
+    eat(_EQUAL);
+    read_and_mark([_COMMA, _BRACKET1_CL]);
+    Dec(TokenPos);
+   End;
+
+   if (next_t <> _BRACKET1_CL) Then
+    eat(_COMMA) Else
+    Break;
+  End;
+
+  eat(_BRACKET1_CL);
 
   if (next_t = _BRACKET2_OP) Then // special case: function<type> name(param list) [special attributes];
   Begin

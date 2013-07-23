@@ -99,7 +99,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="92" Y="6"/>
-        <UsageCount Value="120"/>
+        <UsageCount Value="122"/>
       </Unit7>
       <Unit8>
         <Filename Value="ufindform.pas"/>
@@ -111,7 +111,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="5"/>
-        <UsageCount Value="106"/>
+        <UsageCount Value="108"/>
       </Unit8>
       <Unit9>
         <Filename Value="uidentifierlistform.pas"/>
@@ -123,7 +123,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="52" Y="17"/>
-        <UsageCount Value="75"/>
+        <UsageCount Value="77"/>
       </Unit9>
       <Unit10>
         <Filename Value="ucompilestatusform.pas"/>
@@ -135,7 +135,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="68" Y="17"/>
-        <UsageCount Value="75"/>
+        <UsageCount Value="77"/>
       </Unit10>
       <Unit11>
         <Filename Value="ucodeeditor.pas"/>
@@ -147,7 +147,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="166"/>
         <CursorPos X="29" Y="173"/>
-        <UsageCount Value="74"/>
+        <UsageCount Value="76"/>
       </Unit11>
       <Unit12>
         <Filename Value="ulayoutmanagerform.pas"/>
@@ -159,7 +159,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="167"/>
         <CursorPos X="100" Y="176"/>
-        <UsageCount Value="31"/>
+        <UsageCount Value="33"/>
       </Unit12>
       <Unit13>
         <Filename Value="uintellisenseform.pas"/>
@@ -183,8 +183,8 @@
         <Filename Value="mProject.pas"/>
         <UnitName Value="mProject"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="75"/>
-        <CursorPos X="51" Y="84"/>
+        <TopLine Value="1130"/>
+        <CursorPos X="61" Y="1148"/>
         <UsageCount Value="103"/>
       </Unit15>
       <Unit16>
@@ -199,9 +199,9 @@
         <Filename Value="SynEditSScript.pas"/>
         <UnitName Value="SynEditSScript"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="174"/>
-        <CursorPos X="35" Y="183"/>
-        <UsageCount Value="98"/>
+        <TopLine Value="161"/>
+        <CursorPos X="63" Y="355"/>
+        <UsageCount Value="99"/>
       </Unit17>
       <Unit18>
         <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\inc\systemh.inc"/>
@@ -260,8 +260,8 @@
         <Filename Value="C:\lazarus\lcl\forms.pp"/>
         <UnitName Value="Forms"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="52"/>
-        <CursorPos X="19" Y="70"/>
+        <TopLine Value="360"/>
+        <CursorPos X="3" Y="376"/>
         <UsageCount Value="10"/>
       </Unit25>
       <Unit26>
@@ -736,9 +736,9 @@
         <Filename Value="codescan\codescan.pas"/>
         <UnitName Value="CodeScan"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="398"/>
-        <CursorPos X="77" Y="428"/>
-        <UsageCount Value="44"/>
+        <TopLine Value="511"/>
+        <CursorPos X="101" Y="534"/>
+        <UsageCount Value="45"/>
       </Unit88>
       <Unit89>
         <Filename Value="codescan\scanner.pas"/>
@@ -752,16 +752,16 @@
         <Filename Value="codescan\parser.pas"/>
         <UnitName Value="Parser"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="83"/>
-        <CursorPos X="108" Y="94"/>
+        <TopLine Value="24"/>
+        <CursorPos X="117" Y="36"/>
         <UsageCount Value="34"/>
       </Unit90>
       <Unit91>
         <Filename Value="codescan\tokens.pas"/>
         <UnitName Value="Tokens"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="211"/>
-        <CursorPos X="1" Y="1"/>
+        <TopLine Value="35"/>
+        <CursorPos X="3" Y="50"/>
         <UsageCount Value="23"/>
       </Unit91>
       <Unit92>
@@ -789,9 +789,9 @@
         <Filename Value="codescan\parse_function.pas"/>
         <UnitName Value="parse_function"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="19"/>
-        <CursorPos X="27" Y="47"/>
-        <UsageCount Value="34"/>
+        <TopLine Value="40"/>
+        <CursorPos X="66" Y="55"/>
+        <UsageCount Value="35"/>
       </Unit95>
       <Unit96>
         <Filename Value="codescan\parse_include.pas"/>
@@ -837,9 +837,9 @@
         <Filename Value="codescan\parse_var.pas"/>
         <UnitName Value="parse_var"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="27"/>
-        <CursorPos X="44" Y="31"/>
-        <UsageCount Value="30"/>
+        <TopLine Value="1"/>
+        <CursorPos X="17" Y="10"/>
+        <UsageCount Value="31"/>
       </Unit101>
       <Unit102>
         <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\win\wininc\redef.inc"/>
@@ -924,8 +924,8 @@
         <UnitName Value="parse_type"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
-        <UsageCount Value="21"/>
+        <CursorPos X="2" Y="17"/>
+        <UsageCount Value="22"/>
       </Unit112>
       <Unit113>
         <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\sysutils\finah.inc"/>
@@ -1097,8 +1097,8 @@
         <Filename Value="mLayout.pas"/>
         <UnitName Value="mLayout"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="213"/>
-        <CursorPos X="22" Y="226"/>
+        <TopLine Value="151"/>
+        <CursorPos X="31" Y="171"/>
         <UsageCount Value="16"/>
       </Unit135>
       <Unit136>
@@ -1195,10 +1195,19 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="0" HistoryIndex="-1"/>
+    <JumpHistory Count="2" HistoryIndex="1">
+      <Position1>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position1>
+      <Position2>
+        <Filename Value="uMainForm.pas"/>
+        <Caret Line="536" Column="2" TopLine="533"/>
+      </Position2>
+    </JumpHistory>
   </ProjectSession>
   <Debugging>
-    <Watches Count="4">
+    <Watches Count="5">
       <Item1>
         <Expression Value="PTypeData"/>
       </Item1>
@@ -1211,6 +1220,9 @@
       <Item4>
         <Expression Value="asdf"/>
       </Item4>
+      <Item5>
+        <Expression Value="next_t"/>
+      </Item5>
     </Watches>
   </Debugging>
 </CONFIG>

@@ -11,6 +11,7 @@ Unit mLayout;
                      Name                    : String;
                      Top, Left, Width, Height: Integer;
                      Visible                 : Boolean;
+                     State                   : TWindowState;
                     End;
 
  Type TLayout = Class
@@ -58,6 +59,7 @@ Begin
   Forms[I].Width    := Layout.Forms[I].Width;
   Forms[I].Height   := Layout.Forms[I].Height;
   Forms[I].Visible  := Layout.Forms[I].Visible;
+  Forms[I].State    := Layout.Forms[I].State;
  End;
 End;
 
@@ -71,7 +73,7 @@ End;
 Procedure TLayout.LoadFromFile(const FileName: String);
 Var XML: TXMLConfigStorage;
 
-   // LoadForm
+   { LoadForm }
    Function LoadForm(Name: String): TLayoutForm;
    Begin
     Result.Name     := Name;
@@ -80,6 +82,7 @@ Var XML: TXMLConfigStorage;
     Result.Width    := XML.GetValue(Name+'/width', 100);
     Result.Height   := XML.GetValue(Name+'/height', 100);
     Result.Visible  := XML.GetValue(Name+'/visible', True);
+    Result.State    := TWindowState(XML.GetValue(Name+'/state', ord(wsNormal)));
    End;
 
 Begin
@@ -102,7 +105,7 @@ Procedure TLayout.SaveToFile(const FileName: String);
 Var XML : TXMLConfigStorage;
     Form: TLayoutForm;
 
-   // SaveForm
+   { SaveForm }
    Procedure SaveForm(Form: TLayoutForm);
    Begin
     With Form do
@@ -112,6 +115,7 @@ Var XML : TXMLConfigStorage;
      XML.SetValue(Name+'/width', Width);
      XML.SetValue(Name+'/height', Height);
      XML.SetValue(Name+'/visible', Visible);
+     XML.SetValue(Name+'/state', ord(State));
     End;
    End;
 
@@ -143,8 +147,9 @@ Begin
   Top     := 88;
   Left    := 4;
   Width   := Screen.Width-245;
-  Height  := Screen.Height-250;
+  Height  := Screen.Height-265;
   Visible := True;
+  State   := wsNormal;
  End;
 
  { identifier list form }
@@ -154,19 +159,21 @@ Begin
   Top     := 88;
   Left    := Screen.Width-222;
   Width   := 200;
-  Height  := Screen.Height-250;
+  Height  := Screen.Height-265;
   Visible := True;
+  State   := wsNormal;
  End;
 
  { compile status form }
  With Forms[2] do
  Begin
   Name    := 'CompileStatusForm';
-  Top     := Screen.Height-140;
+  Top     := Screen.Height-145;
   Left    := 4;
   Width   := Screen.Width-24;
   Height  := 75;
   Visible := True;
+  State   := wsNormal;
  End;
 End;
 
@@ -185,9 +192,10 @@ Begin
   Begin
    Forms[I].Top     := Top;
    Forms[I].Left    := Left;
-   Forms[I].Width   := ClientWidth;
-   Forms[I].Height  := ClientHeight;
+   Forms[I].Width   := Width;
+   Forms[I].Height  := Height;
    Forms[I].Visible := Visible;
+   Forms[I].State   := WindowState;
   End;
  End;
 End;
@@ -205,11 +213,12 @@ Begin
 
   With Form do
   Begin
-   Top          := Forms[I].Top;
-   Left         := Forms[I].Left;
-   ClientWidth  := Forms[I].Width;
-   ClientHeight := Forms[I].Height;
-   Visible      := Forms[I].Visible;
+   Top         := Forms[I].Top;
+   Left        := Forms[I].Left;
+   Width       := Forms[I].Width;
+   Height      := Forms[I].Height;
+   Visible     := Forms[I].Visible;
+   WindowState := Forms[I].State;
   End;
  End;
 End;

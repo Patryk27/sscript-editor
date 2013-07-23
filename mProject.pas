@@ -1080,6 +1080,8 @@ End;
 Destructor TProject.Destroy;
 Var Card: TCard;
 Begin
+ SaveIfPossible;
+
  MainForm.setMainMenu(stDisabled);
 
  For Card in CardList Do

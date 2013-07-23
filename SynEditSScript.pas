@@ -339,7 +339,7 @@ Begin
   Case Keyword of
    'function', 'var', 'const', 'return', 'naked', 'for', 'if', 'else', 'while', 'break', 'continue',
    'in', 'do', 'private', 'public', 'type', 'new', 'namespace', 'use', 'cast', 'try', 'catch', 'throw': Exit(fKeywordAttri);
-   'void', 'null', 'bool', 'char', 'int', 'float', 'string', 'enum': Exit(fPrimaryTypesAttri);
+   'void', 'null', 'bool', 'char', 'int', 'float', 'string', 'enum', 'true', 'false': Exit(fPrimaryTypesAttri);
   End;
 
   { just some identifier }

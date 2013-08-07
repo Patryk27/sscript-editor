@@ -144,11 +144,11 @@ type
 
  // consts
  Const vMajor   = 0.3;
-       vMinor   = 3;
+       vMinor   = 4;
 
        iVersion: Single = 100*vMajor+vMinor; // this is saved into the `version` field in project files.
 
-       sVersion = '0.3.3';
+       sVersion = '0.3.4 nightly';
        sCaption = 'SScript Editor v'+sVersion;
 
  // variables
@@ -250,6 +250,7 @@ Begin
    setMainMenu(stDisabled);
 
    Application.MessageBox(PChar(getLangValue(ls_msg_project_open_failed)), PChar(getLangValue(ls_msg_error)), MB_IconError);
+   FreeAndNil(Project);
   End;
  End;
 End;

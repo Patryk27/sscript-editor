@@ -38,6 +38,7 @@ begin
  Application.Initialize;
 
  DefaultFormatSettings.DecimalSeparator := '.';
+ Application.Title                      := 'SScript Editor';
 
  Application.CreateForm(TMainForm, MainForm);
  Application.CreateForm(TProjectSettingsForm, ProjectSettingsForm);

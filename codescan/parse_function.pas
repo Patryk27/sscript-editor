@@ -15,11 +15,14 @@ Begin
 
   CurrentNamespace.SymbolList.Add(TSymbol.Create(stFunction, Func));
 
-  { parameter list }
+  { read parameter list }
   eat(_BRACKET1_OP);
 
   While (next_t <> _BRACKET1_CL) Do
   Begin
+   if (next_t in [_VAR, _CONST]) Then
+    read;
+
    read_type;
 
    if (next_t = _IDENTIFIER) Then

@@ -191,14 +191,11 @@ Text=eCompilerFile
 [ProjectSettingsForm_Label2]
 Caption=Maszyna wirtualna:
 
-[ProjectSettingsForm_eVMFile]
-Text=eVMFile
-
-[ProjectSettingsForm_btnGetPathsFromEV]
-Caption=Pobierz ścieżki z danych środowiska
-
-[ProjectSettingsForm__initcode]
+[ProjectSettingsForm__cs_initcode]
 Caption=Dodaj kod startowy do programu (-initcode)
+
+[ProjectSettingsForm__cs_Cconst]
+Caption=Włącz specjalne stałe, takie jak `__self`, `__line`... (-Cconst)
 
 [ProjectSettingsForm_rgOptimizationLevel]
 Caption=Stopień optymalizacji
@@ -206,9 +203,6 @@ Caption=Stopień optymalizacji
 1=-O1
 2=-O2 (-O1+szybkie optymalizacje)
 3=-O3 (-O2+wolne optymalizacje)
-
-[ProjectSettingsForm__Cconst]
-Caption=Włącz specjalne stałe, takie jak `__self`, `__line`... (-Cconst)
 
 [ProjectSettingsForm_Label3]
 Caption=Inne przełączniki:
@@ -249,14 +243,14 @@ Caption=Wygenerowany plik nagłówkowy%newline%(tylko dla bibliotek; możesz zos
 [ProjectSettingsForm_eHeaderFile]
 Text=eHeaderFile
 
-[ProjectSettingsForm_c_wait]
+[ProjectSettingsForm_vm_wait]
 Caption=Czekaj na `enter`, gdy program skończy działanie (-wait)
 
-[ProjectSettingsForm_c_time]
+[ProjectSettingsForm_vm_time]
 Caption=Wyświetl czas działania programu (-time)
 
-[ProjectSettingsForm_c_err]
-Caption=Wyświetl szczegółowy log błędów (-err)
+[ProjectSettingsForm_vm_jit]
+Caption=Włącz kompilator JIT (-jit)
 
 [ProjectSettingsForm_Label9]
 Caption=Inne przełączniki:

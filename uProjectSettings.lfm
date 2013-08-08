@@ -1,7 +1,7 @@
 object ProjectSettingsForm: TProjectSettingsForm
-  Left = 241
+  Left = 500
   Height = 437
-  Top = 147
+  Top = 231
   Width = 640
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
@@ -61,11 +61,11 @@ object ProjectSettingsForm: TProjectSettingsForm
     Height = 394
     Top = 0
     Width = 387
-    PageIndex = 2
+    PageIndex = 0
     TabOrder = 3
     TabStop = True
     object p_2: TPage
-      object _initcode: TCheckBox
+      object cs_initcode: TCheckBox
         Left = 0
         Height = 19
         Top = 8
@@ -81,10 +81,10 @@ object ProjectSettingsForm: TProjectSettingsForm
         Caption = 'Other switches:'
         ParentColor = False
       end
-      object _Cconst: TCheckBox
+      object cs_Cconst: TCheckBox
         Left = 0
         Height = 19
-        Top = 32
+        Top = 24
         Width = 300
         Caption = 'Enable special constants like `__self`, `__line` (-Cconst)'
         TabOrder = 1
@@ -92,7 +92,7 @@ object ProjectSettingsForm: TProjectSettingsForm
       object rgOptimizationLevel: TRadioGroup
         Left = 0
         Height = 96
-        Top = 64
+        Top = 56
         Width = 384
         AutoFill = True
         Caption = 'Optimization level'
@@ -206,7 +206,7 @@ object ProjectSettingsForm: TProjectSettingsForm
       end
     end
     object p_4: TPage
-      object c_wait: TCheckBox
+      object vm_wait: TCheckBox
         Left = 0
         Height = 19
         Top = 8
@@ -214,10 +214,10 @@ object ProjectSettingsForm: TProjectSettingsForm
         Caption = 'Wait for `enter` after program finished working (-wait)'
         TabOrder = 0
       end
-      object c_time: TCheckBox
+      object vm_time: TCheckBox
         Left = 0
         Height = 19
-        Top = 32
+        Top = 24
         Width = 288
         Caption = 'Display program''s work time when finished (-time)'
         TabOrder = 1
@@ -274,6 +274,14 @@ object ProjectSettingsForm: TProjectSettingsForm
         )
         TabOrder = 4
         Text = 'bytes'
+      end
+      object vm_jit: TCheckBox
+        Left = 0
+        Height = 19
+        Top = 40
+        Width = 148
+        Caption = 'Enable JIT compiler (-jit)'
+        TabOrder = 5
       end
     end
   end

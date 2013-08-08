@@ -24,9 +24,10 @@ type
     mOtherSwitches: TMemo;
     rgOptimizationLevel: TRadioGroup;
     eGCMemoryLimit: TSpinEdit;
-    _Cconst:TCheckBox;
-    c_time:TCheckBox;
-    c_wait:TCheckBox;
+    vm_jit: TCheckBox;
+    cs_Cconst:TCheckBox;
+    vm_time:TCheckBox;
+    vm_wait:TCheckBox;
     eHeaderFile: TEdit;
     eBytecodeOutput: TEdit;
     Label7: TLabel;
@@ -44,7 +45,7 @@ type
     p_4:TPage;
     p_3: TPage;
     Label3: TLabel;
-    _initcode: TCheckBox;
+    cs_initcode: TCheckBox;
     p_2: TPage;
     Pages: TNotebook;
     Setting: TTreeView;

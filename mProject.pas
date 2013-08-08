@@ -91,11 +91,11 @@ Unit mProject;
  Type TMessageList = specialize TFPGList<PMessage>;
 
  // TCompilerSwitches
- Type TCompilerSwitch = (_initcode, _Cconst);
+ Type TCompilerSwitch = (cs_initcode, cs_Cconst);
  Type TCompilerSwitches = Set of TCompilerSwitch;
 
  // TVMSwitches
- Type TVMSwitch = (c_time, c_wait);
+ Type TVMSwitch = (vm_time, vm_wait, vm_jit);
  Type TVMSwitches = Set of TVMSwitch;
 
  { TProject }
@@ -182,7 +182,7 @@ Unit mProject;
                    Procedure UpdateIdentifierList;
                   End;
 
- Function getCompilerSwitchName(const S: TCompilerSwitch; DeleteFirstChar: Boolean=True): String;
+ Function getCompilerSwitchName(const S: TCompilerSwitch; DeleteFirstChars: Boolean=True): String;
  Function getVMSwitchName(const S: TVMSwitch; DeleteFirstChars: Boolean=True): String;
 
  Var Project: TProject = nil; // currently opened project
@@ -192,12 +192,12 @@ Uses mSettings, mLanguages, uIdentifierListForm, uCompileStatusForm, uCodeEditor
      Dialogs, SysUtils, Forms, DOM, XMLWrite, XMLRead, TypInfo;
 
 { getCompilerSwitchName }
-Function getCompilerSwitchName(const S: TCompilerSwitch; DeleteFirstChar: Boolean=True): String;
+Function getCompilerSwitchName(const S: TCompilerSwitch; DeleteFirstChars: Boolean=True): String;
 Begin
  Result := GetEnumName(TypeInfo(TCompilerSwitch), Integer(S));
 
- if (DeleteFirstChar) Then
-  Delete(Result, 1, 1);
+ if (DeleteFirstChars) Then
+  Delete(Result, 1, 3);
 End;
 
 { getVMSwitchName }
@@ -206,7 +206,7 @@ Begin
  Result := GetEnumName(TypeInfo(TVMSwitch), Integer(S));
 
  if (DeleteFirstChars) Then
-  Delete(Result, 1, 2);
+  Delete(Result, 1, 3);
 End;
 
 // -------------------------------------------------------------------------- //
@@ -1107,11 +1107,11 @@ Begin
  Named := False;
  Saved := False;
 
- CompilerSwitches      := [_initcode, _Cconst]; // `-initcode`, `-Cconst` are enabled by default
+ CompilerSwitches      := [cs_initcode, cs_Cconst]; // `-initcode`, `-Cconst` are enabled by default
  OtherCompilerSwitches := '';
  OptimizationLevel     := 2;
 
- VMSwitches      := [c_wait]; // `-wait` is enabled by default
+ VMSwitches      := [vm_wait, vm_jit]; // `-wait` and `-jit` are enabled by default
  OtherVMSwitches := '';
 
  GCMemoryLimit     := 128;

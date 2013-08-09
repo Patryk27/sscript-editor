@@ -1,8 +1,9 @@
 @("stdlib\\stdio.ss")
+@("stdlib\\numbers.ss")
 
 use std;
 
-// I used 'float' in code, because it is more accurate than normal 'int'
+// We're using 'float' in the code because it is more accurate than normal 'int'
 function<float> fib(int n)
 {
  var<float> a=1, b=1, c;
@@ -25,10 +26,7 @@ function<float> fib(int n)
 
 function<int> main()
 {
- var<int> n = read_int_t("Which number calculate? ");
+ var<int> n = read_int_t("Which Fibonacci's sequence number compute? ");
 
- print("fibonacci(");
- print(n);
- print(") = ");
- print(fib(n));
+ println("fibonacci(" + intstr(n) + ") = "+fltstr(fib(n)));
 }

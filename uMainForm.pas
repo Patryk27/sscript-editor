@@ -325,7 +325,7 @@ Begin
   Project  := TProject.Create;
 
   if (not Project.Open(FileName)) Then // try to open
-   Project.Free;
+   FreeAndNil(Project);
  End;
 End;
 

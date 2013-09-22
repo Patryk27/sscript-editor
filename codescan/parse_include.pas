@@ -1,3 +1,23 @@
+(* isZipFile *)
+Function isZipFile(const FileName: String): Boolean;
+Var Stream: TFileStream;
+    Header: Array[0..3] of uint8;
+    I     : uint8;
+Begin
+ Stream := TFileStream.Create(FileName, fmOpenRead);
+
+ Try
+  For I := Low(Header) To High(Header) Do
+   Header[I] := Stream.ReadByte;
+
+  Result := (Header[0] = $50) and (Header[1] = $4B) and
+            (Header[2] = $03) and (Header[3] = $04);
+ Finally
+  Stream.Free;
+ End;
+End;
+
+// -------------------------------------------------------------------------- //
 (* TCodeScanner.ParseInclude *)
 Procedure TCodeScanner.ParseInclude;
 Var FileName, RealFile     : String;
@@ -16,7 +36,10 @@ Begin
   if (not findFile(FileName, RealFile)) Then // if file not found
    raise EParserError.CreateFmt(getLangValue(ls_unknown_file), [FileName]);
 
-  if (ParsedFiles.IndexOf(RealFile) > -1) Then // file has been already parsed
+  if (ParsedFiles.indexOf(RealFile) > -1) Then // file has been already parsed
+   Exit;
+
+  if (isZipFile(FileName)) Then // unsupported for now :<
    Exit;
 
   Prev                    := CurrentlyParsedFile;

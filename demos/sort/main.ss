@@ -1,13 +1,25 @@
+/*
+ This is demo of quicksort.
+*/
+
 @("stdlib/stdio.ss")
 
 use std;
 
+/*
+ @name: display
+ @desc: displays an int array.
+*/
 function<void> display(int[] tab)
 {
  for (var<int> i=0; i<tab.length(); i++)
   println(tab[i]);
 }
 
+/*
+ @name: swap
+ @desc: swaps two numbers.
+*/
 function<void> swap(var int a, var int b)
 {
  var<int> tmp = a;
@@ -15,6 +27,10 @@ function<void> swap(var int a, var int b)
  b = tmp;
 }
 
+/*
+ @name: sort
+ @desc: sorts an array of ints.
+*/
 function<void> sort(int[] tab, int l, int r)
 {
  if (l < r)
@@ -37,14 +53,7 @@ function<void> sort(int[] tab, int l, int r)
 
 function<int> main()
 {
- var<int[]> tab = new int[6];
-
- tab[0] = 10;
- tab[1] = 3;
- tab[2] = 14;
- tab[3] = 20;
- tab[4] = 9;
- tab[5] = 0;
+ var<int[]> tab(10, 3, 14, 20, 9, 0);
 
  display(tab);
  println("------------");

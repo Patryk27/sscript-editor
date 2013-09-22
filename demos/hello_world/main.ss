@@ -1,3 +1,7 @@
+/*
+ Standard "Hello World!" program.
+*/
+
 @("stdlib\\stdio.ss")
 
 use std;

@@ -1,3 +1,8 @@
+/*
+ This is a really simple floating-point calculator.
+ It can add, subtract, multiply and divide two numbers entered by user.
+*/
+
 @("stdlib\\stdio.ss")
 @("stdlib\\numbers.ss")
 

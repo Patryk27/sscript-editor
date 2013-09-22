@@ -1,9 +1,17 @@
+/*
+ This program computes n-th Fibonacci number (where "n" is specified by user) using a loop.
+*/
+
 @("stdlib\\stdio.ss")
 @("stdlib\\numbers.ss")
 
 use std;
 
-// We're using 'float' in the code because it is more accurate than normal 'int'
+/*
+ @name: fib
+ @desc: computes n-th Fibonacci sequence number.
+ @note: we're using 'float' in the code because it is more accurate than normal 'int'
+*/
 function<float> fib(int n)
 {
  var<float> a=1, b=1, c;

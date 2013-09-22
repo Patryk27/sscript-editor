@@ -1,8 +1,12 @@
+/*
+ This is a simple enumeration-types demo.
+*/
+
 @("stdlib\\stdio.ss")
 
 use std;
 
-type<enum> state = {stFirst, stSecond};
+type<enum> state = [stFirst, stSecond];
 
 function<int> main()
 {

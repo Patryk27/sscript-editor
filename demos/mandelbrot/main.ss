@@ -1,3 +1,8 @@
+/*
+ Mandelbrot fractal demo.
+ It renders The Mandelbrot set.
+*/
+
 @("stdlib\\stdio.ss")
 
 use std;

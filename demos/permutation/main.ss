@@ -1,3 +1,7 @@
+/*
+ This demo displays permuatations of set: 'a', 'b', 'c'.
+*/
+
 @("stdlib/stdio.ss")
 
 use std;
@@ -26,11 +30,7 @@ function<void> permut(string[] tab, int n, int k)
 
 function<int> main()
 {
- var<string[]> tab = new string[3];
-
- tab[0] = "a";
- tab[1] = "b";
- tab[2] = "c";
+ var<string[]> tab("a", "b", "c");
 
  permut(tab, tab.length()-1, 0);
 }

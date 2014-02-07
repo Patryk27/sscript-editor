@@ -107,7 +107,7 @@ function<string> calc_rpn(const string expr)
    throw "Unexpected symbol: "+expr[pos];
  }
 
- while (stack_pos > -1) // read until there're no operators on the stack
+ while (stack_pos > 0) // read until there're no operators left on the stack
  {
   result += stack[stack_pos]+" ";
   stack_pos--;

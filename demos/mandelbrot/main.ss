@@ -9,11 +9,11 @@ use std;
 
 function<int> main()
 {
- set_size(141, 54);
-
  const w1=140, h1=52, recen=-2.2, imcen=0.15, r=2.28, w2=24, h2=31, s=2*r/w1;
  var<int> x, y;
  var<float> rec, imc, re, im, re2, im2;
+
+ set_size(w1+1, h1+1);
 
  set_buffered(true);
  for (y=0; y<=h1; y++)

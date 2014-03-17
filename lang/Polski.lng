@@ -191,11 +191,8 @@ Text=eCompilerFile
 [ProjectSettingsForm_Label2]
 Caption=Maszyna wirtualna:
 
-[ProjectSettingsForm__cs_initcode]
-Caption=Dodaj kod startowy do programu (-initcode)
-
-[ProjectSettingsForm__cs_Cconst]
-Caption=Włącz specjalne stałe, takie jak `__self`, `__line`... (-Cconst)
+[ProjectSettingsForm_cs__internal_const]
+Caption=Włącz specjalne stałe, takie jak `__self`, `__line`... (--internal-const)
 
 [ProjectSettingsForm_rgOptimizationLevel]
 Caption=Stopień optymalizacji
@@ -217,7 +214,7 @@ Caption=Optymalizacje
 Caption=Poziom 1 (-O1)
 
 [ProjectSettingsForm_Label4]
-Caption=Ścieżki do modułów (`;` jest separatorem):
+Caption=Ścieżki do modułów (średnik jest separatorem):
 
 [ProjectSettingsForm_eIncludePath]
 Text=eIncludePath

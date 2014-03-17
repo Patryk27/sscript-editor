@@ -25,7 +25,7 @@ type
     rgOptimizationLevel: TRadioGroup;
     eGCMemoryLimit: TSpinEdit;
     vm_jit: TCheckBox;
-    cs_Cconst:TCheckBox;
+    cs__internal_const:TCheckBox;
     vm_time:TCheckBox;
     vm_wait:TCheckBox;
     eHeaderFile: TEdit;
@@ -45,7 +45,6 @@ type
     p_4:TPage;
     p_3: TPage;
     Label3: TLabel;
-    cs_initcode: TCheckBox;
     p_2: TPage;
     Pages: TNotebook;
     Setting: TTreeView;

@@ -59,7 +59,6 @@ begin
  MainForm.OnLanguageLoaded;
 
  { run application }
- Application.Title := 'SScript Editor';
  Application.Run;
 
  { save layout }

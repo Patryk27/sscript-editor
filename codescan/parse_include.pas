@@ -39,7 +39,7 @@ Begin
   if (ParsedFiles.indexOf(RealFile) > -1) Then // file has been already parsed
    Exit;
 
-  if (isZipFile(FileName)) Then // unsupported for now :<
+  if (isZipFile(FileName)) Then // unsupported for now :< - @TODO
    Exit;
 
   Prev                    := CurrentlyParsedFile;

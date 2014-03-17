@@ -1,7 +1,7 @@
 object ProjectSettingsForm: TProjectSettingsForm
-  Left = 500
+  Left = 287
   Height = 437
-  Top = 231
+  Top = 197
   Width = 640
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
@@ -10,7 +10,7 @@ object ProjectSettingsForm: TProjectSettingsForm
   ClientWidth = 640
   FormStyle = fsStayOnTop
   Position = poScreenCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.2.0.3'
   object Setting: TTreeView
     Left = 0
     Height = 400
@@ -65,34 +65,26 @@ object ProjectSettingsForm: TProjectSettingsForm
     TabOrder = 3
     TabStop = True
     object p_2: TPage
-      object cs_initcode: TCheckBox
-        Left = 0
-        Height = 19
-        Top = 8
-        Width = 243
-        Caption = 'Add init code into the program (-initcode)'
-        TabOrder = 0
-      end
       object Label3: TLabel
         Left = 0
-        Height = 16
+        Height = 15
         Top = 176
-        Width = 82
+        Width = 81
         Caption = 'Other switches:'
         ParentColor = False
       end
-      object cs_Cconst: TCheckBox
+      object cs__internal_const: TCheckBox
         Left = 0
         Height = 19
-        Top = 24
-        Width = 300
-        Caption = 'Enable special constants like `__self`, `__line` (-Cconst)'
-        TabOrder = 1
+        Top = 8
+        Width = 342
+        Caption = 'Enable special constants like `__self`, `__line` (--internal-const)'
+        TabOrder = 0
       end
       object rgOptimizationLevel: TRadioGroup
         Left = 0
-        Height = 96
-        Top = 56
+        Height = 136
+        Top = 32
         Width = 384
         AutoFill = True
         Caption = 'Optimization level'
@@ -104,7 +96,7 @@ object ProjectSettingsForm: TProjectSettingsForm
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 78
+        ClientHeight = 118
         ClientWidth = 380
         Items.Strings = (
           '-O0 (no optimization)'
@@ -112,7 +104,7 @@ object ProjectSettingsForm: TProjectSettingsForm
           '-O2 (-O1+fast optimizations)'
           '-O3 (-O2+slow optimizations)'
         )
-        TabOrder = 2
+        TabOrder = 1
       end
       object mOtherSwitches: TMemo
         Left = 0
@@ -126,7 +118,7 @@ object ProjectSettingsForm: TProjectSettingsForm
         Font.Quality = fqDraft
         ParentFont = False
         ScrollBars = ssAutoBoth
-        TabOrder = 3
+        TabOrder = 2
       end
     end
     object p_3: TPage

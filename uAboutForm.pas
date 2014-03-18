@@ -1,5 +1,5 @@
 (*
- Copyright © by Patryk Wychowaniec, 2013
+ Copyright © by Patryk Wychowaniec, 2013-2014
  All rights reserved.
 *)
 unit uAboutForm;
@@ -37,6 +37,7 @@ Uses uMainForm;
 (* TAboutForm.FormCreate *)
 procedure TAboutForm.FormCreate(Sender: TObject);
 
+  { L }
   Procedure L(Text: String=''; const AddNewline: Boolean=True); inline;
   Begin
    if (AddNewline) Then

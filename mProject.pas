@@ -1,5 +1,5 @@
 (*
- Copyright © by Patryk Wychowaniec, 2013
+ Copyright © by Patryk Wychowaniec, 2013-2014
  All rights reserved.
 *)
 {$MODE OBJFPC}{$H+}
@@ -36,7 +36,11 @@ Unit mProject;
 
         Intellisense: TSynCompletion;
 
+        ItemData: TStringList; // used inside 'Intellisense_OnPaintItem'; declared here just so that it doesn't have to be constantly created and destroyed inside that function
+
        Private
+        Procedure PrepareItemData(const Data: String);
+
         Procedure UpdateIntellisense;
 
         Procedure Editor_OnKeyPress(Sender: TObject; var Key: Char);
@@ -186,8 +190,8 @@ Unit mProject;
         Function getCurrentCard: TCard;
         Function getCurrentEditor: TSynEdit;
 
-        Function FindIdentifier(const CaretXY: TPoint): PIdentifier;
-        Procedure JumpToDeclaration(const Ident: PIdentifier);
+        Function FindIdentifier(const CaretXY: TPoint; out Identifier: TIdentifier): Boolean;
+        Procedure JumpToDeclaration(const Identifier: TIdentifier);
 
         Procedure UpdateIdentifierList;
        End;
@@ -226,6 +230,14 @@ Begin
 End;
 
 // -------------------------------------------------------------------------- //
+(* TCard.PrepareItemData *)
+Procedure TCard.PrepareItemData(const Data: String);
+Begin
+ ItemData.Delimiter       := IntellisenseDelimiter;
+ ItemData.StrictDelimiter := True;
+ ItemData.DelimitedText   := Data;
+End;
+
 (* TCard.UpdateIntellisense *)
 {
  Updates the Intellisense window.
@@ -353,8 +365,8 @@ End;
 
 (* TCard.Intellisense_OnPaintItem *)
 Function TCard.Intellisense_OnPaintItem(const AKey: String; ACanvas: TCanvas; X, Y: integer; Selected: Boolean; Index: Integer): Boolean;
-Var ItemText, ItemLeft, ItemRight: String;
-    Rect                         : TRect;
+Var Rect: TRect;
+    TmpX: uint32;
 begin
  Rect.Left := X;
  Rect.Top  := Y;
@@ -375,16 +387,41 @@ begin
 
   FillRect(Rect);
 
-  ItemText := AKey;
+  // change text style
+  Brush.Style := bsClear;
 
-  ItemLeft  := Copy(ItemText, 1, Pos('|', ItemText)-1);
-  ItemRight := Copy(ItemText, Pos('|', ItemText)+1, Length(ItemText));
+  // explode data to display
+  PrepareItemData(AKey);
 
-  //Font.Style := [fsItalic];
-  TextOut(Rect.Left, Rect.Top, ItemLeft);
+  // write item kind (function/type (...))
+  TextOut(Rect.Left, Rect.Top, ItemData[1]);
+  TmpX := Rect.Left+110;
 
+  // write item name
   Font.Style := [fsBold];
-  TextOut(Rect.Left+110, Rect.Top, ItemRight);
+  TextOut(Rect.Left+110, Rect.Top, ItemData[2]);
+  TmpX += TextWidth(ItemData[2]);
+
+  // write other optional item data, depending of its type
+  Font.Style := [];
+
+  if (ItemData[0] = 'function') Then
+  Begin
+   // parameter list + type
+   TextOut(TmpX, Rect.Top, ItemData[4]+' -> '+ItemData[3]);
+  End Else
+
+  if (ItemData[0] = 'var') Then
+  Begin
+   // variable type
+   TextOut(TmpX, Rect.Top, ' -> '+ItemData[3]);
+  End Else
+
+  if (ItemData[0] = 'const') Then
+  Begin
+   // constant value
+   TextOut(TmpX, Rect.Top, ' -> '+ItemData[3]);
+  End;
 
   Font.Style := [];
  End;
@@ -394,17 +431,20 @@ End;
 
 (* TCard.Intellisense_OnSearchPosition *)
 Procedure TCard.Intellisense_OnSearchPosition(var Position: Integer);
-Var I    : Integer;
-    Value: String;
+Var I: uint32;
 Begin
  With Intellisense do
  Begin
+  // if not items to check, give up
+  if (ItemList.Count = 0) Then
+   Exit;
+
+  // iterate each item
   For I := 0 To ItemList.Count-1 Do
   Begin
-   Value := ItemList[I];
-   Delete(Value, 1, Pos('|', Value));
+   PrepareItemData(ItemList[I]);
 
-   if (Copy(Value, 1, Length(CurrentString)) = CurrentString) Then
+   if (Copy(ItemData[2], 1, Length(CurrentString)) = CurrentString) Then
    Begin
     Position := I;
     Exit;
@@ -436,7 +476,8 @@ End;
 (* TCard.Intellisense_OnCodeCompletion *)
 Procedure TCard.Intellisense_OnCodeCompletion(var Value: String; SourceValue: String; var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char; Shift: TShiftState);
 Begin
- Delete(Value, 1, Pos('|', Value));
+ PrepareItemData(Value);
+ Value := ItemData[2];
 End;
 
 (* TCard.Intellisense_OnKeyDown *)
@@ -481,6 +522,8 @@ Begin
 
  Named  := False;
  isMain := False;
+
+ ItemData := TStringList.Create;
 
  SynEdit := TSynEdit.Create(MainForm);
  Tab     := TTabSheet.Create(MainForm);
@@ -542,6 +585,7 @@ End;
 }
 Destructor TCard.Destroy;
 Begin
+ ItemData.Free;
  SynEdit.Free;
  Tab.Destroy;
 End;
@@ -718,6 +762,7 @@ Begin
 
  Parsing     := True;
  CodeScanner := TCodeScanner.Create(SynEdit.Lines, getFileName, Project.getMainCard.getFileName, getString(sCompilerFile), Project.IncludePath, True); // parse!
+
  Try
   Try
    IdentifierList := CodeScanner.Parse;
@@ -773,7 +818,7 @@ Begin
 
  if (CodeScanner <> nil) Then
  Begin
-  With CodeScanner.getNamespaceList.First.SymbolList do
+  With CodeScanner.getNamespaceList.First.getSymbolList do
   Begin
    // these identifiers are not visible on the identifier list, but they are in the Intellisense form
    null_token.Char     := 0;
@@ -828,7 +873,7 @@ Begin
   Exit(nil);
 
  For Result in CodeScanner.getNamespaceList Do
-  if (Result.Token.FileName = FileName) and (GetTokenPAtCaret in Result.Range) Then
+  if (Result.getToken.FileName = FileName) and (GetTokenPAtCaret in Result.getRange) Then
    Exit;
 
  Exit(nil);
@@ -848,7 +893,7 @@ Function TCard.GetFunctionAtCaret: TFunction;
   End;
 
   if (Symbol.Typ = stNamespace) Then
-   For Tmp in Symbol.mNamespace.SymbolList Do
+   For Tmp in Symbol.mNamespace.getSymbolList Do
     ParseSymbol(Tmp);
  End;
 
@@ -861,7 +906,7 @@ Begin
   Exit;
 
  For NS in CodeScanner.getNamespaceList Do
-  For Symbol in NS.SymbolList Do
+  For Symbol in NS.getSymbolList Do
    ParseSymbol(Symbol);
 End;
 
@@ -901,7 +946,7 @@ Begin
 
  if (Func = nil) Then
   Result := '' Else
-  Result := Func.Name;
+  Result := Func.getName;
 End;
 
 (* TCard.GetNamespacesAtCaret *)
@@ -921,12 +966,12 @@ Begin
 
  For NSV in CodeScanner.getNamespaceVisibilityList Do
   if (Token in NSV.Range) Then
-   Result.Add(NSV.Namespace.Name);
+   Result.Add(NSV.Namespace.getName);
 
  For NS in CodeScanner.getNamespaceList Do
-  if (Token in NS.Range) Then
+  if (Token in NS.getRange) Then
   Begin
-   Result.Add(NS.Name);
+   Result.Add(NS.getName);
    Break; // namespaces cannot be inlined in each other, so just stop.
   End;
 
@@ -1117,11 +1162,13 @@ Begin
  MainForm.setMainMenu(stDisabled);
 
  For Card in CardList Do
+ Begin
   With Card do
   Begin
    SynEdit.Free;
    Tab.Free;
   End;
+ End;
 
  CardList.Free;
  MessageList.Free;
@@ -1904,12 +1951,13 @@ Begin
   Process.Executable := getString(sCompilerFile);
 
   { generate command line }
-  Process.Parameters.AddStrings(
-  [
-   '"'+InputFile+'"',
-   '-includepath', '"'+IncludePath+'"',
-   '-o', '"'+sOutputFile+'"'
-  ]
+  Process.Parameters.AddStrings
+  (
+   [
+    '"'+InputFile+'"',
+    '-includepath', '"'+IncludePath+'"',
+    '-o', '"'+sOutputFile+'"'
+   ]
   );
 
   // optimization level
@@ -1946,7 +1994,7 @@ Begin
 
   { read output }
   TmpOutput      := GetMem(MAX_BYTES+1);
-  CompilerOutput := Process.Parameters.Text+#13#10#13#10;
+  CompilerOutput := Process.Parameters.Text+LineEnding+LineEnding;
 
   While (Process.Running) Do
   Begin
@@ -2246,48 +2294,45 @@ End;
 {
  Returns parsed identifier at specified position or `nil` when such identifier couldn't be found.
 }
-Function TProject.FindIdentifier(const CaretXY: TPoint): PIdentifier;
-Var Card : TCard;
-    Ident: PIdentifier;
+Function TProject.FindIdentifier(const CaretXY: TPoint; out Identifier: TIdentifier): Boolean;
+Var Card: TCard;
 Begin
  Card := getCurrentCard;
 
  Card.Parse;
 
  if (Card.IdentifierList = nil) Then
-  Exit(nil);
+  Exit(False);
 
- For Ident in Card.IdentifierList Do
-  if (Ident^.Char = CaretXY.X) and (Ident^.Line = CaretXY.Y) Then
-   Exit(Ident);
+ For Identifier in Card.IdentifierList Do
+  if (Identifier.Char = CaretXY.X) and (Identifier.Line = CaretXY.Y) Then
+   Exit(True);
 
- Exit(nil);
+ Exit(False);
 End;
 
 (* TProject.JumpToDeclaration *)
 {
  Jumps to identifier's declaration.
 }
-Procedure TProject.JumpToDeclaration(const Ident: PIdentifier);
+Procedure TProject.JumpToDeclaration(const Identifier: TIdentifier);
 Var Card: TCard;
 Begin
- if (Ident = nil) Then
-  Exit;
+ Card := FindCard(Identifier.RefFileName);
 
- Card := FindCard(Ident^.RefFileName);
- if (Card = nil) Then
+ if (Card = nil) Then // is it already opened card?
  Begin
-  Card := CreateCard(Ident^.RefFileName, True);
+  Card := CreateCard(Identifier.RefFileName, True); // if no, try to open that file
 
-  if (Card = nil) Then // eg.file not found
+  if (Card = nil) Then // error: file not found - give up | @TODO: error message?
    Exit;
  End;
 
  With Card.SynEdit do
  Begin
-  CaretX := Ident^.RefChar;
-  CaretY := Ident^.RefLine;
-  SelEnd := SelStart+Ident^.RefLen;
+  CaretX := Identifier.RefChar;
+  CaretY := Identifier.RefLine;
+  SelEnd := SelStart+Identifier.RefLen;
  End;
 
  CodeEditor.Tabs.ActivePageIndex := CardList.IndexOf(Card);
@@ -2435,7 +2480,7 @@ Var Card: TCard;
    if (Symbol = nil) Then // shouldn't really happen
     Exit;
 
-   if (AnsiCompareFileName(Symbol.getPhysSymbol.Token.FileName, Card.FileName) <> 0) Then
+   if (AnsiCompareFileName(Symbol.getPhysSymbol.getToken.FileName, Card.FileName) <> 0) Then
     Exit;
 
    { function }
@@ -2468,14 +2513,14 @@ Var Card: TCard;
   Var Ns, Types, Funcs, Vars, Cnsts: PVirtualNode;
       Tmp                          : TSymbol;
   Begin
-   Ns := AddNode(nil, Namespace.Name, 0); // @TODO: nice icon
+   Ns := AddNode(nil, Namespace.getName, 0); // @TODO: nice icon
 
    Types := AddNode(Ns, getLangValue(ls_types), 0);
    Funcs := AddNode(Ns, getLangValue(ls_functions), 0);
    Vars  := AddNode(Ns, getLangValue(ls_variables), 0);
    Cnsts := AddNode(Ns, getLangValue(ls_constants), 0);
 
-   For Tmp in Namespace.SymbolList Do
+   For Tmp in Namespace.getSymbolList Do
     Case Tmp.Typ of
      stType    : ParseSymbol(Types, Tmp);
      stFunction: ParseSymbol(Funcs, Tmp);

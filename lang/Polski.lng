@@ -532,8 +532,9 @@ replace_msg=Zamienić to wyrażenie `%s` na `%s`?
 find_not_found=Wyrażenie `%s` nie zostało odnalezione!
 
 declaration_not_found=Nie udało się odnaleźć deklaracji!
-its_keyword=To jest słowo kluczowe!
-its_internal_type=Jest to typ wewnętrzny!
+its_keyword=To jest słowo kluczowe.
+its_internal_type=To jest typ wewnętrzny.
+its_number=To jest liczba.
 
 namespaces=Przestrzenie nazw
 types=Typy

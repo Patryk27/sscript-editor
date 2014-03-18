@@ -1,5 +1,5 @@
 (*
- Copyright © by Patryk Wychowaniec, 2013
+ Copyright © by Patryk Wychowaniec, 2013-2014
  All rights reserved.
 *)
 Unit Tokens;
@@ -8,9 +8,9 @@ Unit Tokens;
  Uses TypInfo;                                                    
 
  Const IdentAllowed = ['a'..'z', 'A'..'Z', '0'..'9', '_'];
- Const Keywords     : Array[0..25] of String = ('function', 'var', 'const', 'return', 'naked', 'for', 'if', 'else', 'while', 'break', 'continue',
+ Const Keywords     : Array[0..26] of String = ('function', 'var', 'const', 'return', 'naked', 'for', 'if', 'else', 'while', 'break', 'continue',
                                                 'in', 'do', 'public', 'private', 'type', 'new', 'delete', 'namespace', 'use', 'cast', 'strict',
-                                                'try', 'catch', 'throw', 'enum');
+                                                'try', 'catch', 'throw', 'enum', 'foreach');
 
  // IMPORTANT: do not change tokens order and do not try to remove any token, unless you change order in "Token_Display" (see below)
  Type TToken =
@@ -107,6 +107,7 @@ Unit Tokens;
   _CATCH,         // catch
   _THROW,         // throw
   _ENUM,          // enum
+  _FOREACH,       // foreach
 
   _NEWLINE
  );
@@ -206,17 +207,22 @@ Unit Tokens;
   'catch',
   'throw',
   'enum',
+  'foreach',
   ''
  );
 
+ { TToken_P }
  Type PToken_P = ^TToken_P;
-      TToken_P = Record
-                  Token               : TToken;
-                  TokenName           : String;
-                  Value               : Variant;
-                  Position, Line, Char: LongWord;
-                  FileName            : String;
-                 End;
+      TToken_P =
+      Record
+       Token    : TToken;
+       TokenName: String;
+
+       Value: Variant;
+
+       Position, Line, Char: uint32;
+       FileName            : String;
+      End;
 
  Function getTokenName(T: TToken): String;
  Function getTokenDisplay(T: TToken): String;

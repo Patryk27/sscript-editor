@@ -1,18 +1,22 @@
 (* TCodeScanner.ParseVar *)
 Procedure TCodeScanner.ParseVar;
-Var Name: String;
-    Vari: TVariable;
+Var Name, TypeStr: String;
+    Vari         : TVariable;
 Begin
  With Parser do
  Begin
   eat(_LOWER); // `<`
-  read_type;
-  eat(_GREATER);
+  TypeStr := read_type;
+  eat(_GREATER); // `>`
 
   While (true) Do
   Begin
    Name := read_ident;
-   Vari := TVariable.Create(next(-1), getCurrentRange, Name);
+
+   Vari     := TVariable.Create(next(-1), getCurrentRange, Name);
+   Vari.Typ := TypeStr;
+
+   AddIdentifier(Vari, next(-1));
 
    if (inFunction) Then
     CurrentFunction.SymbolList.Add(TSymbol.Create(stVariable, Vari)) Else
@@ -22,7 +26,7 @@ Begin
    Begin
     eat(_EQUAL);
     read_and_mark([_SEMICOLON, _COMMA]);
-    Dec(TokenPos); // 'read_and_mark' eats previous token
+    StepBack; // 'read_and_mark' eats previous token
    End;
 
    if (next_t = _SEMICOLON) Then
@@ -37,8 +41,8 @@ End;
 
 (* TCodeScanner.ParseConst *)
 Procedure TCodeScanner.ParseConst;
-Var Cnst: TVariable;
-    Name: String;
+Var Name: String;
+    Cnst: TVariable;
 Begin
  With Parser do
  Begin
@@ -47,13 +51,14 @@ Begin
    Name := read_ident;
    Cnst := TVariable.Create(next(-1), getCurrentRange, Name);
 
-    if (inFunction) Then
-     CurrentFunction.SymbolList.Add(TSymbol.Create(stConstant, Cnst)) Else
-     CurrentNamespace.SymbolList.Add(TSymbol.Create(stConstant, Cnst));
+   if (inFunction) Then
+    CurrentFunction.SymbolList.Add(TSymbol.Create(stConstant, Cnst)) Else
+    CurrentNamespace.SymbolList.Add(TSymbol.Create(stConstant, Cnst));
 
    eat(_EQUAL);
 
-   read_and_mark([_COMMA, _SEMICOLON]);
+   Cnst.Value := read_and_mark([_COMMA, _SEMICOLON]);
+
    if (next_t(-1) = _SEMICOLON) Then
     Exit;
   End;

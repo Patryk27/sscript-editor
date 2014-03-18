@@ -1,5 +1,5 @@
 (*
- Copyright © by Patryk Wychowaniec, 2013
+ Copyright © by Patryk Wychowaniec, 2013-2014
  All rights reserved.
 *)
 unit uCodeEditor;
@@ -102,26 +102,41 @@ end;
 
 (* TCodeEditor.opFindDeclarationClick *)
 procedure TCodeEditor.opFindDeclarationClick(Sender: TObject);
-Var Ident: PIdentifier;
-    Word : String;
+Var Identifier: TIdentifier;
+    Word      : String;
 begin
  With Project do
  Begin
   getCurrentEditor.SelectWord;
   Word := getCurrentEditor.SelText;
 
-  if (isKeyword(Word)) Then // if keyword...
-   Application.MessageBox(PChar(getLangValue(ls_its_keyword)), PChar(getLangValue(ls_msg_error)), MB_ICONERROR) Else
-
-  if (isInternalType(Word)) Then // if internal type...
-   Application.MessageBox(PChar(getLangValue(ls_its_internal_type)), PChar(getLangValue(ls_msg_info)), MB_ICONINFORMATION) Else
-
+  // if keyword
+  if (isKeyword(Word)) Then
   Begin
-   Ident := Project.FindIdentifier(getCurrentEditor.BlockBegin);
+   Application.MessageBox(PChar(getLangValue(ls_its_keyword)), PChar(getLangValue(ls_msg_info)), MB_ICONINFORMATION);
+  End Else
 
-   if (Ident <> nil) Then
-    JumpToDeclaration(Ident) Else
+  // if internal type
+  if (isInternalType(Word)) Then
+  Begin
+   Application.MessageBox(PChar(getLangValue(ls_its_internal_type)), PChar(getLangValue(ls_msg_info)), MB_ICONINFORMATION);
+  End Else
+
+  // if number
+  if (isNumber(Word)) Then
+  Begin
+   Application.MessageBox(PChar(getLangValue(ls_its_number)), PChar(getLangValue(ls_msg_info)), MB_ICONINFORMATION);
+  End Else
+
+  // otherwise, try to find it
+  Begin
+   if (Project.FindIdentifier(getCurrentEditor.BlockBegin, Identifier)) Then // if found...
+   Begin // jump to its declaration
+    JumpToDeclaration(Identifier);
+   End Else
+   Begin // display error
     Application.MessageBox(PChar(getLangValue(ls_declaration_not_found)), PChar(getLangValue(ls_msg_error)), MB_ICONERROR);
+   End;
   End;
  End;
 end;
@@ -144,30 +159,32 @@ Var Func     : TFunction;
     Namespace: TNamespace;
     Str      : String = '';
 begin
- if (Project <> nil) Then
+ if (Project = nil) or (Project.getCurrentCard = nil) Then
  Begin
-  if (Project.getCurrentCard <> nil) Then
-  Begin
-   Namespace := Project.getCurrentCard.GetNamespaceAtCaret;
-   Func      := Project.getCurrentCard.GetFunctionAtCaret;
-
-   if (Func = nil) Then
-   Begin
-    if (Namespace <> nil) Then
-     Str := 'namespace '+Namespace.Name;
-   End Else
-   Begin
-    if (Namespace = nil) or (Namespace.Name = 'self') Then
-     Str := 'function '+Func.Name Else
-     Str := 'function '+Namespace.Name+'::'+Func.Name;
-   End;
-
-   if (CurrentFunction.Text <> Str) Then
-    CurrentFunction.Text := Str;
-  End Else
-   CurrentFunction.Text := '';
- End Else
   CurrentFunction.Text := '';
+  Exit;
+ End;
+
+ Namespace := Project.getCurrentCard.GetNamespaceAtCaret;
+ Func      := Project.getCurrentCard.GetFunctionAtCaret;
+
+ if (Func = nil) Then
+ Begin
+  if (Namespace <> nil) Then
+   Str := 'namespace '+Namespace.getName;
+ End Else
+ Begin
+  Str := 'function<'+Func.getReturnType+'> ';
+
+  if (Namespace = nil) or (Namespace.getName = 'self') Then
+   Str += Func.getName Else
+   Str += Namespace.getName+'::'+Func.getName;
+
+  Str += '('+Func.getParamTypesAsString+')';
+ End;
+
+ if (CurrentFunction.Text <> Str) Then
+  CurrentFunction.Text := Str;
 end;
 
 (* TCodeEditor.FormCreate *)
@@ -192,10 +209,7 @@ end;
 (* TCodeEditor.TabsUpdateTimer *)
 procedure TCodeEditor.TabsUpdateTimer(Sender: TObject);
 begin
- if (Project = nil) Then // no project created
-  Exit;
-
- if (Project.getCurrentCard = nil) Then // no card opened
+ if (Project = nil) or (Project.getCurrentCard = nil) Then // no project created / no card opened
   Exit;
 
  Project.UpdateCards;

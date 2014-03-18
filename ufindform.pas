@@ -1,5 +1,5 @@
 (*
- Copyright © by Patryk Wychowaniec, 2013
+ Copyright © by Patryk Wychowaniec, 2013-2014
  All rights reserved.
 *)
 unit uFindForm;
@@ -55,7 +55,6 @@ Var ReplaceAll: Boolean;
 
 {$R *.lfm}
 
-// -------------------------------------------------------------------------- //
 (* TFindForm.OnReplace *)
 Procedure TFindForm.OnReplace(Sender: TObject; const ASearch, AReplace: String; Line, Column: Integer; var ReplaceAction: TSynReplaceAction);
 Begin

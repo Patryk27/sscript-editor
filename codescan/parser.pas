@@ -1,5 +1,5 @@
 (*
- Copyright © by Patryk Wychowaniec, 2013
+ Copyright © by Patryk Wychowaniec, 2013-2014
  All rights reserved.
 *)
 Unit Parser;
@@ -10,52 +10,57 @@ Unit Parser;
  Type TTokenList = specialize TFPGList<PToken_P>;
 
  { TRange }
- Type TRange = Record
-                PBegin, PEnd: TToken_P;
-               End;
+ Type TRange =
+      Record
+       PBegin, PEnd: TToken_P;
+      End;
 
  { TParser }
- Type TParser = Class
-                 Private
-                // private fields
-                  TokenList: TTokenList; // list of tokens (with stripped comments)
+ Type TParser =
+      Class
+      Private
+       TokenList: TTokenList; // list of tokens (with stripped comments)
+       TokenPos : uint64; // current token ID (counting from 0)
 
-                  DontFailOnEOF, ParsingFORInitInstruction: Boolean;
+       CurrentDeep: int16; // current brackets deep (`{` = +1, `}` = -1)
 
-                 Public
-                // public fields
-                  TokenPos: Int64; // current token ID (counting from 0)
+       DontFailOnEOF, ParsingFORInitInstruction: Boolean;
 
-                  CurrentDeep: Integer; // current brackets' deep (`{` = +1, `}` = -1)
+      Public
+       Constructor Create(Code: TStringList; const TokenFileName: String);
+       Destructor Destroy; override;
 
-                  Property getPosition: Int64 read TokenPos; // current token position
-                  Property getTokenList: TTokenList read TokenList;
+       Function getToken(const Index: uint32): TToken_P;
+       Function getTokenPnt(const Index: uint32): PToken_P;
+       Function getLastToken: TToken_P;
+       Function getCurrentRange(Deep: Integer=1): TRange;
 
-                // public methods
-                  Constructor Create(Code: TStringList; const TokenFileName: String);
-                  Destructor Destroy; override;
+       Function read: TToken_P;
+       Function read_t: TToken;
+       Function next(const I: Integer=0): TToken_P;
+       Function next_pnt(const I: Integer=0): PToken_P;
+       Function next_t(const I: Integer=0): TToken;
+       Function read_ident: String;
+       Function read_string: String;
+       Function read_int: Integer;
+       Procedure eat(Token: TToken);
+       Procedure semicolon;
 
-                  Function getToken(const Index: uint32): TToken_P;
-                  Function getTokenPnt(const Index: uint32): PToken_P;
-                  Function getLastToken: TToken_P;
-                  Function getCurrentRange(Deep: Integer=1): TRange;
+       Procedure skip_parenthesis;
 
-                  Function read: TToken_P;
-                  Function read_t: TToken;
-                  Function next(const I: Integer=0): TToken_P;
-                  Function next_pnt(const I: Integer=0): PToken_P;
-                  Function next_t(const I: Integer=0): TToken;
-                  Function read_ident: String;
-                  Function read_string: String;
-                  Function read_int: Integer;
-                  Procedure eat(Token: TToken);
-                  Procedure semicolon;
+       Procedure read_until(const Token: TToken);
 
-                  Procedure skip_parenthesis;
-                  Procedure read_until(const Token: TToken);
+       Procedure StepBack(const TokenCount: uint32=1);
+       Procedure IncCurrentDeep;
+       Procedure DecCurrentDeep;
 
-                  Function Can: Boolean;
-                 End;
+       Function Can: Boolean;
+
+      Public
+       Property getTokenList: TTokenList read TokenList;
+       Property getPosition: uint64 read TokenPos;
+       Property getCurrentDeep: int16 read CurrentDeep;
+      End;
 
  Operator in (Token: TToken_P; Range: TRange): Boolean;
 
@@ -307,8 +312,7 @@ Function TParser.next_pnt(const I: Integer=0): PToken_P;
 Begin
  if (TokenPos+I >= TokenList.Count) Then
   Result := TokenList.Last Else
- if (TokenPos+I < 0) Then
-  Result := TokenList.First Else
+
   Result := TokenList[TokenPos+I];
 End;
 
@@ -415,6 +419,27 @@ Begin
    _BRACKET1_CL, _BRACKET2_CL, _BRACKET3_CL: Dec(Deep);
   End;
  End;
+End;
+
+(* TParser.StepBack *)
+{
+ Moves back token counter by given value.
+}
+Procedure TParser.StepBack(const TokenCount: uint32);
+Begin
+ TokenPos -= TokenCount;
+End;
+
+(* TParser.IncCurrentDeep *)
+Procedure TParser.IncCurrentDeep;
+Begin
+ Inc(CurrentDeep);
+End;
+
+(* TParser.DecCurrentDeep *)
+Procedure TParser.DecCurrentDeep;
+Begin
+ Dec(CurrentDeep);
 End;
 
 (* TParser.Can *)

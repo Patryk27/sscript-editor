@@ -1,5 +1,5 @@
 (*
- Copyright © by Patryk Wychowaniec, 2013
+ Copyright © by Patryk Wychowaniec, 2013-2014
  All rights reserved.
 *)
 {$MODE OBJFPC}{$H+}
@@ -70,8 +70,8 @@ End;
 (* THighlighter.Create *)
 Constructor THighlighter.Create(AOwner: TComponent);
 Begin
- if not (AOwner is TSynEdit) Then
-  raise Exception.Create('AOwner needs to be a TSynEdit!');
+ if (not (AOwner is TSynEdit)) Then
+  raise Exception.Create('AOwner needs to be a TSynEdit instance!');
 
  inherited Create(AOwner);
 
@@ -203,7 +203,7 @@ Begin
 
   While (fTokenEnd <= Len) Do
   Begin
-   if not (fLineText[fTokenEnd] in HexNum) Then
+   if (not (fLineText[fTokenEnd] in HexNum)) Then
     Break;
 
    Inc(fTokenEnd);
@@ -228,7 +228,7 @@ Begin
     Inc(fTokenEnd);
    End;
 
-   if not (fLineText[fTokenEnd] in Num) Then
+   if (not (fLineText[fTokenEnd] in Num)) Then
     Break;
 
    Inc(fTokenEnd);
@@ -287,7 +287,7 @@ Begin
  End;
 
  { not alpha-numeric }
- if not (fLineText[fTokenEnd] in AlNum) Then
+ if (not (fLineText[fTokenEnd] in AlNum)) Then
  Begin
   Inc(fTokenEnd);
   Exit;
@@ -299,10 +299,10 @@ Begin
    Inc(fTokenEnd);
  End Else
  Begin
-  While (fTokenEnd <= Len) and not (fLineText[fTokenEnd] in [#9, ' ']) Do
+  While (fTokenEnd <= Len) and (not (fLineText[fTokenEnd] in [#9, ' '])) Do
   Begin
    Inc(fTokenEnd);
-   if not (fLineText[fTokenEnd] in AlNum) Then
+   if (not (fLineText[fTokenEnd] in AlNum)) Then
     Break;
   End;
  End;
@@ -332,13 +332,15 @@ Begin
  if (fToken = tIdent) Then
  Begin
   Keyword := GetToken;
-  if not (Keyword[1] in ['a'..'z']) Then
+  if (not (Keyword[1] in ['a'..'z'])) Then
    Delete(Keyword, 1, 1);
 
   { keyword }
   Case Keyword of
-   'function', 'var', 'const', 'return', 'naked', 'for', 'if', 'else', 'while', 'break', 'continue',
-   'in', 'do', 'private', 'public', 'type', 'new', 'namespace', 'use', 'cast', 'try', 'catch', 'throw': Exit(fKeywordAttri);
+   'function', 'var', 'const', 'return', 'naked', 'for', 'if', 'else', 'while',
+   'break', 'continue', 'in', 'do', 'private', 'public', 'type', 'new',
+   'namespace', 'use', 'cast', 'try', 'catch', 'throw', 'foreach': Exit(fKeywordAttri);
+
    'void', 'null', 'bool', 'char', 'int', 'float', 'string', 'enum', 'true', 'false': Exit(fPrimaryTypesAttri);
   End;
 
@@ -372,11 +374,13 @@ End;
 Function THighlighter.GetDefaultAttribute(Index: Integer): TSynHighlighterAttributes;
 Begin
  Case Index of
-  SYN_ATTR_COMMENT: Result := fCommentAttri;
+  SYN_ATTR_COMMENT   : Result := fCommentAttri;
   SYN_ATTR_IDENTIFIER: Result := fIdentifierAttri;
 //  SYN_ATTR_STRING: Result := fStringAttri;
 //  SYN_ATTR_WHITESPACE: Result := fSpaceAttri;
-  else Result := nil;
+
+  else
+   Result := nil;
  End;
 End;
 

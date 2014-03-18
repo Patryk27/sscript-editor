@@ -1,7 +1,7 @@
 (* TCodeScanner.ParseNamespace *)
 Procedure TCodeScanner.ParseNamespace;
 Var Name                    : String;
-    Deep                    : Integer;
+    Deep                    : int16;
     Namespace, PrevNamespace: TNamespace;
 Begin
  With Parser do
@@ -9,6 +9,7 @@ Begin
   Name := read_ident;
 
   Namespace := findNamespace(Name);
+
   if (Namespace = nil) Then // new namespace
   Begin
    Namespace := TNamespace.Create(next(-1), getCurrentRange, Name);
@@ -21,10 +22,10 @@ Begin
   PrevNamespace    := CurrentNamespace;
   CurrentNamespace := Namespace;
 
-  Deep := CurrentDeep;
+  Deep := getCurrentDeep;
   Repeat
    ParseToken;
-  Until (CurrentDeep = Deep);
+  Until (getCurrentDeep = Deep);
 
   CurrentNamespace := PrevNamespace;
  End;

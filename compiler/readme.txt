@@ -1,1 +1,0 @@
-Place the compiler, virtual machine and compiler's "stdlib" directory here.

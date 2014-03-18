@@ -1,10 +1,12 @@
 (*
- Copyright © by Patryk Wychowaniec, 2013
+ Copyright © by Patryk Wychowaniec, 2013-2014
  All rights reserved.
 *)
 Unit mLanguages;
 
  Interface
+
+ { LString }
  Type LString =
  (
   ls_title_card_close,
@@ -31,7 +33,7 @@ Unit mLanguages;
   ls_find, ls_replace, ls_replace_msg,
   ls_find_title, ls_find_not_found,
 
-  ls_declaration_not_found, ls_its_keyword, ls_its_internal_type,
+  ls_declaration_not_found, ls_its_keyword, ls_its_internal_type, ls_its_number,
 
   ls_namespaces, ls_types, ls_functions, ls_variables, ls_constants,
 
@@ -44,7 +46,9 @@ Unit mLanguages;
  );
 
  Procedure LoadLanguageFile(const FileName: String);
+
  Function getLangValue(const Name: LString): String;
+ Function getLangValue(const Name: LString; const Args: Array of Const): String;
 
  Implementation
 Uses mSettings, Forms, Classes, TypInfo, IniFiles, SysUtils, Dialogs, ComCtrls, ExtCtrls, StdCtrls;
@@ -59,9 +63,11 @@ Var Form, I, P   : Integer;
 Begin
  Ini := TIniFile.Create(FileName);
 
- // load each form
+ // each form
  For Form := 0 To Application.ComponentCount-1 Do
+ Begin
   With Application do
+  Begin
    With Components[Form] do
    Begin
     FormName := TForm(Application.Components[Form]).Name;
@@ -126,6 +132,8 @@ Begin
       End;
     End;
    End;
+  End;
+ End;
 
  Ini.Free;
 End;
@@ -158,8 +166,8 @@ Begin
    ls_msg_compiler_or_vm_not_found: Result := 'The compiler or virtual machine file cannot be found.';
    ls_msg_close_last_card         : Result := 'You cannot close the last card!';
    ls_msg_close_main_card         : Result := 'You cannot close the main card!';
-   ls_msg_compiler_not_found      : Result := 'Compiler file not found!';
-   ls_msg_vm_not_found            : Result := 'Virtual machine file not found!';
+   ls_msg_compiler_not_found      : Result := 'Compiler executable not found!';
+   ls_msg_vm_not_found            : Result := 'Virtual machine executable not found!';
    ls_msg_unsaved_files           : Result := 'There are unsaved files in your project.'#13#10'Save them?';
    ls_msg_unsaved_project         : Result := 'Your project isn''t saved; you may lose data.'#13#10'Save it?';
    ls_msg_project_open_failed     : Result := 'Couldn''t open project file';
@@ -212,8 +220,9 @@ Begin
    ls_find_not_found: Result := 'Expression `%s` not found!';
 
    ls_declaration_not_found: Result := 'Identifier not found!';
-   ls_its_keyword          : Result := 'It''s a keyword!';
-   ls_its_internal_type    : Result := 'It''s an internal type, it doesn''t have its declaration.';
+   ls_its_keyword          : Result := 'This is a keyword!';
+   ls_its_internal_type    : Result := 'This is an internal type, it doesn''t have explicit declaration.';
+   ls_its_number           : Result := 'This is a number!';
 
    ls_namespaces: Result := 'Namespaces';
    ls_types     : Result := 'Types';
@@ -245,5 +254,11 @@ Begin
  End;
 
  Result := StringReplace(Result, '%newline%', #13#10, [rfReplaceAll]);
+End;
+
+(* getLangValue *)
+Function getLangValue(const Name: LString; const Args: Array of const): String;
+Begin
+ Result := Format(getLangValue(Name), Args);
 End;
 End.

@@ -1,5 +1,5 @@
 (*
- Copyright © by Patryk Wychowaniec, 2013
+ Copyright © by Patryk Wychowaniec, 2013-2014
  All rights reserved.
 *)
 Unit mFunctions;
@@ -10,6 +10,7 @@ Unit mFunctions;
 
  Function isKeyword(const Str: String): Boolean;
  Function isInternalType(const Str: String): Boolean;
+ Function isNumber(const Str: String): Boolean;
 
  Implementation
 Uses Tokens;
@@ -19,8 +20,8 @@ Uses Tokens;
  Works almost the same way as `System.Pos`, but takes care not to find text inside strings.
 }
 Function MPos(const SubStr, Str: String): Integer;
-Var I       : Integer;
-    inString: Boolean = False;
+Var inString: Boolean = False;
+    I       : Integer;
 Begin
  Result := 0;
 
@@ -59,8 +60,20 @@ Function isInternalType(const Str: String): Boolean;
 Begin
  Case Str of
   'any', 'void', 'bool', 'char', 'int', 'float', 'string': Exit(True);
+
   else
    Exit(False);
  End;
+End;
+
+(* isNumber *)
+Function isNumber(const Str: String): Boolean;
+Var Ch: Char;
+Begin
+ Result := True;
+
+ For Ch in Str Do
+  if (not (Ch in ['0'..'9'])) Then
+   Exit(False);
 End;
 End.

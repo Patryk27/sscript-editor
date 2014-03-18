@@ -14,7 +14,7 @@ object MainForm: TMainForm
   OnCreate = FormCreate
   OnDropFiles = FormDropFiles
   Position = poScreenCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.2.0.3'
   WindowState = wsMaximized
   object bbNewModule: TBitBtn
     Tag = 1

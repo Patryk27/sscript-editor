@@ -2,8 +2,8 @@
 Procedure TCodeScanner.ParseUse;
 Var Name: String;
 
-  // AddNamespace
-  Procedure AddNamespace(Name: String; NS: TNamespace);
+  { AddNamespace }
+  Procedure AddNamespace(const Name: String; const NS: TNamespace);
   Begin
    if (NS = nil) Then
     raise EParserError.CreateFmt(getLangValue(ls_unknown_namespace), [Name]);

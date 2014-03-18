@@ -159,7 +159,7 @@ type
  Procedure AddRecentlyOpened(const FileName: String);
 
  Implementation
-Uses mProject, mLanguages, mFunctions, mLayout, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm, uIdentifierListForm,
+Uses mProject, mLanguages, mFunctions, mLayouts, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm, uIdentifierListForm,
      uCompileStatusForm, uCodeEditor, uLayoutManagerForm;
 
 {$R *.lfm}
@@ -287,7 +287,7 @@ End;
 Procedure TMainForm.onLanguageLoaded;
 Var FileName, MsgText: String;
 
-  // Map
+  { Map }
   Procedure Map(const Button: TBitBtn; const MenuItem: TMenuItem);
   Begin
    Button.Glyph := MenuItem.Bitmap;
@@ -534,8 +534,11 @@ end;
 (* TMainForm.oResetLayout *)
 procedure TMainForm.oResetLayoutClick(Sender: TObject);
 begin
- CurrentLayout.Reset;
- CurrentLayout.Apply;
+ With LayoutManager.getCurrentLayout do
+ Begin
+  Reset;
+  Apply;
+ End;
 end;
 
 (* TMainForm.oRunClick *)

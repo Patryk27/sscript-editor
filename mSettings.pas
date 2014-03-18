@@ -17,23 +17,25 @@ Unit mSettings;
                   sIntellisenseWidth, sIntellisenseHeight);
 
  { TSyntaxFormat }
- Type TSyntaxFormat = Record
-                       Bold, Italic, Underline, HasBGColor: Boolean;
-                       FGColor, BGColor                   : LongWord;
-                      End;
+ Type TSyntaxFormat =
+      Record
+       Bold, Italic, Underline, HasBGColor: Boolean;
+       FGColor, BGColor                   : LongWord;
+      End;
 
  { TFont }
- Type TFont = Record
-               Name                   : String;
-               Size                   : Integer;
-               Bold, Italic, Underline: Boolean;
-              End;
+ Type TFont =
+      Record
+       Name                   : String;
+       Size                   : Integer;
+       Bold, Italic, Underline: Boolean;
+      End;
 
  Const FileName = 'settings.ini';
        DefaultValues: Array[TSetting] of String =
  (
-  'compiler/compiler.exe',
-  'compiler/vm.exe',
+  'compiler\compiler.exe',
+  'compiler\vm.exe',
   'false,false,false,false,0,0',
   'true,false,false,false,8135705,0',
   'true,false,false,false,15728885,0',
@@ -51,7 +53,7 @@ Unit mSettings;
   '',
   'false',
   '',
-  '%homedir%/layouts/default.xml',
+  '%homedir%layouts\default.xml',
   '350',
   '300'
  );
@@ -120,6 +122,9 @@ End;
 Function getAppDir: String;
 Begin
  Result := ExtractFilePath(ParamStr(0));
+
+ if (not (Result[Length(Result)] = DirectorySeparator)) Then
+  Result += DirectorySeparator;
 End;
 
 (* getLayoutDir *)

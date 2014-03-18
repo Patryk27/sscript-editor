@@ -462,6 +462,9 @@ Caption=Zapisz aktualny
 [LayoutManagerForm_btnApplySelected]
 Caption=Zastosuj wybrany
 
+[LayoutManagerForm_btnCreateNew]
+Caption=Stwórz nowy
+
 [LayoutManagerForm_opRenameSelected]
 Caption=Zmień nazwę
 
@@ -493,6 +496,7 @@ msg_layout_name=Nazwa układu:
 msg_replace_layout=Chcesz zastąpić układ o nazwie '%s'?
 msg_nothing_is_selected=Nic nie zostało wybrane!
 msg_layout_remove=Chcesz usunąć układ o nazwie '%s'?
+msg_layout_already_exists=Układ o takiej nazwie już istnieje!
 
 msg_info=Informacja
 msg_warn=Ostrzeżenie

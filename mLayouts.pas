@@ -1,51 +1,89 @@
 (*
- Copyright © by Patryk Wychowaniec, 2013
+ Copyright © by Patryk Wychowaniec, 2013-2014
  All rights reserved.
 *)
-Unit mLayout;
+Unit mLayouts;
 
  Interface
  Uses XMLPropStorage, Classes, SysUtils, Forms;
 
- Type TLayoutForm = Record
-                     Name                    : String;
-                     Top, Left, Width, Height: Integer;
-                     Visible                 : Boolean;
-                     State                   : TWindowState;
-                    End;
+ { TLayoutForm }
+ Type TLayoutForm =
+      Record
+       Name                    : String;
+       Top, Left, Width, Height: Integer;
+       Visible                 : Boolean;
+       State                   : TWindowState;
+      End;
 
- Type TLayout = Class
-                 Public
-                  Name : String;
-                  Forms: Array of TLayoutForm;
+ { TLayoutFormList }
+ Type TLayoutFormList = Array of TLayoutForm;
 
-                  Constructor Create;
-                  Constructor Create(Layout: TLayout);
-                  Constructor Create(const FileName: String);
+ { TLayout }
+ Type TLayout =
+      Class
+       Private
+        Name : String;
+        Forms: TLayoutFormList;
 
-                  Procedure LoadFromFile(const FileName: String);
-                  Procedure SaveToFile(const FileName: String);
+       Public
+        Constructor Create;
+        Constructor Create(const Layout: TLayout);
+        Constructor Create(const FileName: String);
 
-                  Procedure Reset;
-                  Procedure Update;
-                  Procedure Apply;
-                 End;
+        Procedure LoadFromFile(const FileName: String);
+        Procedure SaveToFile(const FileName: String);
 
- Var CurrentLayout: TLayout;
+        Procedure Reset;
+        Procedure Update;
+        Procedure Apply;
 
- Procedure Reload;
- Function FindLayouts: TStringList;
+        Procedure ChangeName(const fName: String);
+
+       Public
+        Property getName: String read Name;
+        Property getForms: TLayoutFormList read Forms;
+       End;
+
+ { TLayoutManager }
+ Type TLayoutManager =
+      Class
+       Private
+        LayoutList   : TStringList;
+        CurrentLayout: TLayout;
+
+       Public
+        Constructor Create;
+        Destructor Destroy; override;
+
+        Procedure ReloadCurrentLayout;
+        Procedure UpdateLayoutList;
+
+       Public
+        Property getLayoutList: TStringList read LayoutList;
+        Property getCurrentLayout: TLayout read CurrentLayout;
+       End;
+
+ // layout manager instance
+ Var LayoutManager: TLayoutManager;
 
  Implementation
 Uses mSettings;
 
 (* TLayout.Create *)
+{
+ Creates an empty, clean layout.
+}
 Constructor TLayout.Create;
 Begin
+ Reset;
 End;
 
 (* TLayout.Create *)
-Constructor TLayout.Create(Layout: TLayout);
+{
+ Creates a copy of layout.
+}
+Constructor TLayout.Create(const Layout: TLayout);
 Var I: Integer;
 Begin
  Name := Layout.Name;
@@ -64,26 +102,32 @@ Begin
 End;
 
 (* TLayout.Create *)
+{
+ Loads layout from the specified file.
+}
 Constructor TLayout.Create(const FileName: String);
 Begin
  LoadFromFile(FileName);
 End;
 
 (* TLayout.LoadFromFile *)
+{
+ Loads layout from the specified file.
+}
 Procedure TLayout.LoadFromFile(const FileName: String);
 Var XML: TXMLConfigStorage;
 
-   { LoadForm }
-   Function LoadForm(Name: String): TLayoutForm;
-   Begin
-    Result.Name     := Name;
-    Result.Top      := XML.GetValue(Name+'/top', 0);
-    Result.Left     := XML.GetValue(Name+'/left', 0);
-    Result.Width    := XML.GetValue(Name+'/width', 100);
-    Result.Height   := XML.GetValue(Name+'/height', 100);
-    Result.Visible  := XML.GetValue(Name+'/visible', True);
-    Result.State    := TWindowState(XML.GetValue(Name+'/state', ord(wsNormal)));
-   End;
+  { LoadForm }
+  Function LoadForm(const Name: String): TLayoutForm;
+  Begin
+   Result.Name     := Name;
+   Result.Top      := XML.GetValue(Name+'/top', 0);
+   Result.Left     := XML.GetValue(Name+'/left', 0);
+   Result.Width    := XML.GetValue(Name+'/width', 100);
+   Result.Height   := XML.GetValue(Name+'/height', 100);
+   Result.Visible  := XML.GetValue(Name+'/visible', True);
+   Result.State    := TWindowState(XML.GetValue(Name+'/state', ord(wsNormal)));
+  End;
 
 Begin
  XML := TXMLConfigStorage.Create(FileName, True);
@@ -101,23 +145,26 @@ Begin
 End;
 
 (* TLayout.SaveToFile *)
+{
+ Saves layout to the specified file.
+}
 Procedure TLayout.SaveToFile(const FileName: String);
 Var XML : TXMLConfigStorage;
     Form: TLayoutForm;
 
-   { SaveForm }
-   Procedure SaveForm(Form: TLayoutForm);
+  { SaveForm }
+  Procedure SaveForm(const Form: TLayoutForm);
+  Begin
+   With Form do
    Begin
-    With Form do
-    Begin
-     XML.SetValue(Name+'/top', Top);
-     XML.SetValue(Name+'/left', Left);
-     XML.SetValue(Name+'/width', Width);
-     XML.SetValue(Name+'/height', Height);
-     XML.SetValue(Name+'/visible', Visible);
-     XML.SetValue(Name+'/state', ord(State));
-    End;
+    XML.SetValue(Name+'/top', Top);
+    XML.SetValue(Name+'/left', Left);
+    XML.SetValue(Name+'/width', Width);
+    XML.SetValue(Name+'/height', Height);
+    XML.SetValue(Name+'/visible', Visible);
+    XML.SetValue(Name+'/state', ord(State));
    End;
+  End;
 
 Begin
  if (not DirectoryExists(ExtractFileDir(FileName))) Then
@@ -131,6 +178,7 @@ Begin
   For Form in Forms Do
    SaveForm(Form);
  Finally
+  XML.WriteToDisk;
   XML.Free;
  End;
 End;
@@ -179,12 +227,13 @@ End;
 
 (* TLayout.Update *)
 Procedure TLayout.Update;
-Var I   : Integer;
-    Form: TCustomForm;
+Var Form: TCustomForm;
+    I   : uint16;
 Begin
  For I := Low(Forms) To High(Forms) Do
  Begin
   Form := Screen.FindForm(Forms[I].Name);
+
   if (Form = nil) Then
    raise Exception.CreateFmt('TLayout.Update() -> form does not exist: %s', [Forms[I].Name]);
 
@@ -202,12 +251,13 @@ End;
 
 (* TLayout.Apply *)
 Procedure TLayout.Apply;
-Var I   : Integer;
-    Form: TCustomForm;
+Var Form: TCustomForm;
+    I   : uint16;
 Begin
  For I := Low(Forms) To High(Forms) Do
  Begin
   Form := Screen.FindForm(Forms[I].Name);
+
   if (Form = nil) Then
    raise Exception.CreateFmt('TLayout.Apply() -> form does not exist: %s', [Forms[I].Name]);
 
@@ -223,12 +273,43 @@ Begin
  End;
 End;
 
+(* TLayout.ChangeName *)
+Procedure TLayout.ChangeName(const fName: String);
+Begin
+ Name := fName;
+End;
+
 // -------------------------------------------------------------------------- //
-(* Reload *)
-Procedure Reload;
+(* TLayoutManager.Create *)
+Constructor TLayoutManager.Create;
+Begin
+ LayoutList    := TStringList.Create;
+ CurrentLayout := nil;
+
+ UpdateLayoutList;
+End;
+
+(* TLayoutManager.Destroy *)
+Destructor TLayoutManager.Destroy;
+Begin
+ LayoutList.Free;
+ CurrentLayout.Free;
+
+ inherited Destroy;
+End;
+
+(* TLayoutManager.ReloadCurrentLayout *)
+{
+ Reloads and applies current layout according to the settings file or sets the
+ default one if settings are empty.
+}
+Procedure TLayoutManager.ReloadCurrentLayout;
 Var LayoutFile: String;
 Begin
  LayoutFile := getString(sLayoutFile);
+
+ if (CurrentLayout <> nil) Then
+  FreeAndNil(CurrentLayout);
 
  if (not FileExists(LayoutFile)) Then // if selected layout file doesn't exist, select the default one
  Begin
@@ -236,35 +317,47 @@ Begin
   CurrentLayout.Name := 'Default';
   CurrentLayout.Reset;
  End Else
+ Begin
   CurrentLayout := TLayout.Create(LayoutFile);
+ End;
 
  CurrentLayout.Apply;
 End;
 
-(* FindLayouts *)
+(* TLayoutManager.UpdateLayoutList *)
 {
- Returns list containing found layouts' files and names.
+ Updates the layout list according to the "layouts" directory.
+ Layout list is generated in format:
+   Layout name = full path to the layout file
 }
-Function FindLayouts: TStringList;
-Var M     : TSearchRec;
+Procedure TLayoutManager.UpdateLayoutList;
+Var Layout: TLayout;
     Path  : String;
-    Layout: TLayout;
+    M     : TSearchRec;
 Begin
+ LayoutList.Clear;
+
  Path := getLayoutDir;
 
  FindFirst(Path+'*.xml', faAnyFile, M);
 
- Result := TStringList.Create;
- Repeat
+ While (FindNext(M) = 0) Do
+ Begin
   Layout := TLayout.Create(Path+M.Name);
 
   Try
-   Result.Add(Layout.Name+'='+Path+M.Name);
+   LayoutList.Add(Layout.Name+'='+Path+M.Name);
   Finally
    Layout.Free;
   End;
- Until (FindNext(M) <> 0);
+ End;
 
  FindClose(M);
 End;
+
+initialization
+ LayoutManager := TLayoutManager.Create;
+
+finalization
+ LayoutManager.Free;
 End.

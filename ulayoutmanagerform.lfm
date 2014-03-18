@@ -1,39 +1,39 @@
 object LayoutManagerForm: TLayoutManagerForm
   Left = 483
-  Height = 337
+  Height = 369
   Top = 168
   Width = 200
   BorderStyle = bsToolWindow
   Caption = 'Layout Manager'
-  ClientHeight = 337
+  ClientHeight = 369
   ClientWidth = 200
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.2.0.3'
   object Label1: TLabel
     Left = 9
-    Height = 16
+    Height = 15
     Top = 33
-    Width = 76
+    Width = 75
     Caption = 'Saved layouts:'
     ParentColor = False
   end
-  object LayoutList: TListBox
+  object lbLayoutList: TListBox
     Left = 9
     Height = 200
     Top = 54
     Width = 183
     ItemHeight = 0
-    OnClick = LayoutListClick
-    OnDblClick = LayoutListDblClick
+    OnClick = lbLayoutListClick
+    OnDblClick = lbLayoutListDblClick
     PopupMenu = LayoutListPopup
     TabOrder = 0
   end
   object Label2: TLabel
     Left = 56
-    Height = 16
+    Height = 15
     Top = 254
-    Width = 91
+    Width = 90
     Caption = '(click to preview)'
     Font.CharSet = EASTEUROPE_CHARSET
     Font.Height = -12
@@ -69,9 +69,9 @@ object LayoutManagerForm: TLayoutManagerForm
   end
   object Label3: TLabel
     Left = 9
-    Height = 16
+    Height = 15
     Top = 7
-    Width = 80
+    Width = 79
     Caption = 'Current layout:'
     ParentColor = False
   end
@@ -83,15 +83,24 @@ object LayoutManagerForm: TLayoutManagerForm
   end
   object lblCurrentLayout: TLabel
     Left = 94
-    Height = 16
+    Height = 15
     Top = 7
-    Width = 90
+    Width = 89
     Caption = 'lblCurrentLayout'
     ParentColor = False
   end
+  object btnCreateNew: TButton
+    Left = 9
+    Height = 25
+    Top = 336
+    Width = 183
+    Caption = 'Create new'
+    OnClick = btnCreateNewClick
+    TabOrder = 3
+  end
   object LayoutListPopup: TPopupMenu
-    left = 48
-    top = 64
+    left = 80
+    top = 80
     object opRenameSelected: TMenuItem
       Caption = 'Rename'
       Bitmap.Data = {

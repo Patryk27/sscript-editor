@@ -18,18 +18,20 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA 
 *)
 {$MODE OBJFPC}{$H+}
+{.$APPTYPE CONSOLE}
 program editor;
 uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads,
   {$ENDIF}{$ENDIF}
+
   Interfaces, SysUtils, Forms, lazcontrols,
   runtimetypeinfocontrols, uMainForm, uProjectSettings,
   uAboutForm, uEvSettingsForm, uSyntaxHighlighterChange, Controls,
 
   mLanguages, mSettings, uCompilerOutput, uFindForm,
   uIdentifierListForm, uCompileStatusForm, uCodeEditor, virtualtreeview_package,
-  Dialogs, mLayout, uLayoutManagerForm;
+  Dialogs, mLayouts, uLayoutManagerForm;
 
 {$R *.res}
 
@@ -52,10 +54,10 @@ begin
  Application.CreateForm(TLayoutManagerForm, LayoutManagerForm);
 
  { load layout }
- mLayout.Reload;
+ LayoutManager.ReloadCurrentLayout;
 
  { load language }
- LoadLanguageFile(ExtractFilePath(ParamStr(0))+'lang/'+getString(sLanguage));
+ LoadLanguageFile(getAppDir+'lang\'+getString(sLanguage));
  MainForm.OnLanguageLoaded;
 
  { run application }
@@ -63,7 +65,10 @@ begin
  Application.Run;
 
  { save layout }
- CurrentLayout.Update;
- CurrentLayout.SaveToFile(getString(sLayoutFile));
+ With LayoutManager.getCurrentLayout do
+ Begin
+  Update;
+  SaveToFile(getString(sLayoutFile));
+ End;
 end.
 

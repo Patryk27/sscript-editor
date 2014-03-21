@@ -22,9 +22,9 @@ type
     btnApplySelected: TButton;
     btnSaveCurrent: TButton;
     btnCreateNew: TButton;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
+    lblSavedLayouts: TLabel;
+    lblClickToPreview: TLabel;
+    lblCurrentLayoutDesc: TLabel;
     lblCurrentLayout: TLabel;
     lbLayoutList: TListBox;
     LayoutListPopup: TPopupMenu;
@@ -33,7 +33,7 @@ type
     procedure btnApplySelectedClick(Sender: TObject);
     Procedure btnCreateNewClick(Sender: TObject);
     procedure btnSaveCurrentClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
+    Procedure FormResize(Sender: TObject);
     procedure lbLayoutListClick(Sender: TObject);
     procedure lbLayoutListDblClick(Sender: TObject);
     procedure opRemoveSelectedClick(Sender: TObject);
@@ -49,33 +49,10 @@ var
   LayoutManagerForm: TLayoutManagerForm;
 
 implementation
-Uses mLayouts, mLanguages, mSettings, mMessages;
+Uses mLayouts, mLanguages, mConfiguration, mFunctions, mMessages;
 Var LayoutList: TStringList; // the same as 'LayoutManager.getLayoutList'
 
 {$R *.lfm}
-
-{ GenerateLayoutFileName }
-Function GenerateLayoutFileName(const LayoutName: String): String;
-Var Ch: Char;
-Begin
- Result := 'layout_';
-
- For Ch in LayoutName Do
- Begin
-  if (Ch in ['a'..'z', 'A'..'Z', '0'..'9', '_']) Then
-   Result += Ch Else
-   Result += '_';
- End;
-
- Result += '.xml';
-End;
-
-// -------------------------------------------------------------------------- //
-(* TLayoutManagerForm.FormShow *)
-procedure TLayoutManagerForm.FormShow(Sender: TObject);
-begin
- Label2.Left := (Width div 2) - (Label2.Width div 2);
-end;
 
 (* TLayoutManagerForm.LayoutListClick *)
 procedure TLayoutManagerForm.lbLayoutListClick(Sender: TObject);
@@ -124,9 +101,9 @@ begin
     DeleteFile(FileName);
     UpdateLayoutList;
 
-    if (FileName = getString(sLayoutFile)) Then
+    if (FileName = Config.getString(ceLayoutFile)) Then
     Begin
-     DeleteSetting(sLayoutFile);
+     Config.Delete(ceLayoutFile);
      LayoutManager.ReloadCurrentLayout;
     End;
    End;
@@ -163,7 +140,7 @@ begin
    Selected.ChangeName(LayoutName);
 
    // generate new file name
-   NewFile := getLayoutDir+GenerateLayoutFileName(Selected.getName);
+   NewFile := getLayoutsDir+GenerateLayoutFileName(Selected.getName);
 
    // if layout with that name already exists
    if (FileExists(NewFile)) or (LayoutList.IndexOfName(Selected.getName) > -1) Then
@@ -178,9 +155,9 @@ begin
    Selected.SaveToFile(NewFile);
 
    // if currently selected layout name was changed, update settings // @TODO: CompareFilenames?
-   if (FileName = getString(sLayoutFile)) Then
+   if (FileName = Config.getString(ceLayoutFile)) Then
    Begin
-    setString(sLayoutFile, NewFile);
+    Config.setString(ceLayoutFile, NewFile);
     LayoutManager.ReloadCurrentLayout;
    End;
 
@@ -200,7 +177,7 @@ begin
 
  if (InputQuery(Caption, getLangValue(ls_msg_layout_name), LayoutName)) Then
  Begin
-  FileName := getLayoutDir+GenerateLayoutFileName(LayoutName);
+  FileName := getLayoutsDir+GenerateLayoutFileName(LayoutName);
 
   // check if layout doesn't already exist
   if (FileExists(FileName)) or (LayoutList.IndexOfName(LayoutName) > -1) Then
@@ -224,6 +201,11 @@ begin
  End;
 end;
 
+Procedure TLayoutManagerForm.FormResize(Sender: TObject);
+Begin
+ lblClickToPreview.Left := (Width div 2) - (lblClickToPreview.Width div 2);
+end;
+
 (* TLayoutManagerForm.btnApplySelectedClick *)
 procedure TLayoutManagerForm.btnApplySelectedClick(Sender: TObject);
 begin
@@ -235,7 +217,7 @@ begin
  End;
 
  // change setting
- setString(sLayoutFile, LayoutList.Values[LayoutList.Names[lbLayoutList.ItemIndex]]);
+ Config.setString(ceLayoutFile, LayoutList.Values[LayoutList.Names[lbLayoutList.ItemIndex]]);
 
  // reload layout
  LayoutManager.ReloadCurrentLayout;
@@ -258,7 +240,7 @@ Begin
   Layout.ChangeName(LayoutName);
 
   // generate layout file name
-  LayoutFile := getLayoutDir+GenerateLayoutFileName(LayoutName);
+  LayoutFile := getLayoutsDir+GenerateLayoutFileName(LayoutName);
 
   // check if layout file doesn't already exist
   if (FileExists(LayoutFile)) or (LayoutList.IndexOfName(LayoutName) > -1) Then
@@ -291,7 +273,7 @@ Begin
   lbLayoutList.Items.Add(LayoutList.Names[I]);
 
  // adjust label position
- lblCurrentLayout.Left    := Label3.Left+Label3.Width+5;
+ lblCurrentLayout.Left    := lblCurrentLayoutDesc.Left+lblCurrentLayoutDesc.Width+5;
  lblCurrentLayout.Caption := LayoutManager.getCurrentLayout.getName;
 End;
 
@@ -305,7 +287,7 @@ Begin
  Current.Update;
 
  // save it, just preventively
- Current.SaveToFile(getString(sLayoutFile));
+ Current.SaveToFile(Config.getString(ceLayoutFile));
 
  // update the layout list
  UpdateLayoutList;

@@ -27,48 +27,73 @@ uses
 
   Interfaces, SysUtils, Forms, lazcontrols,
   runtimetypeinfocontrols, uMainForm, uProjectSettings,
-  uAboutForm, uEvSettingsForm, uSyntaxHighlighterChange, Controls,
+  uAboutForm, uEvSettingsForm, Controls,
 
-  mLanguages, mSettings, uCompilerOutput, uFindForm,
+  mLanguages, mConfiguration, mFunctions, mLayouts, mStyles, mLogger,
+
+  uCompilerOutput, uFindForm,
   uIdentifierListForm, uCompileStatusForm, uCodeEditor, virtualtreeview_package,
-  Dialogs, mLayouts, uLayoutManagerForm;
+  Dialogs, uLayoutManagerForm;
 
 {$R *.res}
 
-begin
+Begin
  RequireDerivedFormResource := True;
  Application.Initialize;
 
  DefaultFormatSettings.DecimalSeparator := '.';
 
- Application.CreateForm(TMainForm, MainForm);
- Application.CreateForm(TProjectSettingsForm, ProjectSettingsForm);
- Application.CreateForm(TAboutForm, AboutForm);
- Application.CreateForm(TEvSettingsForm, EvSettingsForm);
- Application.CreateForm(TSyntaxHighlighterChange, SyntaxHighlighterChange);
- Application.CreateForm(TCompilerOutputForm, CompilerOutputForm);
- Application.CreateForm(TFindForm, FindForm);
- Application.CreateForm(TIdentifierListForm, IdentifierListForm);
- Application.CreateForm(TCompileStatusForm, CompileStatusForm);
- Application.CreateForm(TCodeEditor, CodeEditor);
- Application.CreateForm(TLayoutManagerForm, LayoutManagerForm);
+ // load configuration
+ Config := TConfiguration.Create;
 
- { load layout }
- LayoutManager.ReloadCurrentLayout;
+ // begin log
+ Log := TLogger.Create;
 
- { load language }
- LoadLanguageFile(getAppDir+'lang\'+getString(sLanguage));
- MainForm.OnLanguageLoaded;
+ Try
+  // create forms
+  Application.CreateForm(TMainForm, MainForm);
+  Application.CreateForm(TProjectSettingsForm, ProjectSettingsForm);
+  Application.CreateForm(TAboutForm, AboutForm);
+  Application.CreateForm(TEvSettingsForm, EvSettingsForm);
+  Application.CreateForm(TCompilerOutputForm, CompilerOutputForm);
+  Application.CreateForm(TFindForm, FindForm);
+  Application.CreateForm(TIdentifierListForm, IdentifierListForm);
+  Application.CreateForm(TCompileStatusForm, CompileStatusForm);
+  Application.CreateForm(TCodeEditor, CodeEditor);
+  Application.CreateForm(TLayoutManagerForm, LayoutManagerForm);
 
- { run application }
- Application.Title := 'SScript Editor';
- Application.Run;
+  // load layout
+  LayoutManager := TLayoutManager.Create;
+  LayoutManager.ReloadCurrentLayout;
 
- { save layout }
- With LayoutManager.getCurrentLayout do
- Begin
-  Update;
-  SaveToFile(getString(sLayoutFile));
+  // load style
+  StyleManager := TStyleManager.Create;
+  StyleManager.ReloadCurrentStyle;
+
+  // load language
+  LoadLanguageFile(getLanguagesDir+Config.getString(ceLanguage));
+  MainForm.OnLanguageLoaded;
+
+  // run application
+  Application.Title := 'SScript Editor';
+
+  Log.Writeln('-- starting application main thread --');
+  Application.Run;
+
+  // save layout
+  With LayoutManager.getCurrentLayout do
+  Begin
+   Update;
+   SaveToFile(getApplicationDir+Config.getString(ceLayoutFile));
+  End;
+ Except
+  On E: Exception Do
+  Begin
+   Log.LogException(E);
+   raise;
+  End;
  End;
-end.
 
+ Log.Writeln('-- end --');
+ Log.Writeln('');
+End.

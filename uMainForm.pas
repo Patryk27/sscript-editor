@@ -10,7 +10,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, SynEdit, Forms, Controls,
-  Graphics, Dialogs, Menus, ExtCtrls, mSettings, LCLType, Buttons;
+  Graphics, Dialogs, Menus, ExtCtrls, mConfiguration, LCLType, Buttons;
 
  // types
  Type TState = (stEnabled, stDisabled);
@@ -138,18 +138,18 @@ type
   public
    Procedure OnLanguageLoaded;
 
-   Procedure setMainMenu(State: TState);
+   Procedure setMainMenu(const State: TState);
    Procedure UpdateRecentlyOpened;
   end;
 
  // consts
- Const vMajor   = 0.3;
-       vMinor   = 4;
+ Const vMajor = 0.3;
+       vMinor = 4;
 
-       iVersion: Single = 100*vMajor+vMinor; // this is saved into the `version` field in project files.
+       EditorVersion: Single = 100*vMajor+vMinor; // this is saved into the `version` field in project files.
 
-       sVersion = '0.3.4 nightly';
-       sCaption = 'SScript Editor v'+sVersion;
+       StringVersion = '0.3.4 nightly';
+       BaseCaption   = 'SScript Editor v'+StringVersion;
 
  // variables
  Var MainForm      : TMainForm;
@@ -159,7 +159,9 @@ type
  Procedure AddRecentlyOpened(const FileName: String);
 
  Implementation
-Uses mProject, mLanguages, mFunctions, mLayouts, ClipBrd, uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm, uIdentifierListForm,
+Uses mProject, mLanguages, mFunctions, mLayouts, mStyles, mMessages,
+     ClipBrd,
+     uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm, uIdentifierListForm,
      uCompileStatusForm, uCodeEditor, uLayoutManagerForm;
 
 {$R *.lfm}
@@ -169,15 +171,22 @@ Procedure AddRecentlyOpened(const FileName: String);
 Begin
  With RecentlyOpened do
  Begin
-  if (IndexOf(FileName) = -1) Then // don't duplicate
+  if (IndexOf(FileName) = -1) Then
   Begin
-   Add(FileName);
-   While (Count > 8) Do // if more than 8 items on the list, remove the first
-    Delete(0);
+   // if new, insert at the beginning
+   Insert(0, FileName);
   End Else
-   Exchange(IndexOf(FileName), 0); // move at the beginning
+  Begin
+   // if duplicated, move at the beginning
+   Exchange(IndexOf(FileName), 0);
+  End;
+
+  // remove the first elements, until no more than specified number of items are lying on the list
+  While (Count > Config.getInteger(ceMaxRecentlyOpened)) Do
+   Delete(0);
  End;
- setRecentlyOpened(RecentlyOpened);
+
+ Config.setRecentlyOpened(RecentlyOpened);
 End;
 
 (* getProjectPnt *)
@@ -233,23 +242,20 @@ Procedure TMainForm.RecentlyOpened_Click(Sender: TObject);
 Begin
  if (SaveProject) Then
  Begin
-  // close current project
-  if (Project = nil) Then
-   Project := TProject.Create Else
-   Begin
-    Project.Free;
-    Project := TProject.Create;
-   End;
+  // create a new project instance
+  Project.Free;
+  Project := TProject.Create;
 
-  // open the project
-  if (not Project.Open(TMenuItem(Sender).Caption)) Then // if failed
+  // open the specified project
+  if (not Project.Load(TMenuItem(Sender).Caption)) Then // if failed
   Begin
-   With RecentlyOpened Do
-    Delete(IndexOf(TMenuItem(Sender).Caption)); // remove not-existing file from the list
-   setRecentlyOpened(RecentlyOpened);
+   // change main menu state
    setMainMenu(stDisabled);
 
-   Application.MessageBox(PChar(getLangValue(ls_msg_project_open_failed)), PChar(getLangValue(ls_msg_error)), MB_IconError);
+   // display error
+   ErrorMessage(ls_msg_project_open_failed);
+
+   // dispose project instance
    FreeAndNil(Project);
   End;
  End;
@@ -262,16 +268,16 @@ End;
 
 (* TMainForm.UpdateRecentlyOpened *)
 Procedure TMainForm.UpdateRecentlyOpened;
-Var Str     : String;
-    MenuItem: TMenuItem;
+Var MenuItem: TMenuItem;
+    Str     : String;
 Begin
- if (RecentlyOpened <> nil) Then // free previous instance
-  RecentlyOpened.Free;
+ // update the recently opened string list
+ RecentlyOpened.Free;
+ RecentlyOpened := Config.getRecentlyOpened;
 
- RecentlyOpened := getRecentlyOpened; // get new list
-
+ // update the menu items
  oRecentlyOpened.Clear;
- For Str in RecentlyOpened Do // update MainMenu's items
+ For Str in RecentlyOpened Do
  Begin
   With oRecentlyOpened do
   Begin
@@ -284,8 +290,7 @@ Begin
 End;
 
 (* TMainForm.onLanguageLoaded *)
-Procedure TMainForm.onLanguageLoaded;
-Var FileName, MsgText: String;
+Procedure TMainForm.OnLanguageLoaded;
 
   { Map }
   Procedure Map(const Button: TBitBtn; const MenuItem: TMenuItem);
@@ -294,8 +299,31 @@ Var FileName, MsgText: String;
    Button.Hint  := MenuItem.Caption;
   End;
 
+  { TryToOpen }
+  Function TryToOpen(const FileName: String): Boolean;
+  Begin
+   if (not FileExists(FileName)) Then
+    Exit(False);
+
+   if (CompareText(ExtractFileExt(FileName), '.ssp') <> 0) Then
+    Exit(False);
+
+   Project := TProject.Create;
+
+   // try to open
+   if (Project.Load(FileName)) Then
+    Exit(True);
+
+   // if failed, display error message
+   ErrorMessage(ls_msg_project_open_failed_ex, [FileName]);
+
+   // and dispose the project instance
+   FreeAndNil(Project);
+   Exit(False);
+  End;
+
 Begin
- { set icons and hints }
+ // associate icons and hints
  Map(bbNewModule, oNewModule);
  Map(bbOpen, oOpen);
  Map(bbSave, oSave);
@@ -303,40 +331,28 @@ Begin
  Map(bbRun, oBuildAndRun);
  Map(bbStopProgram, oStopProgram);
 
- { if specified in parameter, try to open a project }
- SetCurrentDir(ExtractFilePath(ParamStr(1)));
-
- FileName := ParamStr(1);
- if (FileExists(FileName)) and (CompareText(ExtractFileExt(FileName), '.ssp') = 0) Then // check for file existence, and also check the file extension
+ // try to open a project specified in parameter or the recent one
+ if (not TryToOpen(ParamStr(1))) Then
  Begin
-  Project := TProject.Create;
-  if (not Project.Open(FileName)) Then // is failed to open
+  if (Config.getBoolean(ceLoadRecentProject)) Then
   Begin
-   MsgText := Format(getLangValue(ls_msg_project_open_failed_ex), [FileName]);
-   Application.MessageBox(PChar(MsgText), PChar(getLangValue(ls_msg_error)), MB_IconError);
-   Project.Free;
+   if (not TryToOpen(Config.getString(ceRecentProject))) Then
+   Begin
+    Config.setString(ceRecentProject, '');
+   End;
   End;
- End Else
-
- { or else open recent project, if set }
- if (getBoolean(sOpenRecentProject)) Then
- Begin
-  FileName := getString(sRecentProject);
-  Project  := TProject.Create;
-
-  if (not Project.Open(FileName)) Then // try to open
-   FreeAndNil(Project);
  End;
 End;
 
 (* TMainForm.setMainMenu *)
-Procedure TMainForm.setMainMenu(State: TState);
+Procedure TMainForm.setMainMenu(const State: TState);
 Var B: Boolean;
     C: Integer;
 Begin
  B := (State = stEnabled);
 
  For C := 0 To ComponentCount-1 Do // iterate each component
+ Begin
   if (Components[C] is TControl) Then
   Begin
    With Components[C] as TControl do
@@ -358,24 +374,25 @@ Begin
     End;
    End;
   End;
+ End;
 End;
 
 (* TMainForm.FormCreate *)
-procedure TMainForm.FormCreate(Sender: TObject);
+Procedure TMainForm.FormCreate(Sender: TObject);
 begin
  ShowHint := True;
 
  // set some values
  Application.OnIdle := @AppIdle;
  DoubleBuffered     := True;
- Caption            := sCaption;
+ Caption            := BaseCaption;
 
  setMainMenu(stDisabled);
  UpdateRecentlyOpened;
 end;
 
 (* TMainForm.FormDropFiles *)
-procedure TMainForm.FormDropFiles(Sender: TObject; const FileNames: Array of String);
+Procedure TMainForm.FormDropFiles(Sender: TObject; const FileNames: Array of String);
 Var I: Integer = 0;
 begin
  // trying to open a project?
@@ -384,11 +401,10 @@ begin
   if (not SaveProject) Then
    Exit;
 
-  if (Project <> nil) Then
-   Project.Free;
+  Project.Free;
   Project := TProject.Create;
 
-  if (not Project.Open(FileNames[0])) Then // failed
+  if (not Project.Load(FileNames[0])) Then // failed
   Begin
    Application.MessageBox(PChar(Format(getLangValue(ls_msg_project_open_failed_ex), [FileNames[0]])), PChar(getLangValue(ls_msg_error)), MB_IconError);
    Exit;
@@ -399,6 +415,7 @@ begin
 
  // no project opened/created so far?
  if (Project = nil) Then
+ Begin
   Case MessageDlg(getLangValue(ls_file_opening), getLangValue(ls_msg_create_new_project), mtConfirmation, mbYesNo, '') of
    mrNo: Exit;
    mrYes:
@@ -407,20 +424,21 @@ begin
     Project.NewProject(ptApplication);
    End;
   End;
+ End;
 
- // open each file in its own card
+ // open each file on its own card
  For I := I To High(FileNames) Do
   Project.OpenCard(FileNames[I]);
 end;
 
 (* TMainForm.oCodeEditorClick *)
-procedure TMainForm.oCodeEditorClick(Sender: TObject);
+Procedure TMainForm.oCodeEditorClick(Sender: TObject);
 begin
  CodeEditor.Show;
 end;
 
 (* TMainForm.oCommentSelectedClick *)
-procedure TMainForm.oCommentSelectedClick(Sender: TObject);
+Procedure TMainForm.oCommentSelectedClick(Sender: TObject);
 Var Line            : Integer;
     Editor          : TSynEdit;
     List            : TStringList;
@@ -461,43 +479,43 @@ begin
 end;
 
 (* TMainForm.oCompileStatusClick *)
-procedure TMainForm.oCompileStatusClick(Sender: TObject);
+Procedure TMainForm.oCompileStatusClick(Sender: TObject);
 begin
  CompileStatusForm.Show;
 end;
 
 (* TMainForm.oIdentifierListClick *)
-procedure TMainForm.oIdentifierListClick(Sender: TObject);
+Procedure TMainForm.oIdentifierListClick(Sender: TObject);
 begin
  IdentifierListForm.Show;
 end;
 
 (* TMainForm.oLayoutManagerClick *)
-procedure TMainForm.oLayoutManagerClick(Sender: TObject);
+Procedure TMainForm.oLayoutManagerClick(Sender: TObject);
 begin
  LayoutManagerForm.Run;
 end;
 
 (* TMainForm.oReplaceClick *)
-procedure TMainForm.oReplaceClick(Sender: TObject);
+Procedure TMainForm.oReplaceClick(Sender: TObject);
 begin
  FindForm.Run(frReplace);
 end;
 
 (* TMainForm.oFindClick *)
-procedure TMainForm.oFindClick(Sender: TObject);
+Procedure TMainForm.oFindClick(Sender: TObject);
 begin
  FindForm.Run(frFind);
 end;
 
 (* TMainForm.oFindNextClick *)
-procedure TMainForm.oFindNextClick(Sender: TObject);
+Procedure TMainForm.oFindNextClick(Sender: TObject);
 begin
  FindForm.btnFind.Click;
 end;
 
 (* TMainForm.oFindPrevClick *)
-procedure TMainForm.oFindPrevClick(Sender: TObject);
+Procedure TMainForm.oFindPrevClick(Sender: TObject);
 Var Prev: Integer;
 begin
  With FindForm.rgSearchDir do
@@ -515,7 +533,7 @@ begin
 end;
 
 (* TMainForm.oGotoLineClick *)
-procedure TMainForm.oGotoLineClick(Sender: TObject);
+Procedure TMainForm.oGotoLineClick(Sender: TObject);
 Var LineStr      : String;
     Line, LineMax: Integer;
 begin
@@ -532,7 +550,7 @@ begin
 end;
 
 (* TMainForm.oResetLayout *)
-procedure TMainForm.oResetLayoutClick(Sender: TObject);
+Procedure TMainForm.oResetLayoutClick(Sender: TObject);
 begin
  With LayoutManager.getCurrentLayout do
  Begin
@@ -542,175 +560,165 @@ begin
 end;
 
 (* TMainForm.oRunClick *)
-procedure TMainForm.oRunClick(Sender: TObject);
+Procedure TMainForm.oRunClick(Sender: TObject);
 begin
  Project.Run;
 end;
 
 (* TMainForm.oSelectAllClick *)
-procedure TMainForm.oSelectAllClick(Sender: TObject);
+Procedure TMainForm.oSelectAllClick(Sender: TObject);
 begin
  Project.getCurrentEditor.SelectAll;
 end;
 
 (* TMainForm.oSelectLineClick *)
-procedure TMainForm.oSelectLineClick(Sender: TObject);
+Procedure TMainForm.oSelectLineClick(Sender: TObject);
 begin
  Project.getCurrentEditor.SelectLine;
 end;
 
 (* TMainForm.oSelectWordClick *)
-procedure TMainForm.oSelectWordClick(Sender: TObject);
+Procedure TMainForm.oSelectWordClick(Sender: TObject);
 begin
  Project.getCurrentEditor.SelectWord;
 end;
 
 (* TMainForm.oShowCompilerOutputClick *)
-procedure TMainForm.oShowCompilerOutputClick(Sender:TObject);
+Procedure TMainForm.oShowCompilerOutputClick(Sender: TObject);
 begin
  CompilerOutputForm.Output.Text := Project.CompilerOutput;
  CompilerOutputForm.ShowModal;
 end;
 
 (* TMainForm.oAboutClick *)
-procedure TMainForm.oAboutClick(Sender: TObject);
+Procedure TMainForm.oAboutClick(Sender: TObject);
 begin
  AboutForm.ShowModal;
 end;
 
 (* TMainForm.oCloseCurrentCardClick *)
-procedure TMainForm.oCloseCurrentCardClick(Sender:TObject);
+Procedure TMainForm.oCloseCurrentCardClick(Sender: TObject);
 begin
  CodeEditor.opCloseCard.Click;
 end;
 
 (* TMainForm.oCloseProjectClick *)
-procedure TMainForm.oCloseProjectClick(Sender:TObject);
+Procedure TMainForm.oCloseProjectClick(Sender: TObject);
 begin
  if (SaveProject) Then
-  if (Project <> nil) Then
-   FreeAndNil(Project);
+  FreeAndNil(Project);
 end;
 
 (* TMainForm.oEvSettingsClick *)
-procedure TMainForm.oEvSettingsClick(Sender: TObject);
+Procedure TMainForm.oEvSettingsClick(Sender: TObject);
 begin
  EvSettingsForm.Run;
 end;
 
 (* TMainForm.oNewProj_AppClick *)
-procedure TMainForm.oNewProj_AppClick(Sender: TObject);
+Procedure TMainForm.oNewProj_AppClick(Sender: TObject);
 begin
  if (SaveProject) Then
  Begin
-  if (Project = nil) Then
-   Project := TProject.Create Else
-   Begin
-    FreeAndNil(Project);
-    Project := TProject.Create;
-   End;
+  FreeAndNil(Project);
+  Project := TProject.Create;
 
   Project.NewProject(ptApplication);
 
-  Caption := sCaption+' - '+getLangValue(ls_new_app);
+  Caption := BaseCaption+' - '+getLangValue(ls_new_app);
  End;
 end;
 
 (* TMainForm.oNewProj_LibraryClick *)
-procedure TMainForm.oNewProj_LibraryClick(Sender: TObject);
+Procedure TMainForm.oNewProj_LibraryClick(Sender: TObject);
 begin
  if (SaveProject) Then
  Begin
-  if (Project = nil) Then
-   Project := TProject.Create Else
-   Begin
-    FreeAndNil(Project);
-    Project := TProject.Create;
-   End;
+  FreeAndNil(Project);
+  Project := TProject.Create;
 
   Project.NewProject(ptLibrary);
 
-  Caption := sCaption+' - '+getLangValue(ls_new_lib);
+  Caption := BaseCaption+' - '+getLangValue(ls_new_lib);
  End;
 end;
 
 (* TMainForm.oProjectSettingsClick *)
-procedure TMainForm.oProjectSettingsClick(Sender: TObject);
+Procedure TMainForm.oProjectSettingsClick(Sender: TObject);
 begin
  ProjectSettingsForm.Run;
 end;
 
 (* TMainForm.oExitClick *)
-procedure TMainForm.oExitClick(Sender: TObject);
+Procedure TMainForm.oExitClick(Sender: TObject);
 begin
  Close;
 end;
 
 (* TMainForm.oOpenProjectClick *)
-procedure TMainForm.oOpenProjectClick(Sender: TObject);
+Procedure TMainForm.oOpenProjectClick(Sender: TObject);
 begin
  if (SaveProject) Then
  Begin
-  if (Project <> nil) Then
-   FreeAndNil(Project);
+  FreeAndNil(Project);
 
   oOpen.Click;
  End;
 end;
 
 (* TMainForm.oCompileAndRunClick *)
-procedure TMainForm.oBuildAndRunClick(Sender: TObject);
+Procedure TMainForm.oBuildAndRunClick(Sender: TObject);
 begin
  if (Project.Compile) Then
   Project.Run;
 end;
 
 (* TMainForm.oNewModuleCkick *)
-procedure TMainForm.oNewModuleClick(Sender: TObject);
+Procedure TMainForm.oNewModuleClick(Sender: TObject);
 begin
  Project.NewNoNameCard;
 end;
 
 (* TMainForm.oSaveAllClick *)
-procedure TMainForm.oSaveAllClick(Sender: TObject);
+Procedure TMainForm.oSaveAllClick(Sender: TObject);
 begin
  Project.Save;
 end;
 
 (* TMainForm.oSaveAsClick *)
-procedure TMainForm.oSaveAsClick(Sender: TObject);
+Procedure TMainForm.oSaveAsClick(Sender: TObject);
 begin
  Project.Save;
  Project.SaveCurrentCardAs;
 end;
 
 (* TMainForm.oSaveClick *)
-procedure TMainForm.oSaveClick(Sender: TObject);
+Procedure TMainForm.oSaveClick(Sender: TObject);
 begin
  Project.Save;
  Project.SaveCurrentCard;
 end;
 
 (* TMainForm.oBuildClick *)
-procedure TMainForm.oBuildClick(Sender: TObject);
+Procedure TMainForm.oBuildClick(Sender: TObject);
 begin
  Project.Compile;
 end;
 
 (* TMainForm.oCopyClick *)
-procedure TMainForm.oCopyClick(Sender: TObject);
+Procedure TMainForm.oCopyClick(Sender: TObject);
 begin
  Project.getCurrentEditor.CopyToClipboard;
 end;
 
 (* TMainForm.oCutClick *)
-procedure TMainForm.oCutClick(Sender: TObject);
+Procedure TMainForm.oCutClick(Sender: TObject);
 begin
  Project.getCurrentEditor.CutToClipboard;
 end;
 
 (* TMainForm.FormCloseQuery *)
-procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+Procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
  if (Project <> nil) and (Project.VMProcess <> nil) Then // if VM is running
  Begin
@@ -731,29 +739,30 @@ begin
 
  CanClose := SaveProject;
 
- // save current project as a "Recent" and add it into the "Recently opened" list (if possible)
+ // save current project as the "Recent" and add it into the "Recently opened" list (if possible)
  if (CanClose) and (Project <> nil) Then
+ Begin
   if (Project.Named) Then
   Begin
-   setString(sRecentProject, Project.FileName);
+   Config.setString(ceRecentProject, Project.FileName);
    AddRecentlyOpened(Project.FileName);
   End;
+ End;
 end;
 
 (* TMainForm.oOpenClick *)
-procedure TMainForm.oOpenClick(Sender: TObject);
-Var I: Integer;
+Procedure TMainForm.oOpenClick(Sender: TObject);
 begin
  // create open dialog
  With TOpenDialog.Create(MainForm) do
  Begin
   Try
-   if (Project = nil) Then // no project opened - oShowCompilerOutput project opening dialog
+   if (Project = nil) Then // no project opened - show project opening dialog
    Begin
     Title  := getLangValue(ls_project_opening);
     Filter := getLangValue(ls_filter_project);
    End Else
-   Begin // in other case - oShowCompilerOutput module opening dialog
+   Begin // in other case - show module opening dialog
     Title  := getLangValue(ls_file_opening);
     Filter := getLangValue(ls_filter_any_file);
    End;
@@ -767,15 +776,13 @@ begin
     Begin
      if (SaveProject) Then
      Begin
-      CompileStatusForm.CompileStatus.Items.Clear;
-
-      For I := 0 To CodeEditor.Tabs.PageCount-1 Do
-       CodeEditor.Tabs.Pages[0].Free;
-
+      FreeAndNil(Project);
       Project := TProject.Create;
-      if (not Project.Open(FileName)) Then // failed
+
+      // try to load the project
+      if (not Project.Load(FileName)) Then
       Begin
-       Application.MessageBox(PChar(getLangValue(ls_msg_project_open_failed)), PChar(getLangValue(ls_msg_error)), MB_IconError);
+       ErrorMessage(ls_msg_project_open_failed);
        FreeAndNil(Project);
       End;
      End;
@@ -783,8 +790,11 @@ begin
 
     { opening a module }
     Begin
-     if (Project.OpenCard(FileName) = nil) Then // failed
-      Application.MessageBox(PChar(getLangValue(ls_msg_module_open_failed)), PChar(getLangValue(ls_msg_error)), MB_IconError);
+     // try to open card
+     if (Project.OpenCard(FileName) = nil) Then
+     Begin
+      ErrorMessage(ls_msg_module_open_failed);
+     End;
     End;
    End;
   Finally
@@ -794,25 +804,25 @@ begin
 end;
 
 (* TMainForm.oPasteClick *)
-procedure TMainForm.oPasteClick(Sender: TObject);
+Procedure TMainForm.oPasteClick(Sender: TObject);
 begin
  Project.getCurrentEditor.PasteFromClipboard;
 end;
 
 (* TMainForm.oRedoClick *)
-procedure TMainForm.oRedoClick(Sender: TObject);
+Procedure TMainForm.oRedoClick(Sender: TObject);
 begin
  Project.getCurrentEditor.Redo;
 end;
 
 (* TMainForm.oStopProgram *)
-procedure TMainForm.oStopProgramClick(Sender: TObject);
+Procedure TMainForm.oStopProgramClick(Sender: TObject);
 begin
  Project.StopProgram;
 end;
 
 (* TMainForm.oUncommentSelectedClick *)
-procedure TMainForm.oUncommentSelectedClick(Sender: TObject);
+Procedure TMainForm.oUncommentSelectedClick(Sender: TObject);
 Var Line, Char      : Integer;
     Editor          : TSynEdit;
     List            : TStringList;
@@ -875,13 +885,13 @@ begin
 end;
 
 (* TMainForm.oUndoClick *)
-procedure TMainForm.oUndoClick(Sender: TObject);
+Procedure TMainForm.oUndoClick(Sender: TObject);
 begin
  Project.getCurrentEditor.Undo;
 end;
 
 (* TMainForm.UpdateTimerTimer *)
-procedure TMainForm.UpdateTimerTimer(Sender: TObject);
+Procedure TMainForm.UpdateTimerTimer(Sender: TObject);
 begin
  bbStopProgram.Enabled := (Project <> nil) and (Project.VMProcess <> nil);
  bbRun.Enabled         := (Project <> nil) and (not bbStopProgram.Enabled);

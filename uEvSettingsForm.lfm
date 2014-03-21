@@ -1,90 +1,67 @@
 object EvSettingsForm: TEvSettingsForm
-  Left = 282
-  Height = 435
-  Top = 142
-  Width = 640
-  BorderStyle = bsToolWindow
+  Left = 1948
+  Height = 527
+  Top = 253
+  Width = 727
+  BorderStyle = bsSizeToolWin
   Caption = 'Environment settings'
-  ClientHeight = 435
-  ClientWidth = 640
+  ClientHeight = 527
+  ClientWidth = 727
   FormStyle = fsSystemStayOnTop
   Position = poScreenCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.2.0.3'
   object Setting: TTreeView
     Left = 0
-    Height = 400
+    Height = 488
     Top = 0
     Width = 240
+    Anchors = [akTop, akLeft, akBottom]
     DefaultItemHeight = 18
     ReadOnly = True
     TabOrder = 0
     OnChange = SettingChange
     Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     Items.Data = {
-      F9FFFFFF020002000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF010000000000
-      00000106000000456469746F7200000000FFFFFFFFFFFFFFFFFFFFFFFF000000
-      0000000000001300000053796E74617820686967686C69676874696E67040000
-      00FFFFFFFFFFFFFFFFFFFFFFFF0300000000000000010B000000456E7669726F
-      6E6D656E7401000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000500
-      0000506174687303000000FFFFFFFFFFFFFFFFFFFFFFFF000000000000000000
-      080000004C616E677561676502000000FFFFFFFFFFFFFFFFFFFFFFFF00000000
-      0000000000050000004F74686572
+      F9FFFFFF02000200000004000000FFFFFFFFFFFFFFFFFFFFFFFF020000000000
+      0000010B000000456E7669726F6E6D656E7401000000FFFFFFFFFFFFFFFFFFFF
+      FFFF0000000000000000000500000046696C657303000000FFFFFFFFFFFFFFFF
+      FFFFFFFF000000000000000000080000004C616E6775616765FFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFF02000000000000000106000000456469746F7200000000
+      FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000001300000053796E74617820
+      486967686C69676874696E6702000000FFFFFFFFFFFFFFFFFFFFFFFF00000000
+      00000000000F000000436F646520436F6D706C6574696F6E
     }
   end
   object Bevel1: TBevel
-    Left = -48
+    Left = -15
     Height = 2
-    Top = 404
-    Width = 746
-  end
-  object btnSave: TButton
-    Left = 480
-    Height = 25
-    Top = 408
-    Width = 75
-    Caption = 'Save'
-    OnClick = btnSaveClick
-    TabOrder = 1
-  end
-  object btnCancel: TButton
-    Left = 560
-    Height = 25
-    Top = 408
-    Width = 75
-    Caption = 'Cancel'
-    OnClick = btnCancelClick
-    TabOrder = 2
+    Top = 494
+    Width = 742
+    Anchors = [akLeft, akRight, akBottom]
   end
   object Pages: TNotebook
     Left = 242
-    Height = 400
+    Height = 492
     Top = 0
-    Width = 398
-    PageIndex = 1
-    TabOrder = 3
+    Width = 486
+    PageIndex = 0
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    TabOrder = 1
     TabStop = True
-    object p_1: TPage
-      object btnFont: TButton
-        Left = 8
-        Height = 25
-        Top = 232
-        Width = 104
-        Caption = 'Font'
-        OnClick = btnFontClick
-        TabOrder = 0
-      end
+    object EditorPage_SyntaxHighlighting: TPage
       inline SampleCode: TSynEdit
         Left = 8
-        Height = 216
-        Top = 8
-        Width = 384
+        Height = 248
+        Top = 40
+        Width = 472
+        Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Height = -13
         Font.Name = 'Courier New'
         Font.Pitch = fpFixed
         Font.Quality = fqNonAntialiased
         ParentColor = False
         ParentFont = False
-        TabOrder = 1
+        TabOrder = 0
         Gutter.Width = 57
         Gutter.MouseActions = <>
         RightGutter.Width = 0
@@ -518,33 +495,41 @@ object EvSettingsForm: TEvSettingsForm
           ''
           '/*'
           ' Long comment'
-          ' */'
+          '*/'
           'function<int> main()'
           '{'
           ' var<int> a = read_int();'
           ' println("You wrote: "+intstr(a));'
-          ' return 2+a;  // short comment'
+          ' return 2+a; // short comment'
           '}'
         )
         VisibleSpecialChars = [vscSpace, vscTabAtLast]
         ReadOnly = True
+        SelectedColor.FrameEdges = sfeAround
         SelectedColor.BackPriority = 50
         SelectedColor.ForePriority = 50
         SelectedColor.FramePriority = 50
         SelectedColor.BoldPriority = 50
         SelectedColor.ItalicPriority = 50
         SelectedColor.UnderlinePriority = 50
+        SelectedColor.StrikeOutPriority = 50
+        IncrementColor.FrameEdges = sfeAround
+        HighlightAllColor.FrameEdges = sfeAround
         BracketHighlightStyle = sbhsBoth
         BracketMatchColor.Background = clNone
         BracketMatchColor.Foreground = clNone
+        BracketMatchColor.FrameEdges = sfeAround
         BracketMatchColor.Style = [fsBold]
         FoldedCodeColor.Background = clNone
         FoldedCodeColor.Foreground = clGray
         FoldedCodeColor.FrameColor = clGray
+        FoldedCodeColor.FrameEdges = sfeAround
         MouseLinkColor.Background = clNone
         MouseLinkColor.Foreground = clBlue
+        MouseLinkColor.FrameEdges = sfeAround
         LineHighlightColor.Background = clNone
         LineHighlightColor.Foreground = clNone
+        LineHighlightColor.FrameEdges = sfeAround
         inline SynLeftGutterPartList1: TSynGutterPartList
           object SynGutterMarks1: TSynGutterMarks
             Width = 24
@@ -555,6 +540,7 @@ object EvSettingsForm: TEvSettingsForm
             MouseActions = <>
             MarkupInfo.Background = clBtnFace
             MarkupInfo.Foreground = clNone
+            MarkupInfo.FrameEdges = sfeAround
             DigitCount = 2
             ShowOnlyLineNumbersMultiplesOf = 1
             ZeroStart = False
@@ -571,147 +557,349 @@ object EvSettingsForm: TEvSettingsForm
             MouseActions = <>
             MarkupInfo.Background = clWhite
             MarkupInfo.Foreground = clGray
+            MarkupInfo.FrameEdges = sfeAround
           end
           object SynGutterCodeFolding1: TSynGutterCodeFolding
             MouseActions = <>
             MarkupInfo.Background = clNone
             MarkupInfo.Foreground = clGray
+            MarkupInfo.FrameEdges = sfeAround
             MouseActionsExpanded = <>
             MouseActionsCollapsed = <>
           end
         end
       end
-      object btn_cIdentifiers: TButton
+      object cbStyleList: TComboBox
         Left = 8
-        Height = 25
-        Top = 264
-        Width = 104
-        Caption = 'Identifiers'
-        OnClick = btn_cIdentifiersClick
-        TabOrder = 2
+        Height = 23
+        Top = 8
+        Width = 398
+        Anchors = [akTop, akLeft, akRight]
+        ItemHeight = 15
+        OnChange = cbStyleListChange
+        Style = csDropDownList
+        TabOrder = 1
       end
-      object btn_cKeywords: TButton
+      object pcCodeCompletion: TPageControl
         Left = 8
-        Height = 25
-        Top = 288
-        Width = 104
-        Caption = 'Keywords'
-        OnClick = btn_cKeywordsClick
+        Height = 192
+        Top = 296
+        Width = 472
+        ActivePage = tsFont
+        Anchors = [akLeft, akRight, akBottom]
+        TabIndex = 1
+        TabOrder = 2
+        object tsSyntaxHighlighting: TTabSheet
+          Caption = 'Syntax highlighting'
+          ClientHeight = 164
+          ClientWidth = 464
+          object lbTokenKinds: TListBox
+            Left = 2
+            Height = 152
+            Top = 8
+            Width = 112
+            ExtendedSelect = False
+            Items.Strings = (
+              'Identifier'
+              'Keyword'
+              'String'
+              'Number'
+              'Macro'
+              'Comment'
+              'Primary type'
+              'Other'
+            )
+            ItemHeight = 15
+            ItemIndex = 0
+            OnSelectionChange = lbTokenKindsSelectionChange
+            TabOrder = 0
+          end
+          object cbBold: TCheckBox
+            Left = 122
+            Height = 19
+            Top = 108
+            Width = 44
+            Caption = 'Bold'
+            OnChange = cbBoldChange
+            TabOrder = 1
+          end
+          object cbItalic: TCheckBox
+            Left = 122
+            Height = 19
+            Top = 124
+            Width = 45
+            Caption = 'Italic'
+            OnChange = cbItalicChange
+            TabOrder = 2
+          end
+          object cbUnderline: TCheckBox
+            Left = 122
+            Height = 19
+            Top = 141
+            Width = 71
+            Caption = 'Underline'
+            OnChange = cbUnderlineChange
+            TabOrder = 3
+          end
+          object cbTextColor: TCheckBox
+            Left = 122
+            Height = 19
+            Top = 8
+            Width = 72
+            Caption = 'Text color'
+            OnChange = cbTextColorChange
+            TabOrder = 4
+          end
+          object cbBackgroundColor: TCheckBox
+            Left = 122
+            Height = 19
+            Top = 58
+            Width = 114
+            Caption = 'Background color'
+            OnChange = cbBackgroundColorChange
+            TabOrder = 5
+          end
+          object clrbBackgroundColor: TColorBox
+            Left = 122
+            Height = 22
+            Top = 78
+            Width = 144
+            Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor]
+            ItemHeight = 16
+            OnChange = clrbBackgroundColorChange
+            TabOrder = 6
+          end
+          object clrbTextColor: TColorBox
+            Left = 122
+            Height = 22
+            Top = 28
+            Width = 144
+            Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor]
+            ItemHeight = 16
+            OnChange = clrbTextColorChange
+            TabOrder = 7
+          end
+        end
+        object tsFont: TTabSheet
+          Caption = 'Font'
+          ClientHeight = 164
+          ClientWidth = 464
+          object lblFontName: TLabel
+            Left = 5
+            Height = 15
+            Top = 8
+            Width = 60
+            Caption = 'Font name:'
+            ParentColor = False
+          end
+          object cbFontList: TComboBox
+            Left = 5
+            Height = 23
+            Top = 24
+            Width = 160
+            ItemHeight = 15
+            OnChange = cbFontListChange
+            OnKeyPress = cbFontListKeyPress
+            TabOrder = 0
+            Text = 'cbFontList'
+          end
+          object lblFontColor: TLabel
+            Left = 5
+            Height = 15
+            Top = 60
+            Width = 57
+            Caption = 'Font color:'
+            ParentColor = False
+          end
+          object clrbFontColor: TColorBox
+            Left = 5
+            Height = 22
+            Top = 76
+            Width = 160
+            Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor]
+            ItemHeight = 16
+            OnChange = clrbFontColorChange
+            TabOrder = 1
+          end
+          object lblBackgroundColor: TLabel
+            Left = 5
+            Height = 15
+            Top = 112
+            Width = 97
+            Caption = 'Background color:'
+            ParentColor = False
+          end
+          object clrbBackgroundColor2: TColorBox
+            Left = 5
+            Height = 22
+            Top = 128
+            Width = 160
+            Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor]
+            ItemHeight = 16
+            OnChange = clrbBackgroundColor2Change
+            TabOrder = 2
+          end
+          object lblFontSize: TLabel
+            Left = 176
+            Height = 15
+            Top = 8
+            Width = 49
+            Caption = 'Font size:'
+            ParentColor = False
+          end
+          object seFontSize: TSpinEdit
+            Left = 175
+            Height = 23
+            Top = 24
+            Width = 67
+            OnChange = seFontSizeChange
+            TabOrder = 3
+          end
+        end
+      end
+      object btnNewStyle: TBitBtn
+        Left = 408
+        Height = 23
+        Top = 8
+        Width = 24
+        Anchors = [akTop, akLeft, akRight]
+        Glyph.Data = {
+          36040000424D3604000000000000360000002800000010000000100000000100
+          2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF0041924E233D8F497D3A8C44DB368940F332873CF32F84
+          37DB2C81337D287F3023FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF0049995853459653E6419950FF7DC28FFF96D0A6FF96CFA6FF78BE
+          89FF368D42FF2C8134E6297F3053FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00519F61534D9C5DF464B478FFA8DBB5FF87CC98FF66BC7DFF64BA7CFF86CB
+          98FFA5D9B4FF58AA6BFF2C8134F4297F3053FFFFFF00FFFFFF00FFFFFF0059A6
+          6B2256A366E56AB97DFFA8DBB2FF60BC77FF5CBA73FF59B870FF59B56FFF58B5
+          6FFF5BB774FFA5D9B3FF5AAA6CFF2C8234E5297F3022FFFFFF00FFFFFF005DA9
+          707E53AB68FFAADDB4FF64C179FF5FBE71FF60BC77FFFFFFFFFFFFFFFFFF59B8
+          70FF58B56EFF5CB774FFA6DAB4FF388F43FF2C82347EFFFFFF00FFFFFF0061AC
+          75DB8ACC98FF89D396FF6BC67AFF63C170FF55AB65FFFFFFFFFFFFFFFFFF59B8
+          70FF59B870FF5BB972FF85CC97FF7BBE8DFF308539DBFFFFFF00FFFFFF0065AF
+          7AF6A9DDB3FF7DCF8AFF75CC81FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFF59B870FF67BE7DFF9CD4ABFF34883DF6FFFFFF00FFFFFF0069B2
+          7EF6B6E2BEFF8BD597FF7AC986FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFF59B870FF69C17EFF9DD4AAFF388B42F6FFFFFF00FFFFFF006DB5
+          83DBACDDB6FFA6DFAFFF81CB8CFF7CC986FF6EBD79FFFFFFFFFFFFFFFFFF5BAC
+          6AFF60BC77FF5CBA73FF8BD199FF80C592FF3C8E47DBFFFFFF00FFFFFF0070B8
+          877E85C797FFD2EED7FF95D9A0FF8AD394FF7FC889FFFFFFFFFFFFFFFFFF79CD
+          85FF6BC37CFF6FC77EFFACDFB5FF459E57FF40914C7EFFFFFF00FFFFFF0073BA
+          8A2270B887E5AADAB7FFD8F1DCFF92D89DFF88CD93FF84CC8EFF8BD496FF8AD4
+          95FF83D28EFFAFE0B7FF6BB97DFF489856E544945122FFFFFF00FFFFFF00FFFF
+          FF0073BB8B5370B887F4AFDCBBFFDCF2E0FFB6E4BDFF9BDBA5FF96D9A0FFA5DF
+          AFFFC0E8C5FF79C28AFF509E5FF44C9B5B53FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF0073BB8B5371B887E694CEA4FFC3E6CBFFCFEBD4FFC9E9CEFFAFDD
+          B8FF6DB97FFF58A569E654A16553FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF0074BB8B2371B9887D6EB684DB6AB380F367B17CF363AE
+          77DB60AB737D5CA86E23FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
+        }
+        OnClick = btnNewStyleClick
         TabOrder = 3
       end
-      object btn_cNumbers: TButton
-        Left = 8
-        Height = 25
-        Top = 312
-        Width = 104
-        Caption = 'Numbers'
-        OnClick = btn_cNumbersClick
+      object btnDeleteStyle: TBitBtn
+        Left = 456
+        Height = 23
+        Top = 8
+        Width = 24
+        Anchors = [akTop, akLeft, akRight]
+        Glyph.Data = {
+          36040000424D3604000000000000360000002800000010000000100000000100
+          2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF003F54C3233A50C27D3853BEDB3551BDF3304BBCF32E4E
+          B8DB2B4CB77D2748B523FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF004658C8534255C6E63C52CCFF757AE8FF8F92EEFF8F92EEFF7178
+          E4FF334DC1FF2B4AB7E6294BB553FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF004D5ACD534959CBF45C65E0FFA1A6F5FF7E86EFFF5B63E9FF595DE7FF7D84
+          EEFF9EA0F4FF515DD7FF2B4AB7F4294BB553FFFFFF00FFFFFF00FFFFFF00545F
+          D2225361CFE5616BE3FFA1ACF5FF545FECFF505CEAFF4D59E9FF4E59E6FF4C56
+          E6FF5056E6FF9EA2F4FF5460D6FF2A4AB8E5294BB522FFFFFF00FFFFFF005860
+          D47E4B56DBFFA2ABF6FF5664F0FF5266EEFF4D59E9FF4D59E9FF4D59E9FF4D59
+          E9FF4C58E6FF525AE6FF9FA3F5FF3450C4FF2A4AB87EFFFFFF00FFFFFF005C62
+          D7DB818CEEFF7E91F7FF5D73F3FF4D59E9FF4D59E9FF4D59E9FF4D59E9FF4D59
+          E9FF4D59E9FF4F5BE9FF7B83F0FF757BE2FF2E4BBADBFFFFFF00FFFFFF005F63
+          DAF6A1ABF7FF7086F8FF6882F6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFF4D59E9FF5C66EAFF969CF1FF3250BCF6FFFFFF00FFFFFF006469
+          DBF6AFB9F9FF7F93FAFF7085F0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFF4D59E9FF5E6AEEFF969DF1FF364FBEF6FFFFFF00FFFFFF00676A
+          DEDBA5AFF5FF9DABFAFF778CF0FF545FECFF545FECFF545FECFF545FECFF545F
+          ECFF545FECFF6377F2FF818EF4FF787FE9FF3A53C0DBFFFFFF00FFFFFF006A69
+          E07E7D83EAFFCDD4FCFF8B9DFAFF7E93F7FF758AEEFF6C84F6FF6C84F6FF6C84
+          F6FF6C84F6FF6379F3FFA4AFF8FF3E4FD0FF3E54C27EFFFFFF00FFFFFF006C6C
+          E1226A69E0E5A3A7F3FFD4DBFDFF879AFAFF7F91F0FF7A8EF1FF7F94F8FF7E92
+          F9FF768CF8FFA8B6F8FF636EE3FF4557C7E54156C522FFFFFF00FFFFFF00FFFF
+          FF006D6CE3536A69E0F4AAADF2FFD8DCFDFFAEBAFAFF91A3FAFF8B9DFAFF9CA9
+          FBFFBAC7FCFF707BE9FF4C5BCCF44858CA53FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF006D6CE3536A6ADFE68E93EDFFBEC3F8FFCCD3F9FFC4CBF9FFAAB4
+          F4FF6670E2FF535ED1E6505DCE53FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF006D6DE2236B6AE17D686ADDDB6364DCF36164DAF35D63
+          D9DB5B63D67D5862D423FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
+        }
+        OnClick = btnDeleteStyleClick
         TabOrder = 4
       end
-      object btn_cStrings: TButton
-        Left = 8
-        Height = 25
-        Top = 336
-        Width = 104
-        Caption = 'Strings'
-        OnClick = btn_cStringsClick
+      object btnRenameStyle: TBitBtn
+        Left = 432
+        Height = 23
+        Top = 8
+        Width = 24
+        Anchors = [akTop, akLeft, akRight]
+        Glyph.Data = {
+          36040000424D3604000000000000360000002800000010000000100000000100
+          2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00E8E8E8FFE8E8
+          E8FFE8E8E8FFE8E8E8FFE8E8E8FFE8E8E8FFE8E8E8FFE8E8E8FF626262FF9595
+          95FF6E6E6EFFE8E8E8FFE8E8E8FFE8E8E8FFE8E8E8FFE8E8E8FFC9C9C9FFFCFC
+          FCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFF6262
+          62FFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFE8E8E8FFC9C9C9FFFCFC
+          FCFFC38F6CFFC3916DFFC3916EFFC2926FFFC29370FFC19371FFFCFCFCFF6262
+          62FFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFE8E8E8FFC9C9C9FFFCFC
+          FCFFC38F6BFFD99B73FFD69B73FFD69D76FFD6A17BFFC29370FFFCFCFCFF6262
+          62FFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFE8E8E8FFC9C9C9FFFCFC
+          FCFFC38F6BFFD99872FFD89972FFD69B74FFD79F79FFC2926FFFFCFCFCFF6262
+          62FFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFE8E8E8FFC9C9C9FFFCFC
+          FCFFC38F6BFFC4906CFFC38F6CFFC3906DFFC3916DFFC3916EFFFCFCFCFF6262
+          62FFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFE8E8E8FFC9C9C9FFFCFC
+          FCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFF6C6C
+          6CFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFE8E8E8FFC9C9C9FFC9C9
+          C9FFC9C9C9FFC9C9C9FFC9C9C9FFC9C9C9FFC9C9C9FFC9C9C9FF6B6B6BFF8E8E
+          8EFF757575FFC9C9C9FFC9C9C9FFC9C9C9FFC9C9C9FFC9C9C9FFFFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
+        }
+        OnClick = btnRenameStyleClick
         TabOrder = 5
       end
-      object btn_cComments: TButton
-        Left = 8
-        Height = 25
-        Top = 360
-        Width = 104
-        Caption = 'Comments'
-        OnClick = btn_cCommentsClick
-        TabOrder = 6
-      end
-      object btn_cMacros: TButton
-        Left = 120
-        Height = 25
-        Top = 312
-        Width = 104
-        Caption = 'Macros'
-        OnClick = btn_cMacrosClick
-        TabOrder = 7
-      end
-      object btn_cPrimaryTypes: TButton
-        Left = 120
-        Height = 25
-        Top = 336
-        Width = 104
-        Caption = 'Primary types'
-        OnClick = btn_cPrimaryTypesClick
-        TabOrder = 8
-      end
-      object btn_cOther: TButton
-        Left = 120
-        Height = 25
-        Top = 360
-        Width = 104
-        Caption = 'Other'
-        OnClick = btn_cOtherClick
-        TabOrder = 9
-      end
-      object btnFGColor: TButton
-        Left = 120
-        Height = 25
-        Top = 232
-        Width = 104
-        Caption = 'Text color'
-        OnClick = btnFGColorClick
-        TabOrder = 10
-      end
-      object btnBGColor: TButton
-        Left = 232
-        Height = 25
-        Top = 232
-        Width = 104
-        Caption = 'Background color'
-        OnClick = btnBGColorClick
-        TabOrder = 11
-      end
     end
-    object p_2: TPage
-      object Label2: TLabel
-        Left = 6
-        Height = 16
-        Top = 39
-        Width = 87
-        Caption = 'Virtual machine:'
-        ParentColor = False
-      end
-      object eVMFile: TEdit
-        Left = 113
+    object EnvPage_Files: TPage
+      object btnCompilerSelect: TBitBtn
+        Left = 461
         Height = 23
-        Top = 32
-        Width = 254
-        OnChange = eVMFileChange
-        TabOrder = 0
-        Text = 'eVMFile'
-      end
-      object eCompilerFile: TEdit
-        Left = 113
-        Height = 23
-        Top = 8
-        Width = 254
-        OnChange = eCompilerFileChange
-        TabOrder = 1
-        Text = 'eCompilerFile'
-      end
-      object Label1: TLabel
-        Left = 6
-        Height = 16
-        Top = 15
-        Width = 53
-        Caption = 'Compiler:'
-        ParentColor = False
-      end
-      object CompilerFile_Select: TBitBtn
-        Left = 370
-        Height = 23
-        Top = 8
+        Top = 128
         Width = 23
+        Anchors = [akTop, akRight]
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -748,14 +936,75 @@ object EvSettingsForm: TEvSettingsForm
           FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
           FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
         }
-        OnClick = CompilerFile_SelectClick
+        OnClick = btnCompilerSelectClick
+        TabOrder = 0
+      end
+      object eCompilerExecutable: TLabeledEdit
+        Left = 4
+        Height = 23
+        Top = 128
+        Width = 452
+        Anchors = [akTop, akLeft, akRight]
+        EditLabel.AnchorSideLeft.Control = eCompilerExecutable
+        EditLabel.AnchorSideRight.Control = eCompilerExecutable
+        EditLabel.AnchorSideRight.Side = asrBottom
+        EditLabel.AnchorSideBottom.Control = eCompilerExecutable
+        EditLabel.Left = 4
+        EditLabel.Height = 15
+        EditLabel.Top = 110
+        EditLabel.Width = 452
+        EditLabel.Caption = 'Compiler executable:'
+        EditLabel.ParentColor = False
+        TabOrder = 1
+      end
+      object eVMExecutable: TLabeledEdit
+        Left = 4
+        Height = 23
+        Top = 184
+        Width = 452
+        Anchors = [akTop, akLeft, akRight]
+        EditLabel.AnchorSideLeft.Control = eVMExecutable
+        EditLabel.AnchorSideRight.Control = eVMExecutable
+        EditLabel.AnchorSideRight.Side = asrBottom
+        EditLabel.AnchorSideBottom.Control = eVMExecutable
+        EditLabel.Left = 4
+        EditLabel.Height = 15
+        EditLabel.Top = 166
+        EditLabel.Width = 452
+        EditLabel.Caption = 'Virtual machine executable:'
+        EditLabel.ParentColor = False
         TabOrder = 2
       end
-      object VMFile_Select: TBitBtn
-        Left = 370
+      object lblMaxRecentlyOpened: TLabel
+        Left = 4
+        Height = 15
+        Top = 8
+        Width = 341
+        Caption = 'Maximum number of projects listed on the ''recently opened'' list:'
+        ParentColor = False
+      end
+      object seMaxRecentlyOpened: TSpinEdit
+        Left = 4
         Height = 23
-        Top = 32
+        Top = 24
+        Width = 478
+        Anchors = [akTop, akLeft, akRight]
+        TabOrder = 3
+      end
+      object cbOpenRecentProject: TCheckBox
+        Left = 4
+        Height = 19
+        Top = 51
+        Width = 307
+        Caption = 'Load the recently opened project when opening editor'
+        TabOrder = 4
+      end
+      object btnVMSelect: TBitBtn
+        Left = 461
+        Height = 23
+        Top = 184
         Width = 23
+        Anchors = [akTop, akRight]
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -792,11 +1041,60 @@ object EvSettingsForm: TEvSettingsForm
           FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
           FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
         }
-        OnClick = VMFile_SelectClick
-        TabOrder = 3
+        OnClick = btnVMSelectClick
+        TabOrder = 5
+      end
+      object Bevel2: TBevel
+        Left = -10
+        Height = 2
+        Top = 88
+        Width = 518
+        Anchors = [akTop, akLeft, akRight]
+      end
+      object Bevel3: TBevel
+        Left = -10
+        Height = 2
+        Top = 232
+        Width = 518
+        Anchors = [akTop, akLeft, akRight]
+      end
+      object cbEnableLogging: TCheckBox
+        Left = 4
+        Height = 19
+        Top = 248
+        Width = 198
+        Caption = 'Enable logging IDE events to a file'
+        OnChange = cbEnableLoggingChange
+        TabOrder = 6
+      end
+      object eLogFile: TLabeledEdit
+        Left = 4
+        Height = 23
+        Top = 312
+        Width = 480
+        Anchors = [akTop, akLeft, akRight]
+        EditLabel.AnchorSideLeft.Control = eLogFile
+        EditLabel.AnchorSideRight.Control = eLogFile
+        EditLabel.AnchorSideRight.Side = asrBottom
+        EditLabel.AnchorSideBottom.Control = eLogFile
+        EditLabel.Left = 4
+        EditLabel.Height = 15
+        EditLabel.Top = 294
+        EditLabel.Width = 480
+        EditLabel.Caption = 'Log file:'
+        EditLabel.ParentColor = False
+        TabOrder = 7
+      end
+      object cbRewriteLog: TCheckBox
+        Left = 4
+        Height = 19
+        Top = 266
+        Width = 180
+        Caption = 'Rewrite log each time (clear it)'
+        TabOrder = 8
       end
     end
-    object p_4: TPage
+    object EditorPage_CodeCompletion: TPage
       object cScrollPastEOL: TCheckBox
         Left = 8
         Height = 19
@@ -805,29 +1103,21 @@ object EvSettingsForm: TEvSettingsForm
         Caption = 'Enable scrolling past End-Of-Line'
         TabOrder = 0
       end
-      object cOpenRecentProject: TCheckBox
-        Left = 8
-        Height = 19
-        Top = 32
-        Width = 292
-        Caption = 'Open recently-opened project when opening editor'
-        TabOrder = 1
-      end
       object cAddBrackets: TCheckBox
         Left = 8
         Height = 19
-        Top = 55
+        Top = 24
         Width = 306
         Caption = 'Automatically add closing brackets when editing code'
-        TabOrder = 2
+        TabOrder = 1
       end
     end
-    object p_5: TPage
+    object EnvPage_Language: TPage
       object Label3: TLabel
         Left = 8
-        Height = 16
+        Height = 15
         Top = 8
-        Width = 96
+        Width = 95
         Caption = 'Current language:'
         ParentColor = False
       end
@@ -835,57 +1125,118 @@ object EvSettingsForm: TEvSettingsForm
         Left = 7
         Height = 23
         Top = 24
-        Width = 385
+        Width = 475
+        Anchors = [akTop, akLeft, akRight]
         ItemHeight = 15
         Style = csDropDownList
         TabOrder = 0
       end
     end
   end
-  object ColorDialog: TColorDialog
-    Color = clBlack
-    CustomColors.Strings = (
-      'ColorA=000000'
-      'ColorB=000080'
-      'ColorC=008000'
-      'ColorD=008080'
-      'ColorE=800000'
-      'ColorF=800080'
-      'ColorG=808000'
-      'ColorH=808080'
-      'ColorI=C0C0C0'
-      'ColorJ=0000FF'
-      'ColorK=00FF00'
-      'ColorL=00FFFF'
-      'ColorM=FF0000'
-      'ColorN=FF00FF'
-      'ColorO=FFFF00'
-      'ColorP=FFFFFF'
-      'ColorQ=C0DCC0'
-      'ColorR=F0CAA6'
-      'ColorS=F0FBFF'
-      'ColorT=A4A0A0'
-    )
-    left = 64
-    top = 408
+  object btnSave: TBitBtn
+    Left = 568
+    Height = 25
+    Top = 498
+    Width = 75
+    Anchors = [akRight, akBottom]
+    Caption = 'Save'
+    Glyph.Data = {
+      36040000424D3604000000000000360000002800000010000000100000000100
+      2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF001C811F231B7E1F7D1B7A1FDB1A731EF31A701EF31B71
+      1FDB1B711F7D1B6C1F23FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF001C8A21531B831FE642A052FF87CA9AFF9BD3ABFF9BD2ABFF83C7
+      96FF3D974CFF1A6E1EE61B701F53FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF001C912B531B8A20F46DBE83FFA8DBB5FF87CC98FF66BC7DFF64BA7CFF86CB
+      98FFA5D9B4FF66B77DFF1A6C1DF41B711F53FFFFFF00FFFFFF00FFFFFF001D9B
+      36221C962FE572C287FFA8DBB2FF60BC77FF5CBA73FF59B870FF59B56FFF58B5
+      6FFF5BB774FFA5D9B3FF69B87FFF1A711EE51B711F22FFFFFF00FFFFFF001EA4
+      3D7E4CB064FFAADDB4FF64C179FF5FBE71FF75C585FFD4ECD9FF8ACD99FF56B6
+      6CFF58B56EFF5CB774FFA6DAB4FF419B4EFF1B771F7EFFFFFF00FFFFFF001FA9
+      42DB91D29FFF8DD49AFF64C374FF79C987FFF2FAF4FFFFFFFFFFFDFEFDFF86CB
+      96FF57B76DFF5BB972FF85CC97FF87C79AFF1B781FDBFFFFFF00FFFFFF001FAD
+      42F6A6DCAFFF70CA7FFF73CA80FFF0F9F1FFFFFFFFFFEBF7EDFFFFFFFFFFFBFD
+      FCFF88CD96FF5BB971FF67BE7DFFA0D7AFFF1B7A1EF6FFFFFF00FFFFFF0026B4
+      4BF6A7DDB1FF72CC80FF66C773FFB0E1B7FFD2EED6FF63C170FFB8E3BFFFFFFF
+      FFFFFBFDFCFF8CD099FF69C17EFFA1D7AEFF1B7F1EF6FFFFFF00FFFFFF002DBB
+      54DB95D7A1FF91D79BFF69C976FF64C66FFF61C46EFF61C36FFF61C26FFFB9E4
+      C0FFFFFFFFFFE3F4E6FF8BD199FF8BCE9DFF1C8820DBFFFFFF00FFFFFF0034BE
+      597E57BF70FFAFE1B7FF6DCC7AFF68C872FF65C770FF63C56EFF62C46EFF63C4
+      71FFB6E3BEFF6FC77EFFACDFB5FF48A95EFF1C8F267EFFFFFF00FFFFFF0039C2
+      5C2234BE55E57FCE90FFAEE1B5FF6DCC7AFF6ACA76FF68C872FF68C874FF68C8
+      75FF6BC979FFACDFB4FF76C489FF1C962DE51C942D22FFFFFF00FFFFFF00FFFF
+      FF003BC55E5334C055F47FCE90FFAFE1B7FF92D89DFF77CE83FF77CE83FF92D8
+      9DFFAEE1B5FF78C88BFF1D9D32F41D9D3653FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF003DC7605336C259E659C274FF96D7A3FFA5DCAEFFA5DCAEFF95D6
+      A1FF50B96AFF1FAB42E61FA94253FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF0040C962233BC55E7D39C25BDB31BD54F32DBB52F32BB9
+      52DB2BB7527D28B44E23FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
+    }
+    OnClick = btnSaveClick
+    TabOrder = 2
   end
-  object FontDialog: TFontDialog
-    MinFontSize = 0
-    MaxFontSize = 0
-    left = 32
-    top = 408
+  object btnCancel: TBitBtn
+    Left = 648
+    Height = 25
+    Top = 498
+    Width = 75
+    Anchors = [akRight, akBottom]
+    Caption = 'Cancel'
+    Glyph.Data = {
+      36040000424D3604000000000000360000002800000010000000100000000100
+      2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF003F3DED413B38EB08FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00211FE3081E1CE241FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF004A47F0414F4CF2FF403EEDFD3C39EB08FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF002725E5082422E4FC312FEAFF1F1DE241FFFFFF00FFFFFF00FFFFFF005451
+      F3415856F5FF6361FAFF5855F6FF413FEDFC3D3AEC08FFFFFF00FFFFFF00302D
+      E7082C2AE6FC413FF1FF4C4AF6FF312FEAFF1F1DE241FFFFFF00FFFFFF005956
+      F52B5B58F6FF6562FAFF7170FFFF5956F6FF4240EEFC3E3BEC083937EB083532
+      E9FC4745F2FF6362FFFF4A48F4FF2F2DE9FF2220E32BFFFFFF00FFFFFF00FFFF
+      FF005A57F52B5B59F6FF6663FAFF7471FFFF5A58F6FF4341EEFC3E3CECFD504D
+      F4FF6867FFFF504EF5FF3634EBFF2A27E52BFFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF005B58F62B5C5AF6FF6764FAFF7472FFFF7370FFFF706EFFFF6E6C
+      FFFF5755F7FF3F3DEEFF3230E82BFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF005C59F62B5D5BF7FF7976FFFF5956FFFF5754FFFF7270
+      FFFF4846F0FF3C39EB2BFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00615EF8085D5AF6FD7D79FFFF5E5BFFFF5B58FFFF7674
+      FFFF4643EFFD413FED08FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF006967FB086663F9FC706DFBFF807EFFFF7E7BFFFF7C79FFFF7977
+      FFFF5E5CF7FF4744EFFC4240EE08FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00716EFD086E6BFCFC7774FDFF8682FFFF7673FCFF6462F8FF605DF7FF6D6A
+      FAFF7B79FFFF605DF7FF4845EFFC4341EE08FFFFFF00FFFFFF00FFFFFF007673
+      FF087471FEFD7D7AFEFF8A87FFFF7C79FDFF6C69FBFF6361F92B5F5CF72B615E
+      F8FF6E6CFAFF7D7AFFFF615FF7FF4946F0FC4441EE05FFFFFF00FFFFFF007774
+      FF1F7A77FFFF817EFFFF817EFEFF7471FDFF6C69FB2BFFFFFF00FFFFFF00605D
+      F72B625FF8FF6F6DFBFF7E7CFFFF625FF8FF4A47F06F4542EE02FFFFFF00FFFF
+      FF007774FF1F7A77FFFF7976FEFF726FFD2BFFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00615EF82B6461F8FF6A68F9FF5451F3A84F4DF229FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF007774FF1F7774FF2BFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00625FF82B5D5BF76F5956F53EFFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF006360F80AFFFFFF00FFFFFF00FFFFFF00
+    }
+    OnClick = btnCancelClick
+    TabOrder = 3
   end
   object FileTimer: TTimer
     Interval = 50
     OnTimer = FileTimerTimer
-    top = 407
+    left = 8
+    top = 496
   end
   object EXEOpen: TOpenDialog
     Title = 'Wybór aplikacji'
     DefaultExt = '.*.exe'
     Filter = 'Plik wykonywalny (*.exe)|*.exe'
     Options = [ofPathMustExist, ofFileMustExist, ofEnableSizing, ofViewDetail]
-    left = 96
-    top = 408
+    left = 40
+    top = 496
   end
 end

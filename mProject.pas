@@ -7,8 +7,9 @@
 Unit mProject;
 
  Interface
- Uses uMainForm, CodeScan, Tokens, LCLType, FileUtil, Classes, ComCtrls, Controls, Graphics, SynEdit, SynEditSScript, FGL,
-      SynEditMiscClasses, SynHighlighterPas, SynHighlighterCpp, SynHighlighterJava, SynHighlighterIni, VirtualTrees,
+ Uses uMainForm, CodeScan, Tokens, LCLType, FileUtil, Classes, ComCtrls, Controls, Graphics, SynEdit, FGL,
+      SynEditMiscClasses, VirtualTrees,
+      SynEditSScript, SynHighlighterPas, SynHighlighterCpp, SynHighlighterJava, SynHighlighterHTML, SynHighlighterCSS,
       SynCompletion, mIntellisense, Process;
 
  Type TProjectType = (ptApplication, ptLibrary);
@@ -140,9 +141,9 @@ Unit mProject;
         Named, Saved: Boolean;
 
         // paths and other text data
-        FileName                  : String;
-        IncludePath, OutputFile   : String;
-        HeaderFile, BytecodeOutput: String;
+        FileName               : String;
+        IncludePath, OutputFile: String;
+        BytecodeOutput         : String;
 
         // project info
         ProjectType: TProjectType;
@@ -171,7 +172,7 @@ Unit mProject;
         Function Save(const fFileName: String=''): Boolean;
         Procedure SaveCurrentCard;
         Procedure SaveCurrentCardAs;
-        Function Open(const fFileName: String=''): Boolean;
+        Function Load(const fFileName: String=''): Boolean;
         Function OpenCard(const fFileName: String): TCard;
 
         Procedure UpdateCards;
@@ -196,31 +197,46 @@ Unit mProject;
         Procedure UpdateIdentifierList;
        End;
 
- Function getCompilerSwitchName(const S: TCompilerSwitch; DeleteFirstChars: Boolean=True): String;
- Function getVMSwitchName(const S: TVMSwitch; DeleteFirstChars: Boolean=True): String;
+ Function getCompilerSwitchName(const Switch: TCompilerSwitch; const ChangeToRealSwitch: Boolean): String;
+ Function getVMSwitchName(const Switch: TVMSwitch; const ChangeToRealSwitch: Boolean): String;
 
  Var Project: TProject = nil; // currently opened project
 
  Implementation
-Uses mSettings, mLanguages, uIdentifierListForm, uCompileStatusForm, uCodeEditor, Parser,
+Uses mConfiguration, mLanguages, mMessages, mLogger, Parser,
+     uIdentifierListForm, uCompileStatusForm, uCodeEditor,
      Dialogs, SysUtils, Forms, DOM, XMLWrite, XMLRead, TypInfo;
 
 (* getCompilerSwitchName *)
-Function getCompilerSwitchName(const S: TCompilerSwitch; DeleteFirstChars: Boolean=True): String;
+{
+ Returns compiler switch name based on given TCompilerSwitch enum value.
+ If "ChangeToRealSwitch" equals 'true', eg. "cs__internal_const" is changed to "--internal-const", and so on.
+}
+Function getCompilerSwitchName(const Switch: TCompilerSwitch; const ChangeToRealSwitch: Boolean): String;
 Begin
- Result := GetEnumName(TypeInfo(TCompilerSwitch), Integer(S));
+ Result := GetEnumName(TypeInfo(TCompilerSwitch), ord(Switch));
 
- if (DeleteFirstChars) Then
-  Delete(Result, 1, 3);
+ if (ChangeToRealSwitch) Then
+ Begin
+  Delete(Result, 1, 2);
+  Result := StringReplace(Result, '_', '-', [rfReplaceAll]); // eg."cs__internal_const" -> "-internal-const" (the second "-" is inserted inside the TProject.Compile() routine)
+ End;
 End;
 
 (* getVMSwitchName *)
-Function getVMSwitchName(const S: TVMSwitch; DeleteFirstChars: Boolean=True): String;
+{
+ Returns VM switch name based on given TVMSwitch enum value.
+ If "ChangeToRealSwitch" equals 'true', eg. "vm_time" is changed to "-time", and so on.
+}
+Function getVMSwitchName(const Switch: TVMSwitch; const ChangeToRealSwitch: Boolean): String;
 Begin
- Result := GetEnumName(TypeInfo(TVMSwitch), Integer(S));
+ Result := GetEnumName(TypeInfo(TVMSwitch), ord(Switch));
 
- if (DeleteFirstChars) Then
-  Delete(Result, 1, 3);
+ if (ChangeToRealSwitch) Then
+ Begin
+  Delete(Result, 1, 2);
+  Result := StringReplace(Result, '_', '-', [rfReplaceAll]);
+ End;
 End;
 
 (* TCompilerMessage = TCompilerMessage *)
@@ -259,7 +275,7 @@ Var Str: String = '';
 Begin
  if (Key in ['(', '[', '<', '{']) Then
  Begin
-  if (mSettings.getBoolean(sAddBrackets)) Then
+  if (Config.getBoolean(ceAddBrackets)) Then
   Begin
    Case Key of
     '(': Str := '()';
@@ -458,8 +474,8 @@ Procedure TCard.Intellisense_OnShow(Sender: TObject);
 Begin
  With TForm(Sender) do
  Begin
-  Width  := getInteger(sIntellisenseWidth);
-  Height := getInteger(sIntellisenseHeight);
+  Width  := Config.getInteger(ceIntellisenseWidth);
+  Height := Config.getInteger(ceIntellisenseHeight);
  End;
 End;
 
@@ -468,8 +484,8 @@ Procedure TCard.Intellisense_OnHide(Sender: TObject);
 Begin
  With TForm(Sender) do
  Begin
-  setInteger(sIntellisenseWidth, Width);
-  setInteger(sIntellisenseHeight, Height);
+  Config.setInteger(ceIntellisenseWidth, Width);
+  Config.setInteger(ceIntellisenseHeight, Height);
  End;
 End;
 
@@ -699,30 +715,29 @@ End;
  Refreshes card's controls.
 }
 Procedure TCard.RefreshControls;
+Var Ext: String;
 Begin
  With SynEdit do
  Begin
-  // recreate highlighter
-  if (Highlighter <> nil) Then
-   Highlighter.Free;
+  // dispose highlighter
+  Highlighter.Free;
 
-  SynEdit.Font.Quality := fqCleartype; // @TODO: this should be configurable
+  // create appropriate highlighter
+  Ext := LowerCase(ExtractFileExt(FileName));
 
-  Case LowerCase(ExtractFileExt(FileName)) of
-   '.ss'        : Highlighter := THighlighter.Create(SynEdit);
-   '.pas', '.pp': Highlighter := TSynPasSyn.Create(SynEdit);
-   '.c', '.cpp' : Highlighter := TSynCppSyn.Create(SynEdit);
-   '.java'      : Highlighter := TSynJavaSyn.Create(SynEdit);
-   '.ini'       : Highlighter := TSynIniSyn.Create(SynEdit);
+  Case Ext of
+   '.ss'          : Highlighter := TSScriptHighlighter.Create(SynEdit);
+   '.pas', '.pp'  : Highlighter := TSynPasSyn.Create(SynEdit);
+   '.c', '.cpp'   : Highlighter := TSynCppSyn.Create(SynEdit);
+   '.java'        : Highlighter := TSynJavaSyn.Create(SynEdit);
+   '.htm', '.html': Highlighter := TSynHTMLSyn.Create(SynEdit);
+   '.css'         : Highlighter := TSynCSSSyn.Create(SynEdit);
   End;
 
-  // update SynEdit
-  With SynEdit do
-  Begin
-   if (mSettings.getBoolean(sScrollPastEOL)) Then
-    Options := Options + [eoScrollPastEOL] Else
-    Options := Options - [eoScrollPastEOL];
-  End;
+  // sync SynEdit options
+  if (Config.getBoolean(ceScrollPastEOL)) Then
+   Options := Options + [eoScrollPastEOL] Else
+   Options := Options - [eoScrollPastEOL];
  End;
 End;
 
@@ -749,19 +764,22 @@ Begin
  if (Parsing) or ((not ForceParse) and (not ShouldBeReparsed)) or (CompareText(ExtractFileExt(getFileName), '.ss') <> 0) Then
   Exit;
 
- With CompileStatusForm.CompileStatus do // clear parser's error message
+ // clear last parser error message
+ With CompileStatusForm.CompileStatus do
   if (Items.GetLastNode <> nil) and (Items.GetLastNode.Data = Pointer($CAFEBABE)) Then
    Items.Delete(Items.GetLastNode);
 
+ // clear variables
  Parsing                := False;
  Project.ParseError.Any := False;
  ShouldBeReparsed       := False;
 
- if (CodeScanner <> nil) Then // free previous code scanner
-  FreeAndNil(CodeScanner);
+ // free previous code scanner instance
+ FreeAndNil(CodeScanner);
 
+ // create new
  Parsing     := True;
- CodeScanner := TCodeScanner.Create(SynEdit.Lines, getFileName, Project.getMainCard.getFileName, getString(sCompilerFile), Project.IncludePath, True); // parse!
+ CodeScanner := TCodeScanner.Create(SynEdit.Lines, getFileName, Project.getMainCard.getFileName, Config.getString(ceCompilerExecutable), Project.IncludePath, True); // parse!
 
  Try
   Try
@@ -1083,11 +1101,14 @@ End;
  Checks compiler or/and (depending on project's type) virtual machine existence and displays an error when at least one of them isn't found.
 }
 Procedure TProject.CheckPaths;
-Var Fail: Boolean;
+Var Fail, CompilerExists, VMExists: Boolean;
 Begin
+ CompilerExists := FileExists(Config.getString(ceCompilerExecutable));
+ VMExists       := FileExists(Config.getString(ceVMExecutable));
+
  Case ProjectType of
-  ptApplication: Fail := (not FileExists(getString(sCompilerFile))) or (not FileExists(getString(sVMFile))); // an application needs a compiler and a virtual machine
-  ptLibrary    : Fail := (not FileExists(getString(sCompilerFile))); // a library needs only to be compiled (it cannot be run)
+  ptApplication: Fail := (not (CompilerExists and VMExists)); // an application needs a compiler and a virtual machine
+  ptLibrary    : Fail := (not CompilerExists); // a library needs only to be compiled (it cannot be run)
 
   else
    Fail := True;
@@ -1139,6 +1160,8 @@ End;
 }
 Constructor TProject.Create;
 Begin
+ Log.Writeln('> TProject.Create() <');
+
  MainForm.setMainMenu(stDisabled);
 
  CardList    := TCardList.Create;
@@ -1157,10 +1180,13 @@ End;
 Destructor TProject.Destroy;
 Var Card: TCard;
 Begin
+ Log.Writeln('> TProject.Destroy() <');
+
  SaveIfPossible;
 
  MainForm.setMainMenu(stDisabled);
 
+ // dispose tabs
  For Card in CardList Do
  Begin
   With Card do
@@ -1172,7 +1198,9 @@ Begin
 
  CardList.Free;
  MessageList.Free;
- MainForm.Caption := uMainForm.sCaption;
+
+ // restore form caption
+ MainForm.Caption := uMainForm.BaseCaption;
 End;
 
 (* TProject.NewProject *)
@@ -1181,6 +1209,8 @@ End;
 }
 Procedure TProject.NewProject(const Typ: TProjectType);
 Begin
+ Log.Writeln('Creating a new project of type "%s" with default settings.', [GetEnumName(TypeInfo(TProjectType), ord(Typ))]);
+
  MainForm.setMainMenu(stEnabled);
 
  Named := False;
@@ -1190,7 +1220,7 @@ Begin
  OtherCompilerSwitches := '';
  OptimizationLevel     := 2;
 
- VMSwitches      := [vm_wait, vm_jit]; // `-wait` and `-jit` are enabled by default
+ VMSwitches      := [vm_wait]; // `-wait` is enabled by default
  OtherVMSwitches := '';
 
  GCMemoryLimit     := 128;
@@ -1199,7 +1229,6 @@ Begin
  IncludePath    := '$file;$compiler';
  ProjectType    := Typ;
  OutputFile     := '';
- HeaderFile     := '';
  BytecodeOutput := '';
 
  CardList.Clear;
@@ -1233,8 +1262,10 @@ Begin
   End;
  End;
 
- With getCurrentCard do // this card is the main card
+ With getCurrentCard do // this is the main card
+ Begin
   isMain := True;
+ End;
 End;
 
 (* TProject.NewNoNameCard *)
@@ -1245,6 +1276,8 @@ Procedure TProject.NewNoNameCard;
 Var Name: String;
     I   : uint32 = 0;
 Begin
+ Log.Writeln('Creating a new no-name card.');
+
  While (true) Do
  Begin
   Name := 'no_name_'+IntToStr(I)+'.ss';
@@ -1296,11 +1329,16 @@ Var Doc               : TXMLDocument;
 Begin
  Result := False;
 
+ Log.Writeln('TProject.Save()');
+
+ // oops - file name not specified; ask user to enter one
  if (not Named) and (fFileName = '') Then
  Begin
   { display save dialog }
   With TSaveDialog.Create(MainForm) do
   Begin
+   Log.Writeln('Project has not been named and the file name has not been specified - opening the save dialog...');
+
    Try
     Title  := getLangValue(ls_project_saving);
     Filter := getLangValue(ls_filter_project);
@@ -1310,7 +1348,10 @@ Begin
      self.FileName := FileName;
      self.Named    := True;
     End Else
+    Begin
+     Log.Writeln('User closed the save dialog - giving up.');
      Exit;
+    End;
    Finally
     Free;
    End;
@@ -1323,6 +1364,9 @@ Begin
   Named    := True;
  End;
 
+ Log.Writeln('Saving project to file: %s', [FileName]);
+
+ // if not output file has been set, do it now
  if (OutputFile = '') Then
  Begin
   OutputFile := ExtractFileName(FileName);
@@ -1353,12 +1397,11 @@ Begin
   { save config }
   Parent := Doc.CreateElement('config');
 
-  WriteValue(Parent, 'version', uMainForm.iVersion);
+  WriteValue(Parent, 'version', uMainForm.EditorVersion);
   WriteValue(Parent, 'project_type', ord(ProjectType));
   WriteValue(Parent, 'card_count', CardList.Count);
   WriteValue(Parent, 'opened_card', CodeEditor.Tabs.ActivePageIndex);
   WriteValue(Parent, 'output_file', OutputFile);
-  WriteValue(Parent, 'header_file', HeaderFile);
   WriteValue(Parent, 'bytecode_output', BytecodeOutput);
 
   Root.AppendChild(Parent);
@@ -1393,9 +1436,14 @@ Begin
    Begin
     if (not Save) Then
      Case MessageDlg(getLangValue(ls_module_saving), getLangValue(ls_msg_module_saving), mtWarning, mbYesNo, 0) of
-      mrYes: if (not Save) Then
-              Exit; // stop saving the project
-      else Exit; // stop saving the project
+      mrYes:
+      Begin
+       if (not Save) Then
+        Exit; // stop saving the project
+      End;
+
+      else
+       Exit; // stop saving the project
      End;
 
     Parent := Doc.CreateElement('card_'+IntToStr(I));
@@ -1414,7 +1462,9 @@ Begin
   Doc.Free;
  End;
 
- MainForm.Caption := uMainForm.sCaption+' - '+FileName;
+ MainForm.Caption := uMainForm.BaseCaption+' - '+FileName;
+
+ Log.Writeln('Project has been successfully saved!');
  Exit(True);
 End;
 
@@ -1444,17 +1494,18 @@ Begin
  Begin
   oldFileName := FileName;
   Named       := False;
+
   if (Save) Then
    DeleteFile(oldFileName) Else
    Named := True;
  End;
 End;
 
-(* TProject.Open *)
+(* TProject.Load *)
 {
- Opens a new project.
+ Loads a project from specified file.
 }
-Function TProject.Open(const fFileName: String=''): Boolean;
+Function TProject.Load(const fFileName: String): Boolean;
 Var Doc         : TXMLDocument;
     Root, Parent: TDOMNode;
     CardCount, I: Integer;
@@ -1465,8 +1516,6 @@ Var Doc         : TXMLDocument;
     OpenedCard      : Integer;
     cCaption, cFile : String;
     cIsMain         : Boolean;
-
-    OldWorkingDir: String;
 
     Version: Single;
 
@@ -1508,21 +1557,27 @@ Begin
  Result := False;
 
  FileName := MakeAbsolutePath(fFileName);
- Named    := True;
- Saved    := True;
+
+ Log.Writeln('Loading a project from file: %s', [FileName]);
+
+ if (not FileExists(FileName)) Then
+ Begin
+  Log.Writeln('> Error: project file not found, giving up.');
+  Exit(False);
+ End;
+
+ Named := True;
+ Saved := True;
 
  MainForm.setMainMenu(stDisabled);
 
  Try
   Try
-   OldWorkingDir := GetCurrentDir;
-   SetCurrentDir(ExtractFilePath(fFileName));
-
-   { open and parse file }
+   // open and parse file
    ReadXMLFile(Doc, FileName);
    Root := Doc.DocumentElement;
 
-   { read config }
+   // read config
    Parent := Root.FindNode('config');
 
    Version        := ReadFloatValue(Parent, 'version');
@@ -1530,10 +1585,9 @@ Begin
    CardCount      := ReadIntegerValue(Parent, 'card_count');
    OpenedCard     := ReadIntegerValue(Parent, 'opened_card');
    OutputFile     := ReadStringValue(Parent, 'output_file');
-   HeaderFile     := ReadStringValue(Parent, 'header_file');
    BytecodeOutput := ReadStringValue(Parent, 'bytecode_output');
 
-   { read compiler data }
+   // read compiler data
    Parent := Root.FindNode('compiler');
 
    OtherCompilerSwitches := ReadStringValue(Parent, 'switches');
@@ -1545,7 +1599,7 @@ Begin
     if (ReadIntegerValue(Parent, getCompilerSwitchName(Switch, False)) = 1) Then
      CompilerSwitches += [Switch];
 
-   { read vm data }
+   // read VM data
    Parent := Root.FindNode('vm');
 
    OtherVMSwitches   := ReadStringValue(Parent, 'switches');
@@ -1560,7 +1614,7 @@ Begin
    if (CardCount = 0) THen
     raise Exception.Create('File damaged: CardCount = 0');
 
-   { read cards }
+   // read cards
    For I := 0 To CardCount-1 Do
    Begin
     Parent := Root.FindNode('card_'+IntToStr(I));
@@ -1591,30 +1645,34 @@ Begin
    Doc.Free;
   End;
  Except
-  SetCurrentDir(OldWorkingDir);
   Exit(False);
  End;
 
- { add new file to the recently-opened list }
+ // add new file to the recently-opened list
  uMainForm.AddRecentlyOpened(FileName);
 
- { version check }
+ // version check
  if (Version = 0) Then
   Version := 0.1;
 
- if (Version < iVersion) Then // older than ours?
+ Log.Writeln('IDE version: %f; project version: %f', [EditorVersion, Version]);
+
+ if (Version <> EditorVersion) Then
+  Log.Writeln('Version conflict!');
+
+ if (Version < EditorVersion) Then // older than ours?
   Application.MessageBox(PChar(getLangValue(ls_msg_version_conflict_older)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
 
- if (Version > iVersion) Then // newer than ours?
+ if (Version > EditorVersion) Then // newer than ours?
   Application.MessageBox(PChar(getLangValue(ls_msg_version_conflict_newer)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
 
- { ... and do some other things }
+ // ... and do some other things
  With MainForm do
  Begin
   setMainMenu(stEnabled);
 
   CodeEditor.Tabs.ActivePageIndex := OpenedCard;
-  Caption                         := uMainForm.sCaption+' - '+FileName;
+  Caption                         := uMainForm.BaseCaption+' - '+FileName;
  End;
 
  CheckPaths;
@@ -1915,14 +1973,21 @@ Var sOutputFile: String;
    AddText(Base, Icon, MessageList.Count);
   End;
 Begin
- if (not FileExists(getString(sCompilerFile))) Then // compiler file not found
+ Log.Writeln('TProject.Compile()');
+ Log.Writeln('> Compiler executable: %s', [Config.getString(ceCompilerExecutable)]);
+
+ if (not FileExists(Config.getString(ceCompilerExecutable))) Then // compiler file not found
  Begin
-  Application.MessageBox(PChar(getLangValue(ls_msg_compiler_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
+  Log.Writeln('> Executable not found!');
+  ErrorMessage(ls_msg_compiler_not_found);
   Exit(False);
  End;
 
  if (not Save) Then
+ Begin
+  Log.Writeln('> Couldn''t save project - cannot continue.');
   Exit(False);
+ End;
 
  CompileStatusForm.Show;
 
@@ -1948,7 +2013,7 @@ Begin
 
   Process            := TProcess.Create(nil);
   Process.Options    := [poUsePipes, poNoConsole];
-  Process.Executable := getString(sCompilerFile);
+  Process.Executable := Config.getString(ceCompilerExecutable);
 
   { generate command line }
   Process.Parameters.AddStrings
@@ -1964,17 +2029,10 @@ Begin
   if (OptimizationLevel <> 0) Then
    Process.Parameters.Add('-O'+IntToStr(OptimizationLevel));
 
-  // if application
-  if (ProjectType = ptApplication) Then
-   Process.Parameters.AddStrings(['-Cm', 'app']);
-
-  // if library
-  if (ProjectType = ptLibrary) Then
-  Begin
-   Process.Parameters.AddStrings(['-Cm', 'lib']);
-
-   if (HeaderFile <> '') Then
-    Process.Parameters.AddStrings(['-h', '"'+MakeAbsolutePath(HeaderFile)+'"']);
+  // select output type
+  Case ProjectType of
+   ptApplication: Process.Parameters.AddStrings(['-Cm', 'app']);
+   ptLibrary    : Process.Parameters.AddStrings(['-Cm', 'lib']);
   End;
 
   // generate output mnemonic bytecode?
@@ -1983,11 +2041,12 @@ Begin
 
   // add compile switches
   For Switch in CompilerSwitches Do
-   Process.Parameters.Add('-'+getCompilerSwitchName(Switch));
+   Process.Parameters.Add(getCompilerSwitchName(Switch, True));
 
   AddUserSwitches;
 
   { run compiler }
+  Log.Writeln('> Process.Execute()');
   Process.Execute;
 
   BytesRead := 0;
@@ -2104,22 +2163,31 @@ Begin
    AddText(Format(getLangValue(ls_compilation_stopped), [TimeToStr(Time)]));
  End;
 
- For Card in CardList Do // enable editors
+ // enable components back
+ For Card in CardList Do
   Card.SynEdit.Enabled := True;
 
+ // raise first error message
  TmpBool := False;
- For I := 0 To MessageList.Count-1 Do // raise first error message
+ For I := 0 To MessageList.Count-1 Do
+ Begin
   if (MessageList[I].isError) Then
   Begin
    RaiseMessage(I);
    TmpBool := True;
    Break;
   End;
+ End;
+
+ // if no errors found, raise the first message
  if (not TmpBool) and (MessageList.Count > 0) Then
   RaiseMessage(0);
 
- Application.ProcessMessages; // process LCL
+ // process LCL
+ Application.ProcessMessages;
 
+ // Log N' Exit, Guns N' Roses and so on
+ Log.Writeln('> Done!');
  Exit(not AnyError);
 End;
 
@@ -2165,22 +2233,36 @@ Var TmpCaption, sOutputFile: String;
   End;
 
 Begin
- if (VMProcess <> nil) Then // another VM process is already running
-  Exit;
+ Log.Writeln('TProject.Run()');
 
- if (ProjectType = ptLibrary) Then // cannot run a library
-  Exit;
-
- if (not FileExists(getString(sVMFile))) Then // check virtual machine
+ // check if VM isn't already running
+ if (VMProcess <> nil) Then
  Begin
-  Application.MessageBox(PChar(getLangValue(ls_msg_vm_not_found)), PChar(getLangValue(ls_msg_error)), MB_IconError);
+  Log.Writeln('> Error: VM process instance is already running.');
   Exit;
  End;
 
- { check path }
+ // do not even try to run a library
+ if (ProjectType = ptLibrary) Then
+ Begin
+  Log.Writeln('> Error: ProjectType = ptLibrary');
+  Exit;
+ End;
+
+ // check if virtual machine executable exists
+ Log.Writeln('> VM executable: %s', [Config.getString(ceVMExecutable)]);
+
+ if (not FileExists(Config.getString(ceVMExecutable))) Then
+ Begin
+  Log.Writeln('> Executable not found!');
+  ErrorMessage(ls_msg_vm_not_found);
+  Exit;
+ End;
+
+ // check path
  sOutputFile := MakeAbsolutePath(OutputFile);
 
- { wait for file }
+ // wait for output file
  Sleep(25);
  While (not FileExists(sOutputFile)) Do
  Begin
@@ -2189,34 +2271,35 @@ Begin
 
   if (Tries > 20) Then // output file not found
   Begin
-   Application.MessageBox(PChar(Format(getLangValue(ls_outputfile_not_found), [sOutputFile])), PChar(getLangValue(ls_msg_error)), MB_IconError);
+   Log.Writeln('> Output file ("%s") not found, giving up.', [sOutputFile]);
+   ErrorMessage(ls_outputfile_not_found);
    Exit;
   End;
  End;
 
- { create VM instance }
+ // create VM instance
  VMProcess := TProcess.Create(nil);
 
  With VMProcess do
  Begin
   Options          := [];
   CurrentDirectory := ExtractFilePath(ParamStr(0));
-  Executable       := getString(sVMFile);
+  Executable       := Config.getString(ceVMExecutable);
  End;
 
- { generate command line }
+ // prepare command line
  VMProcess.Parameters.Add(sOutputFile);
 
  For Switch in VMSwitches Do
-  VMProcess.Parameters.Add('-'+getVMSwitchName(Switch, True));
+  VMProcess.Parameters.Add(getVMSwitchName(Switch, True));
 
  VMProcess.Parameters.AddStrings(['-gc', IntToStr(GCMemoryLimit)+GCMemoryLimitUnits[GCMemoryLimitUnit]]);
 
  AddUserSwitches;
 
- { process LCL }
+ // process LCL
  TmpCaption       := MainForm.Caption;
- MainForm.Caption := sCaption+' [ '+getLangValue(ls_vm_running)+' ]';
+ MainForm.Caption := Format('%s [ %s ]', [BaseCaption, getLangValue(ls_vm_running)]);
 
  VMProcess.Execute;
  While (VMProcess <> nil) and (VMProcess.Running) Do
@@ -2224,6 +2307,7 @@ Begin
 
  MainForm.Caption := TmpCaption;
 
+ Log.Writeln('> Done!');
  FreeAndNil(VMProcess);
 End;
 
@@ -2234,11 +2318,13 @@ End;
 Procedure TProject.StopProgram;
 Begin
  if (VMProcess = nil) Then
-  Application.MessageBox(PChar(getLangValue(ls_vm_instance_not_running)), PChar(getLangValue(ls_msg_info)), MB_IconInformation) Else
-  Begin
-   VMProcess.Terminate(0);
-   FreeAndNil(VMProcess);
-  End;
+ Begin
+  InfoMessage(ls_vm_instance_not_running);
+ End Else
+ Begin
+  VMProcess.Terminate(0);
+  FreeAndNil(VMProcess);
+ End;
 End;
 
 (* TProject.isEverythingSaved *)

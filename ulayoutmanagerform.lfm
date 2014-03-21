@@ -1,16 +1,16 @@
 object LayoutManagerForm: TLayoutManagerForm
-  Left = 483
-  Height = 369
-  Top = 168
-  Width = 200
-  BorderStyle = bsToolWindow
+  Left = 1204
+  Height = 368
+  Top = 180
+  Width = 198
+  BorderStyle = bsSizeToolWin
   Caption = 'Layout Manager'
-  ClientHeight = 369
-  ClientWidth = 200
-  OnShow = FormShow
+  ClientHeight = 368
+  ClientWidth = 198
+  OnResize = FormResize
   Position = poScreenCenter
   LCLVersion = '1.2.0.3'
-  object Label1: TLabel
+  object lblSavedLayouts: TLabel
     Left = 9
     Height = 15
     Top = 33
@@ -20,20 +20,22 @@ object LayoutManagerForm: TLayoutManagerForm
   end
   object lbLayoutList: TListBox
     Left = 9
-    Height = 200
+    Height = 197
     Top = 54
-    Width = 183
+    Width = 181
+    Anchors = [akTop, akLeft, akRight, akBottom]
     ItemHeight = 0
     OnClick = lbLayoutListClick
     OnDblClick = lbLayoutListDblClick
     PopupMenu = LayoutListPopup
     TabOrder = 0
   end
-  object Label2: TLabel
+  object lblClickToPreview: TLabel
     Left = 56
     Height = 15
     Top = 254
     Width = 90
+    Anchors = [akBottom]
     Caption = '(click to preview)'
     Font.CharSet = EASTEUROPE_CHARSET
     Font.Height = -12
@@ -48,12 +50,14 @@ object LayoutManagerForm: TLayoutManagerForm
     Height = 2
     Top = 272
     Width = 296
+    Anchors = [akLeft, akRight, akBottom]
   end
   object btnApplySelected: TButton
     Left = 9
     Height = 25
     Top = 306
     Width = 183
+    Anchors = [akLeft, akRight, akBottom]
     Caption = 'Apply selected'
     OnClick = btnApplySelectedClick
     TabOrder = 1
@@ -63,11 +67,12 @@ object LayoutManagerForm: TLayoutManagerForm
     Height = 25
     Top = 278
     Width = 183
+    Anchors = [akLeft, akRight, akBottom]
     Caption = 'Save current'
     OnClick = btnSaveCurrentClick
     TabOrder = 2
   end
-  object Label3: TLabel
+  object lblCurrentLayoutDesc: TLabel
     Left = 9
     Height = 15
     Top = 7
@@ -79,7 +84,8 @@ object LayoutManagerForm: TLayoutManagerForm
     Left = -64
     Height = 2
     Top = 27
-    Width = 296
+    Width = 302
+    Anchors = [akTop, akLeft, akRight]
   end
   object lblCurrentLayout: TLabel
     Left = 94
@@ -94,6 +100,7 @@ object LayoutManagerForm: TLayoutManagerForm
     Height = 25
     Top = 336
     Width = 183
+    Anchors = [akLeft, akRight, akBottom]
     Caption = 'Create new'
     OnClick = btnCreateNewClick
     TabOrder = 3

@@ -12,9 +12,8 @@
   <compiler>
     <switches></switches>
     <include_path>$file;$compiler</include_path>
-    <optimization_level>0</optimization_level>
-    <cs_initcode>0</cs_initcode>
-    <cs_Cconst>0</cs_Cconst>
+    <optimization_level>3</optimization_level>
+    <cs__internal_const>0</cs__internal_const>
   </compiler>
   <vm>
     <switches></switches>
@@ -27,8 +26,8 @@
   <card_0>
     <caption>main.ss</caption>
     <file>main.ss</file>
-    <caret_x>82</caret_x>
-    <caret_y>61</caret_y>
+    <caret_x>34</caret_x>
+    <caret_y>160</caret_y>
     <is_main>1</is_main>
   </card_0>
 </project>

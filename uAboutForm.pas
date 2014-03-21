@@ -49,7 +49,7 @@ procedure TAboutForm.FormCreate(Sender: TObject);
 begin
  mText.Text := '';
 
- L('SScript Editor v.'+uMainForm.sVersion);
+ L('SScript Editor v.'+uMainForm.StringVersion);
  L('by Patryk Wychowaniec (http://github.com/Piterolex, http://sscript.4programmers.net/)');
  L();
  L('');

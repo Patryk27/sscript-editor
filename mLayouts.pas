@@ -7,11 +7,14 @@ Unit mLayouts;
  Interface
  Uses XMLPropStorage, Classes, SysUtils, Forms;
 
+ { ELayoutException }
+ Type ELayoutException = Class(Exception);
+
  { TLayoutForm }
  Type TLayoutForm =
       Record
        Name                    : String;
-       Top, Left, Width, Height: Integer;
+       Top, Left, Width, Height: uint32;
        Visible                 : Boolean;
        State                   : TWindowState;
       End;
@@ -67,15 +70,35 @@ Unit mLayouts;
  // layout manager instance
  Var LayoutManager: TLayoutManager;
 
- Implementation
-Uses mSettings;
+ Function GenerateLayoutFileName(const LayoutName: String): String;
 
+ Implementation
+Uses mConfiguration, mFunctions, mLogger;
+
+(* GenerateLayoutFileName *)
+Function GenerateLayoutFileName(const LayoutName: String): String;
+Var Ch: Char;
+Begin
+ Result := 'layout_';
+
+ For Ch in LayoutName Do
+ Begin
+  if (Ch in ['a'..'z', 'A'..'Z', '0'..'9', '_']) Then
+   Result += Ch Else
+   Result += '_';
+ End;
+
+ Result += '.xml';
+End;
+
+// -------------------------------------------------------------------------- //
 (* TLayout.Create *)
 {
  Creates an empty, clean layout.
 }
 Constructor TLayout.Create;
 Begin
+ Name := 'Default';
  Reset;
 End;
 
@@ -130,6 +153,11 @@ Var XML: TXMLConfigStorage;
   End;
 
 Begin
+ Log.Writeln('Loading layout from file: %s', [FileName]);
+
+ if (not FileExists(FileName)) Then
+  raise ELayoutException.CreateFmt('Layout file does not exist: %s', [FileName]);
+
  XML := TXMLConfigStorage.Create(FileName, True);
 
  Try
@@ -142,6 +170,8 @@ Begin
  Finally
   XML.Free;
  End;
+
+ Log.Writeln('Layout loaded; name: %s', [Name]);
 End;
 
 (* TLayout.SaveToFile *)
@@ -166,10 +196,20 @@ Var XML : TXMLConfigStorage;
    End;
   End;
 
+Var Dir: String;
 Begin
- if (not DirectoryExists(ExtractFileDir(FileName))) Then
-  mkdir(ExtractFileDir(FileName));
+ Log.Writeln('Saving layout "%s" to file: %s', [Name, FileName]);
 
+ // create directory, if not exists
+ Dir := ExtractFileDir(FileName);
+
+ if (not DirectoryExists(Dir)) Then
+ Begin
+  Log.Writeln('Destination directory ("%s") does not exist; trying to create...', [Dir]);
+  mkdir(Dir);
+ End;
+
+ // save data
  XML := TXMLConfigStorage.Create(FileName, False);
 
  Try
@@ -181,6 +221,8 @@ Begin
   XML.WriteToDisk;
   XML.Free;
  End;
+
+ Log.Writeln('Layout saved.');
 End;
 
 (* TLayout.Reset *)
@@ -230,6 +272,8 @@ Procedure TLayout.Update;
 Var Form: TCustomForm;
     I   : uint16;
 Begin
+ Log.Writeln('Updating layout: ', [Name]);
+
  For I := Low(Forms) To High(Forms) Do
  Begin
   Form := Screen.FindForm(Forms[I].Name);
@@ -254,6 +298,8 @@ Procedure TLayout.Apply;
 Var Form: TCustomForm;
     I   : uint16;
 Begin
+ Log.Writeln('Applying layout: ', [Name]);
+
  For I := Low(Forms) To High(Forms) Do
  Begin
   Form := Screen.FindForm(Forms[I].Name);
@@ -276,6 +322,7 @@ End;
 (* TLayout.ChangeName *)
 Procedure TLayout.ChangeName(const fName: String);
 Begin
+ Log.Writeln('Layout name changed: "%s" -> "%s"', [Name, fName]);
  Name := fName;
 End;
 
@@ -283,6 +330,8 @@ End;
 (* TLayoutManager.Create *)
 Constructor TLayoutManager.Create;
 Begin
+ Log.Writeln('TLayoutManager.Create()');
+
  LayoutList    := TStringList.Create;
  CurrentLayout := nil;
 
@@ -292,6 +341,8 @@ End;
 (* TLayoutManager.Destroy *)
 Destructor TLayoutManager.Destroy;
 Begin
+ Log.Writeln('TLayoutManager.Destroy()');
+
  LayoutList.Free;
  CurrentLayout.Free;
 
@@ -306,19 +357,18 @@ End;
 Procedure TLayoutManager.ReloadCurrentLayout;
 Var LayoutFile: String;
 Begin
- LayoutFile := getString(sLayoutFile);
+ FreeAndNil(CurrentLayout);
+ LayoutFile := getLayoutsDir+Config.getString(ceLayoutFile);
 
- if (CurrentLayout <> nil) Then
-  FreeAndNil(CurrentLayout);
+ Log.Writeln('Reloading current layout; layout file: %s', [LayoutFile]);
 
- if (not FileExists(LayoutFile)) Then // if selected layout file doesn't exist, select the default one
- Begin
-  CurrentLayout      := TLayout.Create;
-  CurrentLayout.Name := 'Default';
-  CurrentLayout.Reset;
- End Else
+ if (FileExists(LayoutFile)) Then
  Begin
   CurrentLayout := TLayout.Create(LayoutFile);
+ End Else
+ Begin
+  Log.Writeln('Layout file does not exist - loading the default layout.');
+  CurrentLayout := TLayout.Create;
  End;
 
  CurrentLayout.Apply;
@@ -335,28 +385,31 @@ Var Layout: TLayout;
     Path  : String;
     M     : TSearchRec;
 Begin
+ Log.Writeln('Updating layout list...');
+
  LayoutList.Clear;
 
- Path := getLayoutDir;
-
- FindFirst(Path+'*.xml', faAnyFile, M);
+ Path := getLayoutsDir;
+ FindFirst(Path+'*.*', faAnyFile, M);
 
  While (FindNext(M) = 0) Do
  Begin
+  if ((M.Attr and faDirectory) = faDirectory) Then
+   Continue;
+
   Layout := TLayout.Create(Path+M.Name);
 
   Try
    LayoutList.Add(Layout.Name+'='+Path+M.Name);
+   Log.Writeln('> %s', [LayoutList[LayoutList.Count-1]]);
   Finally
    Layout.Free;
   End;
  End;
 
  FindClose(M);
+ Log.Writeln('That''s all; total: %d layout(s) found.', [LayoutList.Count]);
 End;
-
-initialization
- LayoutManager := TLayoutManager.Create;
 
 finalization
  LayoutManager.Free;

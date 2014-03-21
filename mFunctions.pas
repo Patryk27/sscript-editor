@@ -12,8 +12,15 @@ Unit mFunctions;
  Function isInternalType(const Str: String): Boolean;
  Function isNumber(const Str: String): Boolean;
 
+ Function isValidFileName(const Str: String): Boolean;
+
+ Function getApplicationDir: String;
+ Function getLayoutsDir: String;
+ Function getStylesDir: String;
+ Function getLanguagesDir: String;
+
  Implementation
-Uses Tokens;
+Uses SysUtils, Tokens;
 
 (* MPos *)
 {
@@ -75,5 +82,70 @@ Begin
  For Ch in Str Do
   if (not (Ch in ['0'..'9'])) Then
    Exit(False);
+End;
+
+(* isValidFileName *)
+{
+ Checks if passed string is a valid Windows file name.
+ It is designed to perform a *simple* check, so it may show 'true' even on some
+ invalid file names.
+ Use with caution.
+}
+Function isValidFileName(const Str: String): Boolean;
+Const InvalidChars: Set of Char = ['\', '/', ':', '*', '?', '"', '<', '>', '|'];
+Var Ch: Char;
+Begin
+ For Ch in Str Do
+  if (Ch in InvalidChars) Then
+   Exit(False);
+
+ Result := (not DirectoryExists(Str));
+End;
+
+(* getApplicationDir *)
+{
+ Returns full application path with the directory separator at the end.
+ Eg.:
+   C:\Editor\
+}
+Function getApplicationDir: String;
+Begin
+ Result := ExtractFilePath(ParamStr(0));
+
+ if (not (Result[Length(Result)] = DirectorySeparator)) Then
+  Result += DirectorySeparator;
+End;
+
+(* getLayoutsDir *)
+{
+ Returns full path to the layouts directory, with the directory separator at the end.
+ Eg.:
+   C:\Editor\layouts\
+}
+Function getLayoutsDir: String;
+Begin
+ Result := getApplicationDir + 'layouts' + DirectorySeparator;
+End;
+
+(* getStylesDir *)
+{
+ Returns full path to the styles directory, with the directory separator at the end.
+ Eg.:
+   C:\Editor\styles\
+}
+Function getStylesDir: String;
+Begin
+ Result := getApplicationDir + 'styles' + DirectorySeparator;
+End;
+
+(* getLanguagesDir *)
+{
+ Returns full path to the languages directory, with the directory separator at the end.
+ Eg.:
+   C:\Editor\langs\
+}
+Function getLanguagesDir: String;
+Begin
+ Result := getApplicationDir + 'langs' + DirectorySeparator;
 End;
 End.

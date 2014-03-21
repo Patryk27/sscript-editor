@@ -28,7 +28,6 @@ type
     cs__internal_const:TCheckBox;
     vm_time:TCheckBox;
     vm_wait:TCheckBox;
-    eHeaderFile: TEdit;
     eBytecodeOutput: TEdit;
     Label7: TLabel;
     Label8: TLabel;
@@ -61,7 +60,7 @@ var
   ProjectSettingsForm: TProjectSettingsForm;
 
 implementation
-Uses uMainForm, mProject;
+Uses uMainForm, mProject, mLanguages;
 
 {$R *.lfm}
 
@@ -72,12 +71,11 @@ Var Switch  : TCompilerSwitch;
 Begin
  With Project do
  Begin
-  { read paths }
+  // read paths
   eOutputFile.Text     := OutputFile;
   eBytecodeOutput.Text := BytecodeOutput;
-  eHeaderFile.Text     := HeaderFile;
 
-  { read compiler paths and switches }
+  // read compiler paths and switches
   mOtherSwitches.Text           := StringReplace(OtherCompilerSwitches, '|', sLineBreak, [rfReplaceAll]);
   eIncludePath.Text             := IncludePath;
   rgOptimizationLevel.ItemIndex := OptimizationLevel;
@@ -85,7 +83,7 @@ Begin
   For Switch in TCompilerSwitches Do
    TCheckBox(FindComponent(getCompilerSwitchName(Switch, False))).Checked := Switch in CompilerSwitches;
 
-  { read vm switches }
+  // read VM switches
   mVMOtherSwitches.Text     := StringReplace(OtherVMSwitches, '|', sLineBreak, [rfReplaceAll]);
   eGCMemoryLimit.Value      := GCMemoryLimit;
   cbGCMemoryLimit.ItemIndex := GCMemoryLimitUnit;
@@ -104,12 +102,11 @@ Var Switch  : TCompilerSwitch;
 begin
  With Project do
  Begin
-  { save paths }
+  // save paths
   OutputFile     := eOutputFile.Text;
   BytecodeOutput := eBytecodeOutput.Text;
-  HeaderFile     := eHeaderFile.Text;
 
-  { save compiler paths and switches }
+  // save compiler paths and switches
   OtherCompilerSwitches := StringReplace(mOtherSwitches.Text, sLineBreak, '|', [rfReplaceAll]);
   IncludePath           := eIncludePath.Text;
   OptimizationLevel     := rgOptimizationLevel.ItemIndex;
@@ -119,7 +116,7 @@ begin
    if (TCheckBox(FindComponent(getCompilerSwitchName(Switch, False))).Checked) Then
     Include(CompilerSwitches, Switch);
 
-  { save vm switches }
+  // save VM switches
   OtherVMSwitches   := StringReplace(mVMOtherSwitches.Text, sLineBreak, '|', [rfReplaceAll]);
   GCMemoryLimit     := eGCMemoryLimit.Value;
   GCMemoryLimitUnit := cbGCMemoryLimit.ItemIndex;
@@ -132,8 +129,8 @@ begin
   Saved := False;
 
   if (Named) Then
-   MainForm.Caption := uMainForm.sCaption+' - '+FileName+' <*>' Else
-   MainForm.Caption := uMainForm.sCaption+' - nowy projekt <*>';
+   MainForm.Caption := Format('%s - %s <*>', [uMainForm.BaseCaption, FileName]) Else
+   MainForm.Caption := Format('%s - %s <*>', [uMainForm.BaseCaption, getLangValue(ls_new_project_caption)]);
  End;
 
  Close;

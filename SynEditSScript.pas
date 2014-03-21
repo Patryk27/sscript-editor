@@ -2,127 +2,116 @@
  Copyright © by Patryk Wychowaniec, 2013-2014
  All rights reserved.
 *)
-{$MODE OBJFPC}{$H+}
+{$MODE OBJFPC}
+{$H+}
 Unit SynEditSScript;
 
  Interface
- Uses Classes, Dialogs, SysUtils, Graphics, SynEditHighlighter;
+ Uses mStyles, Classes, Dialogs, SysUtils, Graphics, SynEditHighlighter;
 
  Type TRangeState = (rsUnknown, rsCStyleComment, rsBytecode);
       TToken = (tNone, tIdent, tMacro, tString, tNumber, tShortComment, tLongComment);
 
- Type THighlighter = Class(TSynCustomHighlighter)
-                      Private
-                       fIdentifierAttri, fKeywordAttri, fNumberAttri, fStringAttri,
-                       fCommentAttri, fMacroAttri, fPrimaryTypesAttri, fOtherAttri: TSynHighlighterAttributes;
-                       fRange: TRangeState;
-                       fToken: TToken;
+ { TSScriptHighlighter }
+ Type TSScriptHighlighter =
+      Class(TSynCustomHighlighter)
+       Private
+        fIdentifierAttri, fKeywordAttri, fNumberAttri, fStringAttri,
+        fCommentAttri, fMacroAttri, fPrimaryTypesAttri, fOtherAttri: TSynHighlighterAttributes;
 
-                      Protected
-                       fTokenPos, fTokenEnd: Integer;
-                       fLineText: String;
+        fRange: TRangeState;
+        fToken: TToken;
 
-                      Public
-                       Constructor Create(AOwner: TComponent); override;
+       Protected
+        fTokenPos, fTokenEnd: Integer;
+        fLineText           : String;
 
-                       Procedure SetLine(const NewValue: String; LineNumber: Integer); override;
-                       Procedure Next; override;
-                       Function GetEol: Boolean; override;
-                       Procedure GetTokenEx(out TokenStart: PChar; out TokenLength: Integer); override;
-                       Function GetTokenAttribute: TSynHighlighterAttributes; override;
+       Public
+        Constructor Create(AOwner: TComponent); override;
 
-                       Function GetToken: String; override;
-                       Function GetTokenPos: Integer; override;
-                       Function GetTokenKind: Integer; override;
-                       Function GetDefaultAttribute(Index: Integer): TSynHighlighterAttributes; override;
+        Procedure UpdateStyle(const Style: TStyle);
 
-                       Function GetRange: Pointer; override;
-                       Procedure SetRange(Value: Pointer); override;
-                       Procedure ResetRange; override;
-                      End;
+        Procedure SetLine(const NewValue: String; LineNumber: Integer); override;
+        Procedure Next; override;
+
+        Function GetEol: Boolean; override;
+        Procedure GetTokenEx(out TokenStart: PChar; out TokenLength: Integer); override;
+        Function GetTokenAttribute: TSynHighlighterAttributes; override;
+
+        Function GetToken: String; override;
+        Function GetTokenPos: Integer; override;
+        Function GetTokenKind: Integer; override;
+        Function GetDefaultAttribute(Index: Integer): TSynHighlighterAttributes; override;
+
+        Function GetRange: Pointer; override;
+        Procedure SetRange(Value: Pointer); override;
+        Procedure ResetRange; override;
+       End;
 
  Implementation
-Uses mSettings, SynEdit;
+Uses mLogger, SynEdit;
 
-(* CreateAttri *)
-Function CreateAttri(S: TSetting): TSynHighlighterAttributes;
-Var F    : TSyntaxFormat;
-    Style: TFontStyles = [];
+(* TSScriptHighlighter.Create *)
+Constructor TSScriptHighlighter.Create(AOwner: TComponent);
 Begin
- Result := TSynHighlighterAttributes.Create(getName(S), getName(S));
+ Log.Writeln('TSScriptHighlighter.Create()');
 
- F := getFormat(S);
-
- if (F.Bold) Then
-  Include(Style, fsBold);
- if (F.Italic) Then
-  Include(Style, fsItalic);
- if (F.Underline) Then
-  Include(Style, fsUnderline);
-
- Result.Style := Style;
-
- Result.Foreground := F.FGColor;
- if (F.HasBGColor) Then
-  Result.Background := F.BGColor;
-End;
-
-(* THighlighter.Create *)
-Constructor THighlighter.Create(AOwner: TComponent);
-Begin
  if (not (AOwner is TSynEdit)) Then
   raise Exception.Create('AOwner needs to be a TSynEdit instance!');
 
  inherited Create(AOwner);
 
- With TSynEdit(AOwner) do
- Begin
-  Font := FetchFont(getFont(sEditorFont));
-
-  Font.Quality := fqClearType;
-  Font.Color   := getColor(sEditorForeground);
-
-  Color := getColor(sEditorBackground);
- End;
-
- fIdentifierAttri := CreateAttri(sIdentFormat);
- AddAttribute(fIdentifierAttri);
-
- fKeywordAttri := CreateAttri(sKeywordFormat);
- AddAttribute(fKeywordAttri);
-
- fNumberAttri := CreateAttri(sNumberFormat);
- AddAttribute(fNumberAttri);
-
- fStringAttri := CreateAttri(sStringFormat);
- AddAttribute(fStringAttri);
-
- fCommentAttri := CreateAttri(sCommentFormat);
- AddAttribute(fCommentAttri);
-
- fMacroAttri := CreateAttri(sMacroFormat);
- AddAttribute(fMacroAttri);
-
- fPrimaryTypesAttri := CreateAttri(sPrimaryTypesFormat);
- AddAttribute(fPrimaryTypesAttri);
-
- fOtherAttri := CreateAttri(sOtherFormat);
- AddAttribute(fOtherAttri);
+ UpdateStyle(StyleManager.getCurrentStyle);
 
  fRange := rsUnknown;
 End;
 
+(* TSScriptHighlighter.UpdateStyle *)
+Procedure TSScriptHighlighter.UpdateStyle(const Style: TStyle);
+
+  { UpdateAttribute }
+  Procedure UpdateAttribute(var Attr: TSynHighlighterAttributes; const Enum: TSyntaxFormatEnum);
+  Begin
+   Attr := Style.getSyntaxFormat(Enum).Convert;
+   AddAttribute(Attr);
+  End;
+
+Begin
+ With TSynEdit(self.GetOwner) do
+ Begin
+  // change font
+  Font         := Style.getFont(feEditorFont).Convert;
+  Font.Quality := fqClearType;
+
+  // change background color
+  Color := Style.getColor(ceEditorBackground).Color;
+ End;
+
+ // change highlighter attributes
+ FreeHighlighterAttributes;
+
+ UpdateAttribute(fIdentifierAttri, sfeIdentifier);
+ UpdateAttribute(fKeywordAttri, sfeKeyword);
+ UpdateAttribute(fNumberAttri, sfeNumber);
+ UpdateAttribute(fStringAttri, sfeString);
+ UpdateAttribute(fCommentAttri, sfeComment);
+ UpdateAttribute(fMacroAttri, sfeMacro);
+ UpdateAttribute(fPrimaryTypesAttri, sfePrimaryType);
+ UpdateAttribute(fOtherAttri, sfeOther);
+End;
+
 (* THighligter.SetLine *)
-Procedure THighlighter.SetLine(const NewValue: String; LineNumber: Integer);
+Procedure TSScriptHighlighter.SetLine(const NewValue: String; LineNumber: Integer);
 Begin
  inherited;
+
  fLineText := NewValue;
  fTokenEnd := 1;
  Next;
 End;
 
-(* THighlighter.Next *)
-Procedure THighlighter.Next;
+(* TSScriptHighlighter.Next *)
+Procedure TSScriptHighlighter.Next;
 Const AlNum  = ['_', 'a'..'z', 'A'..'Z', '0'..'9'];
       Num    = ['0'..'9'];
       HexNum = ['a'..'f', 'A'..'F', '0'..'9'];
@@ -308,21 +297,21 @@ Begin
  End;
 End;
 
-(* THighlighter.GetEol *)
-Function THighlighter.GetEol: Boolean;
+(* TSScriptHighlighter.GetEol *)
+Function TSScriptHighlighter.GetEol: Boolean;
 Begin
  Result := fTokenPos > Length(fLineText);
 End;
 
-(* THighlighter.GetTokenEx *)
-Procedure THighlighter.GetTokenEx(out TokenStart: PChar; out TokenLength: Integer);
+(* TSScriptHighlighter.GetTokenEx *)
+Procedure TSScriptHighlighter.GetTokenEx(out TokenStart: PChar; out TokenLength: Integer);
 Begin
  TokenStart  := @fLineText[fTokenPos];
  TokenLength := fTokenEnd - fTokenPos;
 End;
 
-(* THighlighter.GetTokenAttribute *)
-Function THighlighter.GetTokenAttribute: TSynHighlighterAttributes;
+(* TSScriptHighlighter.GetTokenAttribute *)
+Function TSScriptHighlighter.GetTokenAttribute: TSynHighlighterAttributes;
 Var Keyword: String = '';
 Begin
  if (fToken in [tShortComment, tLongComment]) Then
@@ -358,20 +347,20 @@ Begin
  Exit(fOtherAttri);
 End;
 
-(* THighlighter.GetToken *)
-Function THighlighter.GetToken: String;
+(* TSScriptHighlighter.GetToken *)
+Function TSScriptHighlighter.GetToken: String;
 Begin
  Result := Copy(fLineText, fTokenPos, fTokenEnd-fTokenPos);
 End;
 
-(* THighlighter.GetTokenPos *)
-Function THighlighter.GetTokenPos: Integer;
+(* TSScriptHighlighter.GetTokenPos *)
+Function TSScriptHighlighter.GetTokenPos: Integer;
 Begin
  Result := fTokenPos-1;
 End;
 
-(* THighlighter.GetDefaultAttribute *)
-Function THighlighter.GetDefaultAttribute(Index: Integer): TSynHighlighterAttributes;
+(* TSScriptHighlighter.GetDefaultAttribute *)
+Function TSScriptHighlighter.GetDefaultAttribute(Index: Integer): TSynHighlighterAttributes;
 Begin
  Case Index of
   SYN_ATTR_COMMENT   : Result := fCommentAttri;
@@ -384,8 +373,8 @@ Begin
  End;
 End;
 
-(* THighlighter.GetTokenKind *)
-Function THighlighter.GetTokenKind: Integer;
+(* TSScriptHighlighter.GetTokenKind *)
+Function TSScriptHighlighter.GetTokenKind: Integer;
 Var A: TSynHighlighterAttributes;
 Begin
  Result := 0;
@@ -416,20 +405,20 @@ Begin
   Result := 8;
 End;
 
-(* THighlighter.GetRange *)
-Function THighlighter.GetRange: Pointer;
+(* TSScriptHighlighter.GetRange *)
+Function TSScriptHighlighter.GetRange: Pointer;
 Begin
  Result := Pointer(fRange);
 End;
 
-(* THighlighter.SetRange *)
-Procedure THighlighter.SetRange(Value: Pointer);
+(* TSScriptHighlighter.SetRange *)
+Procedure TSScriptHighlighter.SetRange(Value: Pointer);
 Begin
  fRange := TRangeState(Value);
 End;
 
-(* THighlighter.ResetRange *)
-Procedure THighlighter.ResetRange;
+(* TSScriptHighlighter.ResetRange *)
+Procedure TSScriptHighlighter.ResetRange;
 Begin
  fRange := rsUnknown;
 End;

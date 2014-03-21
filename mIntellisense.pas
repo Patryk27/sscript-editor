@@ -12,7 +12,7 @@ Unit mIntellisense;
  Procedure MakeIntellisenseIdentifierList(const Result: TStrings; const NamespaceList: TNamespaceList; const ReachableNamespaces: TStringList; const FunctionName, Identifier: String);
 
  Implementation
-Uses SysUtils, Dialogs;
+Uses mLogger, SysUtils, Dialogs;
 
 Const TypeNames: Array[TSymbolType] of String = ('namespace', 'var', 'const', 'function', 'type');
 

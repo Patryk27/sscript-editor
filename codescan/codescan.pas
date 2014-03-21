@@ -232,7 +232,7 @@ Unit CodeScan;
        End;
 
  Implementation
-Uses mLanguages, mSettings, mFunctions, SysUtils, Dialogs, Variants, Process;
+Uses mLanguages, mConfiguration, mFunctions, SysUtils, Dialogs, Variants, Process;
 
 (* TIdentifier = TIdentifier *)
 Class Operator TIdentifier.=(const A, B: TIdentifier): Boolean;

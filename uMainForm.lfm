@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 642
+  Left = 1952
   Height = 54
-  Top = 216
+  Top = 118
   Width = 566
   AllowDropFiles = True
   Caption = 'SScript Editor'
@@ -76,7 +76,7 @@ object MainForm: TMainForm
     TabOrder = 5
   end
   object MainMenu: TMainMenu
-    left = 520
+    left = 528
     object menuFile: TMenuItem
       Caption = 'File'
       object oNewModule: TMenuItem
@@ -1394,6 +1394,7 @@ object MainForm: TMainForm
           FF000000001C0000003300000036000000360000003600000036000000360000
           003600000036000000360000002000000002FFFFFF00FFFFFF00
         }
+        ShortCut = 24655
         OnClick = oEvSettingsClick
       end
     end
@@ -1544,6 +1545,6 @@ object MainForm: TMainForm
   object UpdateTimer: TTimer
     Interval = 50
     OnTimer = UpdateTimerTimer
-    left = 472
+    left = 496
   end
 end

@@ -187,8 +187,8 @@ Var Process    : TProcess;
   End;
 
 Begin
- if (not FileExists(getString(sCompilerFile))) Then // error: compiler file not found
-  raise EParserError.Create('SScript Compiler is required to parse SScript libraries - no such found.');
+ if (not FileExists(Config.getString(ceCompilerExecutable))) Then // error: compiler executable not found
+  raise EParserError.Create('SScript Compiler is required to parse SScript libraries - but no such found.');
 
  Token := Parser.next(-2);
  Inc(Token.Char);
@@ -201,7 +201,7 @@ Begin
  Process := TProcess.Create(nil);
 
  Try
-  Process.Executable := getString(sCompilerFile);
+  Process.Executable := Config.getString(ceCompilerExecutable);
   Process.Options    := [poUsePipes, poNoConsole];
 
   // prepare command line

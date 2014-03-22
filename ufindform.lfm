@@ -1,7 +1,7 @@
 object FindForm: TFindForm
-  Left = 459
+  Left = 2044
   Height = 285
-  Top = 120
+  Top = 293
   Width = 433
   BorderStyle = bsToolWindow
   ClientHeight = 285
@@ -10,7 +10,7 @@ object FindForm: TFindForm
   OnKeyDown = FormKeyDown
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '1.2.0.3'
   object eFind: TEdit
     Left = 48
     Height = 23
@@ -143,11 +143,11 @@ object FindForm: TFindForm
     OnClick = btnCancelClick
     TabOrder = 7
   end
-  object Label1: TLabel
+  object lblFind: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 16
-    Width = 27
+    Width = 26
     Caption = 'Find:'
     ParentColor = False
   end

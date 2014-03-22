@@ -71,7 +71,7 @@ Begin
   StyleManager.ReloadCurrentStyle;
 
   // load language
-  LoadLanguageFile(getLanguagesDir+Config.getString(ceLanguage));
+  Language := TLanguage.Create(getLanguagesDir+Config.getString(ceLanguage));
   MainForm.OnLanguageLoaded;
 
   // run application
@@ -95,5 +95,4 @@ Begin
  End;
 
  Log.Writeln('-- end --');
- Log.Writeln('');
 End.

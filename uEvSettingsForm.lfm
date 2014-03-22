@@ -1,7 +1,7 @@
 object EvSettingsForm: TEvSettingsForm
-  Left = 1948
+  Left = 1982
   Height = 527
-  Top = 253
+  Top = 168
   Width = 727
   BorderStyle = bsSizeToolWin
   Caption = 'Environment settings'
@@ -10,7 +10,7 @@ object EvSettingsForm: TEvSettingsForm
   FormStyle = fsSystemStayOnTop
   Position = poScreenCenter
   LCLVersion = '1.2.0.3'
-  object Setting: TTreeView
+  object SettingList: TTreeView
     Left = 0
     Height = 488
     Top = 0
@@ -19,7 +19,7 @@ object EvSettingsForm: TEvSettingsForm
     DefaultItemHeight = 18
     ReadOnly = True
     TabOrder = 0
-    OnChange = SettingChange
+    OnChange = SettingListChange
     Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     Items.Data = {
       F9FFFFFF02000200000004000000FFFFFFFFFFFFFFFFFFFFFFFF020000000000
@@ -585,9 +585,9 @@ object EvSettingsForm: TEvSettingsForm
         Height = 192
         Top = 296
         Width = 472
-        ActivePage = tsFont
+        ActivePage = tsSyntaxHighlighting
         Anchors = [akLeft, akRight, akBottom]
-        TabIndex = 1
+        TabIndex = 0
         TabOrder = 2
         object tsSyntaxHighlighting: TTabSheet
           Caption = 'Syntax highlighting'
@@ -1095,7 +1095,7 @@ object EvSettingsForm: TEvSettingsForm
       end
     end
     object EditorPage_CodeCompletion: TPage
-      object cScrollPastEOL: TCheckBox
+      object cbScrollPastEOL: TCheckBox
         Left = 8
         Height = 19
         Top = 8
@@ -1103,7 +1103,7 @@ object EvSettingsForm: TEvSettingsForm
         Caption = 'Enable scrolling past End-Of-Line'
         TabOrder = 0
       end
-      object cAddBrackets: TCheckBox
+      object cbAddBrackets: TCheckBox
         Left = 8
         Height = 19
         Top = 24
@@ -1113,7 +1113,7 @@ object EvSettingsForm: TEvSettingsForm
       end
     end
     object EnvPage_Language: TPage
-      object Label3: TLabel
+      object lblCurrentLanguage: TLabel
         Left = 8
         Height = 15
         Top = 8

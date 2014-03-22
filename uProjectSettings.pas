@@ -19,7 +19,7 @@ type
   TProjectSettingsForm = class(TForm)
     Bevel1: TBevel;
     cbGCMemoryLimit: TComboBox;
-    Label1: TLabel;
+    lblGCMemoryLimit: TLabel;
     mVMOtherSwitches: TMemo;
     mOtherSwitches: TMemo;
     rgOptimizationLevel: TRadioGroup;
@@ -28,28 +28,27 @@ type
     cs__internal_const:TCheckBox;
     vm_time:TCheckBox;
     vm_wait:TCheckBox;
-    eBytecodeOutput: TEdit;
-    Label7: TLabel;
-    Label8: TLabel;
+    eBytecodeOutputFile: TEdit;
+    lblBytecodeOutputFile: TLabel;
     btnSave: TButton;
     btnCancel: TButton;
     FileTimer: TTimer;
     EXEOpen: TOpenDialog;
     eOutputFile: TEdit;
     eIncludePath: TEdit;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
-    Label9:TLabel;
-    p_4:TPage;
-    p_3: TPage;
-    Label3: TLabel;
-    p_2: TPage;
+    lblIncludePath: TLabel;
+    lblIncludePathDescription: TLabel;
+    lblOutputFile: TLabel;
+    lblOtherSwitches2:TLabel;
+    VMPage_Parameters:TPage;
+    CompilerPage_Paths: TPage;
+    lblOtherSwitches: TLabel;
+    CompilerPage_Switches: TPage;
     Pages: TNotebook;
-    Setting: TTreeView;
+    SettingList: TTreeView;
     procedure btnCancelClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
-    procedure SettingChange(Sender:TObject;Node:TTreeNode);
+    procedure SettingListChange(Sender:TObject;Node:TTreeNode);
   private
     { private declarations }
   public
@@ -73,7 +72,7 @@ Begin
  Begin
   // read paths
   eOutputFile.Text     := OutputFile;
-  eBytecodeOutput.Text := BytecodeOutput;
+  eBytecodeOutputFile.Text := BytecodeOutput;
 
   // read compiler paths and switches
   mOtherSwitches.Text           := StringReplace(OtherCompilerSwitches, '|', sLineBreak, [rfReplaceAll]);
@@ -104,7 +103,7 @@ begin
  Begin
   // save paths
   OutputFile     := eOutputFile.Text;
-  BytecodeOutput := eBytecodeOutput.Text;
+  BytecodeOutput := eBytecodeOutputFile.Text;
 
   // save compiler paths and switches
   OtherCompilerSwitches := StringReplace(mOtherSwitches.Text, sLineBreak, '|', [rfReplaceAll]);
@@ -130,17 +129,17 @@ begin
 
   if (Named) Then
    MainForm.Caption := Format('%s - %s <*>', [uMainForm.BaseCaption, FileName]) Else
-   MainForm.Caption := Format('%s - %s <*>', [uMainForm.BaseCaption, getLangValue(ls_new_project_caption)]);
+   MainForm.Caption := Format('%s - %s <*>', [uMainForm.BaseCaption, Language.getText(ls_new_project_caption)]);
  End;
 
  Close;
 end;
 
 (* TProjectSettingsForm.SettingChange *)
-procedure TProjectSettingsForm.SettingChange(Sender:TObject; Node:TTreeNode);
+procedure TProjectSettingsForm.SettingListChange(Sender:TObject; Node:TTreeNode);
 Var Page: Integer;
 begin
- With Setting do
+ With SettingList do
  Begin
   if (Node = nil) Then
    Exit;

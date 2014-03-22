@@ -59,7 +59,7 @@ var
   CodeEditor: TCodeEditor;
 
 implementation
-Uses uMainForm, mProject, mFunctions, mLanguages, CodeScan;
+Uses uMainForm, mProject, mFunctions, mLanguages, mMessages, CodeScan;
 
 {$R *.lfm}
 
@@ -113,19 +113,19 @@ begin
   // if keyword
   if (isKeyword(Word)) Then
   Begin
-   Application.MessageBox(PChar(getLangValue(ls_its_keyword)), PChar(getLangValue(ls_msg_info)), MB_ICONINFORMATION);
+   InfoMessage(ls_its_keyword);
   End Else
 
   // if internal type
   if (isInternalType(Word)) Then
   Begin
-   Application.MessageBox(PChar(getLangValue(ls_its_internal_type)), PChar(getLangValue(ls_msg_info)), MB_ICONINFORMATION);
+   InfoMessage(ls_its_internal_type);
   End Else
 
   // if number
   if (isNumber(Word)) Then
   Begin
-   Application.MessageBox(PChar(getLangValue(ls_its_number)), PChar(getLangValue(ls_msg_info)), MB_ICONINFORMATION);
+   InfoMessage(ls_its_number);
   End Else
 
   // otherwise, try to find it
@@ -135,7 +135,7 @@ begin
     JumpToDeclaration(Identifier);
    End Else
    Begin // display error
-    Application.MessageBox(PChar(getLangValue(ls_declaration_not_found)), PChar(getLangValue(ls_msg_error)), MB_ICONERROR);
+    ErrorMessage(ls_declaration_not_found);
    End;
   End;
  End;

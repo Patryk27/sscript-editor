@@ -5,20 +5,24 @@
 Unit mLanguages;
 
  Interface
+ Uses SysUtils, IniFiles;
+
+ { ELanguageException }
+ Type ELanguageException = Class(Exception);
 
  { LString }
  Type LString =
  (
   ls_title_card_close,
 
-  ls_msg_card_close, ls_msg_env_restart, ls_msg_file_not_found, ls_msg_module_saving, ls_msg_compiler_or_vm_not_found,
-  ls_msg_close_last_card, ls_msg_close_main_card, ls_msg_compiler_not_found, ls_msg_vm_not_found, ls_msg_unsaved_files,
-  ls_msg_unsaved_project, ls_msg_project_open_failed, ls_msg_project_open_failed_ex, ls_msg_module_open_failed, ls_msg_create_new_project,
-  ls_msg_version_conflict_older, ls_msg_version_conflict_newer, ls_msg_stop_vm, ls_msg_layout_name, ls_msg_replace_layout,
-  ls_msg_nothing_is_selected, ls_msg_layout_remove, ls_msg_layout_already_exists, ls_msg_style_already_exists,
+  ls_msg_env_restart, ls_msg_file_not_found, ls_msg_compiler_or_vm_not_found, ls_msg_close_last_card, ls_msg_close_main_card,
+  ls_msg_compiler_not_found, ls_msg_vm_not_found, ls_msg_project_open_failed, ls_msg_project_open_failed_ex,
+  ls_msg_module_open_failed, ls_msg_version_conflict_older, ls_msg_version_conflict_newer,
+  ls_msg_layout_name, ls_msg_nothing_is_selected, ls_msg_layout_already_exists, ls_msg_style_already_exists,
 
-  ls_dlg_save_style, ls_dlg_style_name, ls_dlg_remove_style, ls_dlg_newstyle_create, ls_dlg_newstyle_clone,
-  ls_caption_dlg_style_name,
+  ls_dlg_card_close, ls_dlg_module_saving, ls_dlg_unsaved_files, ls_dlg_unsaved_project, ls_dlg_create_new_project,
+  ls_dlg_stop_vm, ls_dlg_replace_layout, ls_dlg_layout_remove, ls_dlg_save_style, ls_dlg_style_name, ls_dlg_remove_style,
+  ls_dlg_newstyle_create, ls_dlg_newstyle_clone, ls_caption_dlg_style_name,
 
   ls_msg_info, ls_msg_warn, ls_msg_error,
 
@@ -52,184 +56,249 @@ Unit mLanguages;
   ls_vm_running, ls_vm_instance_not_running
  );
 
- Procedure LoadLanguageFile(const FileName: String);
+ { TLanguage }
+ Type TLanguage =
+      Class
+       Private
+        Lang: TIniFile;
 
- Function getLangValue(const Name: LString): String;
- Function getLangValue(const Name: LString; const Args: Array of Const): String;
+       Private
+        Procedure LoadFromFile(const FileName: String);
+
+       Public
+        Constructor Create(const LanguageFile: String='');
+
+        Function getText(const Name: LString): String;
+        Function getText(const Name: LString; const Args: Array of Const): String;
+       End;
+
+ // TLanguage class instance
+ Var Language: TLanguage;
 
  Implementation
-Uses mConfiguration, mFunctions, Forms, Classes, TypInfo, IniFiles, SysUtils, Dialogs, ComCtrls, ExtCtrls, StdCtrls;
-Const Properties: Array[1..3] of string = ('Caption', 'Hint', 'Text');
+Uses mLogger,
+     Forms, Classes, TypInfo, Dialogs, ComCtrls, ExtCtrls, StdCtrls;
+Const DefaultProperties: Array[1..3] of String = ('Caption', 'Hint', 'Text');
 
-(* LoadLanguageFile *)
-Procedure LoadLanguageFile(const FileName: String);
-Var Form, I, P   : Integer;
-    Comp         : TComponent;
-    FormName, Tmp: String;
-    Ini          : TIniFile;
-Begin
- Ini := TIniFile.Create(FileName);
+(* TLanguage.LoadFromFile *)
+{
+ Loads language from specified file and applies it (i.e. changes components' properties)
+}
+Procedure TLanguage.LoadFromFile(const FileName: String);
+Var Section, BaseIdent: String;
 
- // each form
- For Form := 0 To Application.ComponentCount-1 Do
- Begin
-  With Application do
+  { FetchItemList }
+  Function FetchItemList(const Suffix: String): TStringList;
   Begin
-   With Components[Form] do
+   Result := TStringList.Create;
+
+   Result.Delimiter       := ',';
+   Result.StrictDelimiter := True;
+   Result.DelimitedText   := Lang.ReadString(Section, BaseIdent+Suffix, '');
+  End;
+
+  { ParseItems }
+  Procedure ParseItems(const Items: TStrings);
+  Var NewItems: TStringList;
+      Item    : String;
+  Begin
+   NewItems := FetchItemList('Items');
+
+   Try
+    if (NewItems.Count = 0) Then
+     Exit;
+
+    if (NewItems.Count <> Items.Count) Then
+     raise ELanguageException.CreateFmt('Language file is corrupted (trying to parse %s: number of items is not equal (%d:%d))', [BaseIdent+'Items', NewItems.Count, Items.Count]);
+
+    Items.Clear;
+    For Item in NewItems Do
+     Items.Add(Trim(Item));
+   Finally
+    NewItems.Free;
+   End;
+  End;
+
+  { ParseItems }
+  Procedure ParseItems(const Items: TTreeNodes);
+  Var NewItems: TStringList;
+      I       : uint32;
+  Begin
+   NewItems := FetchItemList('Items');
+
+   Try
+    if (NewItems.Count = 0) Then
+     Exit;
+
+    if (NewItems.Count <> Items.Count) Then
+     raise ELanguageException.CreateFmt('Language file is corrupted (trying to parse %s: number of items is not equal (%d:%d))', [BaseIdent+'Items', NewItems.Count, Items.Count]);
+
+    For I := 0 To Items.Count-1 Do
+     Items[I].Text := NewItems[I];
+   Finally
+    NewItems.Free;
+   End;
+  End;
+
+  { ParsePageControlTabs }
+  Procedure ParsePageControlTabs(const PageControl: TPageControl);
+  Var NewItems: TStringList;
+      I       : Integer;
+  Begin
+   NewItems := FetchItemList('Tabs');
+
+   Try
+    if (NewItems.Count = 0) Then
+     Exit;
+
+    if (NewItems.Count <> PageControl.PageCount) Then
+     raise ELanguageException.CreateFmt('Language file is corrupted (trying to parse %s: number of items is not equal (%d:%d))', [BaseIdent+'Items', NewItems.Count, PageControl.PageCount-1]);
+
+    For I := 0 To PageControl.PageCount-1 Do
+     PageControl.Pages[I].Caption := NewItems[I];
+   Finally
+    NewItems.Free;
+   End;
+  End;
+
+  { LoadForm }
+  Procedure LoadForm(const Form: TForm);
+  Var PropertyName, TmpValue: String;
+
+      Component: TComponent;
+      CompID   : uint32;
+  Begin
+   Section := Form.Name;
+
+   // read form caption
+   Form.Caption := Lang.ReadString(Section, 'Caption', Form.Caption);
+
+   // parse each component
+   For CompID := 0 To Form.ComponentCount-1 Do
    Begin
-    FormName := TForm(Application.Components[Form]).Name;
+    Component := Form.Components[CompID];
+    BaseIdent := Component.Name+'.';
 
-    With TForm(Application.Components[Form]) do
-     Caption := Ini.ReadString(Name, 'Caption', Caption);
-
-    // load each component
-    For I := 0 To ComponentCount-1 Do
+    // TTreeView
+    if (Component is TTreeView) Then
     Begin
-     Comp := Components[I];
+     ParseItems(TTreeView(Component).Items);
+    End Else
 
-     { TTreeView }
-     if (Comp is TTreeView) Then
-     Begin
-      With (Comp as TTreeView) do
-      Begin
-       For P := 0 To Items.Count-1 Do
-        Items[P].Text := Ini.ReadString(FormName+'_'+Comp.Name, IntToStr(P), Items[P].Text);
-      End;
-     End Else
+    // TRadioGroup
+    if (Component is TRadioGroup) Then
+    Begin
+     ParseItems(TRadioGroup(Component).Items);
+    End Else
 
-     { TRadioGroup }
-     if (Comp is TRadioGroup) Then
-     Begin
-      With (Comp as TRadioGroup) do
-      Begin
-       For P := 0 To Items.Count-1 Do
-        Items[P] := Ini.ReadString(FormName+'_'+Comp.Name, IntToStr(P), Items[P]);
-      End;
-     End Else
+    // TComboBox
+    if (Component is TComboBox) Then
+    Begin
+     ParseItems(TComboBox(Component).Items);
+    End Else
 
-     { TCheckGroup }
-     if (Comp is TCheckGroup) Then
+    // TLabeledEdit
+    if (Component is TLabeledEdit) Then
+    Begin
+     With TLabeledEdit(Component) do
      Begin
-      With (Comp as TCheckGroup) do
-      Begin
-       For P := 0 To Items.Count-1 Do
-        Items[P] := Ini.ReadString(FormName+'_'+Comp.Name, IntToStr(P), Items[P]);
-      End;
-     End Else
-
-     { TComboBox }
-     if (Comp is TComboBox) Then
-     Begin
-      With (Comp as TComboBox) do
-      Begin
-       For P := 0 To Items.Count-1 Do
-        Items[P] := Ini.ReadString(FormName+'_'+Comp.Name, IntToStr(P), Items[P]);
-      End;
-     End Else
-
-     { TLabeledEdit }
-     if (Comp is TLabeledEdit) Then
-     Begin
-      With (Comp as TLabeledEdit) do
-      Begin
-       EditLabel.Caption := Ini.ReadString(FormName+'_'+Comp.Name, 'Caption', EditLabel.Caption);
-       Text              := Ini.ReadString(FormName+'_'+Comp.Name, 'Text', Text);
-      End;
-     End Else
-
-     { TListBox }
-     if (Comp is TListBox) Then
-     Begin
-      With (Comp as TListBox) do
-      Begin
-       For P := 0 To Items.Count-1 Do
-        Items[P] := Ini.ReadString(FormName+'_'+Comp.Name, IntToStr(P), Items[P]);
-      End;
-     End Else
-
-     { TPageControl }
-     if (Comp is TPageControl) Then
-     Begin
-      With (Comp as TPageControl) do
-      Begin
-       For P := 0 To PageCount-1 Do
-        Pages[P].Caption := Ini.ReadString(FormName+'_'+Comp.Name, IntToStr(P), Pages[P].Caption);
-      End;
+      EditLabel.Caption := Lang.ReadString(Section, BaseIdent+'Caption', EditLabel.Caption);
      End;
+    End Else
 
-     { other control's properties }
-     For P := Low(Properties) To High(Properties) Do
-      if (isPublishedProp(Comp, Properties[P])) Then
-      Begin
-       Tmp := Ini.ReadString(FormName+'_'+Comp.Name, Properties[P], GetPropValue(Comp, Properties[P]));
+    // TListBox
+    if (Component is TListBox) Then
+    Begin
+     ParseItems(TListBox(Component).Items);
+    End Else
 
-       Tmp := StringReplace(Tmp, '%newline%', #13#10, [rfReplaceAll]);
+    // TPageControl
+    if (Component is TPageControl) Then
+    Begin
+     ParsePageControlTabs(TPageControl(Component));
+    End;
 
-       SetPropValue(Comp, Properties[P], Tmp);
-      End;
+    // parse default properties
+    For PropertyName in DefaultProperties Do
+    Begin
+     if (not isPublishedProp(Component, PropertyName)) Then
+      Continue;
+
+     TmpValue := Lang.ReadString(Section, BaseIdent+PropertyName, getPropValue(Component, PropertyName));
+     TmpValue := StringReplace(TmpValue, '%newline%', LineEnding, [rfReplaceAll]);
+
+     setPropValue(Component, PropertyName, TmpValue);
     End;
    End;
   End;
- End;
 
- Ini.Free;
+Var FormID: uint32;
+Begin
+ Lang := TIniFile.Create(FileName);
+
+ For FormID := 0 To Application.ComponentCount-1 Do
+  LoadForm(TForm(Application.Components[FormID]));
 End;
 
-(* getLStringName *)
-Function getLStringName(const Name: LString): String;
+(* TLanguage.Create *)
+Constructor TLanguage.Create(const LanguageFile: String);
 Begin
- Result := GetEnumName(TypeInfo(LString), Integer(Name));
+ Log.Writeln('TLanguage.Create()');
+ Log.Writeln('> Language file: %s (exists? %s)', [LanguageFile, BoolToStr(FileExists(LanguageFile), 'true', 'false')]);
 
- Delete(Result, 1, 3); // remove `ls_`
+ LoadFromFile(LanguageFile);
 End;
 
-(* getLangValue *)
-Function getLangValue(const Name: LString): String;
-Var Ini: TIniFile;
+(* TLanguage.getText *)
+Function TLanguage.getText(const Name: LString): String;
 Begin
- Ini := TIniFile.Create(getLanguagesDir+Config.getString(ceLanguage));
+ Result := getText(Name, []);
+End;
 
- Try
-  Result := Ini.ReadString('Strings', getLStringName(Name), '');
- Finally
-  Ini.Free;
- End;
+(* TLanguage.getText *)
+Function TLanguage.getText(const Name: LString; const Args: Array of Const): String;
+Var LName: String;
+Begin
+ LName := GetEnumName(TypeInfo(LString), ord(Name));
+ Delete(LName, 1, 3); // remove the "ls_" prefix
 
- if (Result = '') Then // text not found
+ Result := Lang.ReadString('Strings', LName, '');
+
+ if (Result = '') Then
  Begin
   Case Name of
    ls_title_card_close: Result := 'Closing card';
 
    ls_msg_env_restart             : Result := 'You must restart the environment to see the changes.';
-   ls_msg_card_close              : Result := 'You''re about to close an unsaved card.'#13#10'Save it?';
    ls_msg_file_not_found          : Result := 'Cannot find file: %s';
-   ls_msg_module_saving           : Result := 'To save a project, each module has to be named and has to have a corresponding file on disk.'#13#10'Open the save dialog again?'#13#10'(if you choose `No`, you''ll stop saving the project)';
    ls_msg_compiler_or_vm_not_found: Result := 'The compiler or virtual machine executable cannot be found.';
    ls_msg_close_last_card         : Result := 'You cannot close the last card!';
    ls_msg_close_main_card         : Result := 'You cannot close the main card!';
    ls_msg_compiler_not_found      : Result := 'Compiler executable not found!';
    ls_msg_vm_not_found            : Result := 'Virtual machine executable not found!';
-   ls_msg_unsaved_files           : Result := 'There are unsaved files in your project.'#13#10'Save them?';
-   ls_msg_unsaved_project         : Result := 'Your project isn''t saved; you may lose data.'#13#10'Save it?';
    ls_msg_project_open_failed     : Result := 'Couldn''t open project file';
    ls_msg_project_open_failed_ex  : Result := 'Couldn''t open project file: %s';
    ls_msg_module_open_failed      : Result := 'Couldn''t open module file';
-   ls_msg_create_new_project      : Result := 'Create a new project (application)?';
    ls_msg_version_conflict_older  : Result := 'This project seems to be created from older version of this editor; you may need to check project settings';
    ls_msg_version_conflict_newer  : Result := 'This project seems to be created from newer version of this editor - it might not work correctly';
-   ls_msg_stop_vm                 : Result := 'Terminate virtual machine?';
    ls_msg_layout_name             : Result := 'Layout name:';
-   ls_msg_replace_layout          : Result := 'Do you want to replace layout named ''%s''?';
    ls_msg_nothing_is_selected     : Result := 'Nothing is selected!';
-   ls_msg_layout_remove           : Result := 'Do you want to remove layout named ''%s''?';
    ls_msg_layout_already_exists   : Result := 'Layout with that name already exists!';
    ls_msg_style_already_exists    : Result := 'Style with that name already exists!';
 
-   ls_dlg_save_style     : Result := 'Save current style changes?';
-   ls_dlg_style_name     : Result := 'Style name:';
-   ls_dlg_remove_style   : Result := 'Are you sure you want to delete this style?';
-   ls_dlg_newstyle_create: Result := 'Create a new empty style';
-   ls_dlg_newstyle_clone : Result := 'Clone current style';
+   ls_dlg_card_close        : Result := 'You''re about to close an unsaved card.%newline%Save it?';
+   ls_dlg_module_saving     : Result := 'To save a project, each module has to be named and has to have a corresponding file on disk.%newline%Open the save dialog again?%newline%(if you choose `No`, you''ll stop saving the project)';
+   ls_dlg_unsaved_files     : Result := 'There are unsaved files in your project.%newline%Save them?';
+   ls_dlg_unsaved_project   : Result := 'Your project isn''t saved; you may lose data.%newline%Save it?';
+   ls_dlg_create_new_project: Result := 'Create a new project (application)?';
+   ls_dlg_stop_vm           : Result := 'Terminate virtual machine?';
+   ls_dlg_replace_layout    : Result := 'Do you want to replace layout named ''%s''?';
+   ls_dlg_layout_remove     : Result := 'Do you want to remove layout named ''%s''?';
+   ls_dlg_save_style        : Result := 'Save current style changes?';
+   ls_dlg_style_name        : Result := 'Style name:';
+   ls_dlg_remove_style      : Result := 'Are you sure you want to delete this style?';
+   ls_dlg_newstyle_create   : Result := 'Create a new empty style';
+   ls_dlg_newstyle_clone    : Result := 'Clone current style';
 
    ls_caption_dlg_style_name: Result := 'Changing style name';
 
@@ -310,12 +379,8 @@ Begin
   End;
  End;
 
- Result := StringReplace(Result, '%newline%', #13#10, [rfReplaceAll]);
-End;
+ Result := StringReplace(Result, '%newline%', LineEnding, [rfReplaceAll]);
 
-(* getLangValue *)
-Function getLangValue(const Name: LString; const Args: Array of const): String;
-Begin
- Result := Format(getLangValue(Name), Args);
+ Result := Format(Result, Args);
 End;
 End.

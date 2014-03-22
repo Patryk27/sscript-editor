@@ -513,7 +513,7 @@ Begin
    _PUBLIC, _PRIVATE:; // @TODO (?)
 
    else
-    raise EParserError.CreateFmt(getLangValue(ls_unexpected), [VarToStr(Token.Value)]);
+    raise EParserError.CreateFmt(Language.getText(ls_unexpected), [VarToStr(Token.Value)]);
   End;
  End;
 End;
@@ -606,7 +606,7 @@ Begin
  End Else
 
  { unexpected token }
-  raise EParserError.CreateFmt(getLangValue(ls_unexpected), [VarToStr(Token.Value)]);
+  raise EParserError.CreateFmt(Language.getText(ls_unexpected), [VarToStr(Token.Value)]);
 
  // read optional array modifier
  With Parser do

@@ -6,7 +6,7 @@ Var Name: String;
   Procedure AddNamespace(const Name: String; const NS: TNamespace);
   Begin
    if (NS = nil) Then
-    raise EParserError.CreateFmt(getLangValue(ls_unknown_namespace), [Name]);
+    raise EParserError.CreateFmt(Language.getText(ls_unknown_namespace), [Name]);
 
    NamespaceVisibilityList.Add(TNamespaceVisibility.Create(Parser.getCurrentRange, NS));
    AddIdentifier(NS, Parser.next(-1));

@@ -78,6 +78,8 @@ Begin
  if (LogEnabled) Then
  Begin
   Writeln('-- log end --');
+  Writeln('');
+
   Flush(FileHandle);
   CloseFile(FileHandle);
  End;

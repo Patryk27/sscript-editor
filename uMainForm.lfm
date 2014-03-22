@@ -749,7 +749,7 @@ object MainForm: TMainForm
         ShortCut = 114
         OnClick = oFindNextClick
       end
-      object oFindPrev: TMenuItem
+      object oFindPrevious: TMenuItem
         Tag = 1
         Caption = 'Find previous'
         Bitmap.Data = {
@@ -789,7 +789,7 @@ object MainForm: TMainForm
           FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
         }
         ShortCut = 8306
-        OnClick = oFindPrevClick
+        OnClick = oFindPreviousClick
       end
       object oReplace: TMenuItem
         Tag = 1
@@ -969,7 +969,7 @@ object MainForm: TMainForm
           81FF818181FF818181FF818181FF818181FF818181FF818181FF818181FF7C8C
           8CFF729F9FFF6AAEAFFF36E4ED8A09F3FF4502F3FF0F00000000
         }
-        object oNewProj_App: TMenuItem
+        object oNewProject_Application: TMenuItem
           Caption = 'Application'
           Bitmap.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
@@ -1007,9 +1007,9 @@ object MainForm: TMainForm
             FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
             FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
           }
-          OnClick = oNewProj_AppClick
+          OnClick = oNewProject_ApplicationClick
         end
-        object oNewProj_Library: TMenuItem
+        object oNewProject_Library: TMenuItem
           Caption = 'Library'
           Bitmap.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
@@ -1047,7 +1047,7 @@ object MainForm: TMainForm
             4D2B9D6D4CD69D6D4BC59D6C4BFF9C6C4AFF9C6B49FF9B6A49FF9B6A48FF9A69
             47FF996846FF986745FF936443FF845D3EDEFFFFFF00FFFFFF00
           }
-          OnClick = oNewProj_LibraryClick
+          OnClick = oNewProject_LibraryClick
         end
       end
       object oOpenProject: TMenuItem
@@ -1136,7 +1136,7 @@ object MainForm: TMainForm
         OnClick = oProjectSettingsClick
       end
     end
-    object menuCompile: TMenuItem
+    object menuRun: TMenuItem
       Tag = 1
       Caption = 'Run'
       object oRun: TMenuItem

@@ -85,7 +85,7 @@ begin
  // check if any layout is selected
  if (lbLayoutList.ItemIndex = -1) Then
  Begin
-  Application.MessageBox(PChar(getLangValue(ls_msg_nothing_is_selected)), PChar(getLangValue(ls_msg_error)), MB_IconError);
+  ErrorMessage(ls_msg_nothing_is_selected);
   Exit;
  End;
 
@@ -95,7 +95,7 @@ begin
 
  Try
   // ask user to confirm
-  Case MessageDlg(Caption, Format(getLangValue(ls_msg_layout_remove), [Selected.getName]), mtConfirmation, [mbYes, mbNo], 0) of
+  Case MessageDlg(Caption, Format(Language.getText(ls_dlg_layout_remove), [Selected.getName]), mtConfirmation, [mbYes, mbNo], 0) of
    mrYes:
    Begin
     DeleteFile(FileName);
@@ -122,7 +122,7 @@ begin
  // check if any layout is selected
  if (lbLayoutList.ItemIndex = -1) Then
  Begin
-  Application.MessageBox(PChar(getLangValue(ls_msg_nothing_is_selected)), PChar(getLangValue(ls_msg_error)), MB_IconError);
+  ErrorMessage(ls_msg_nothing_is_selected);
   Exit;
  End;
 
@@ -134,7 +134,7 @@ begin
   LayoutName := Selected.getName;
 
   // ask user to enter a new name
-  if (InputQuery(Caption, getLangValue(ls_msg_layout_name), LayoutName)) Then
+  if (InputQuery(Caption, Language.getText(ls_msg_layout_name), LayoutName)) Then
   Begin
    // change name
    Selected.ChangeName(LayoutName);
@@ -145,7 +145,7 @@ begin
    // if layout with that name already exists
    if (FileExists(NewFile)) or (LayoutList.IndexOfName(Selected.getName) > -1) Then
    Begin
-    Case MessageDlg(Caption, Format(getLangValue(ls_msg_replace_layout), [Selected.getName]), mtConfirmation, [mbYes, mbNo], 0) of
+    Case MessageDlg(Caption, Format(Language.getText(ls_dlg_replace_layout), [Selected.getName]), mtConfirmation, [mbYes, mbNo], 0) of
      mrNo: Exit;
     End;
    End;
@@ -175,14 +175,14 @@ Var LayoutName, FileName: String;
 begin
  LayoutName := '';
 
- if (InputQuery(Caption, getLangValue(ls_msg_layout_name), LayoutName)) Then
+ if (InputQuery(Caption, Language.getText(ls_msg_layout_name), LayoutName)) Then
  Begin
   FileName := getLayoutsDir+GenerateLayoutFileName(LayoutName);
 
   // check if layout doesn't already exist
   if (FileExists(FileName)) or (LayoutList.IndexOfName(LayoutName) > -1) Then
   Begin
-   Case MessageDlg(Caption, Format(getLangValue(ls_msg_replace_layout), [LayoutName]), mtConfirmation, [mbYes, mbNo], 0) of
+   Case MessageDlg(Caption, Format(Language.getText(ls_dlg_replace_layout), [LayoutName]), mtConfirmation, [mbYes, mbNo], 0) of
     mrNo: Exit;
    End;
   End;
@@ -212,7 +212,7 @@ begin
  // check if any layout is selected
  if (lbLayoutList.ItemIndex = -1) Then
  Begin
-  Application.MessageBox(PChar(getLangValue(ls_msg_nothing_is_selected)), PChar(getLangValue(ls_msg_error)), MB_IconError);
+  ErrorMessage(ls_msg_nothing_is_selected);
   Exit;
  End;
 
@@ -233,7 +233,7 @@ Var LayoutName: String = '';
     Layout    : TLayout;
 Begin
  // ask for layout name
- if (InputQuery(Caption, getLangValue(ls_msg_layout_name), LayoutName)) Then
+ if (InputQuery(Caption, Language.getText(ls_msg_layout_name), LayoutName)) Then
  Begin
   // create an empty layout
   Layout := TLayout.Create;

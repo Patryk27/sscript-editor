@@ -27,7 +27,7 @@ type
     cbReplace: TCheckBox;
     eReplace: TEdit;
     eFind: TEdit;
-    Label1: TLabel;
+    lblFind: TLabel;
     rgSearchIn: TRadioGroup;
     rgSearchDir: TRadioGroup;
     rgSearchPosition: TRadioGroup;
@@ -50,7 +50,7 @@ var
   FindForm: TFindForm;
 
 implementation
-Uses mProject, mLanguages;
+Uses mProject, mLanguages, mMessages;
 Var ReplaceAll: Boolean;
 
 {$R *.lfm}
@@ -58,8 +58,8 @@ Var ReplaceAll: Boolean;
 (* TFindForm.OnReplace *)
 Procedure TFindForm.OnReplace(Sender: TObject; const ASearch, AReplace: String; Line, Column: Integer; var ReplaceAction: TSynReplaceAction);
 Begin
- Case MessageDlg(getLangValue(ls_replace),
-                 Format(getLangValue(ls_replace_msg), [ASearch, AReplace]),
+ Case MessageDlg(Language.getText(ls_replace),
+                 Format(Language.getText(ls_replace_msg), [ASearch, AReplace]),
                  mtConfirmation, [mbYes, mbNo, mbCancel, mbYesToAll], 0) of
   mrYes     : ReplaceAction := raReplace;
   mrYesToAll: ReplaceAction := raReplaceAll;
@@ -169,7 +169,7 @@ begin
  Replaced             := Editor.SearchReplace(TextToFind, eReplace.Text, Options);
 
  if (Replaced = 0) Then
-  Application.MessageBox(PChar(Format(getLangValue(ls_find_not_found), [eFind.Text])), PChar(getLangValue(ls_find_title)), MB_ICONINFORMATION);
+  InfoMessage(Language.getText(ls_find_not_found), [eFind.Text], Language.getText(ls_find_title));
 
  Close;
 end;
@@ -189,11 +189,11 @@ begin
 
  if (eReplace.Enabled) Then
  Begin
-  FindForm.Caption := getLangValue(ls_replace);
+  FindForm.Caption := Language.getText(ls_replace);
   btnFind.Caption  := FindForm.Caption;
  End Else
  Begin
-  FindForm.Caption := getLangValue(ls_find);
+  FindForm.Caption := Language.getText(ls_find);
   btnFind.Caption  := FindForm.Caption;
  End;
 end;
@@ -229,7 +229,7 @@ end;
 (* TFindForm.FormShow *)
 procedure TFindForm.FormShow(Sender: TObject);
 begin
- eFind.Left  := 10+Label1.Left+Label1.Width;
+ eFind.Left  := 10+lblFind.Left+lblFind.Width;
  eFind.Width := Width - eFind.Left - 6;
 
  eReplace.Left  := 5+cbReplace.Left+cbReplace.Width;

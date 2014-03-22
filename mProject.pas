@@ -621,8 +621,8 @@ Begin
   With TSaveDialog.Create(MainForm) do
   Begin
    Try
-    Title    := getLangValue(ls_module_saving);
-    Filter   := getLangValue(ls_filter_module);
+    Title    := Language.getText(ls_module_saving);
+    Filter   := Language.getText(ls_filter_module);
     FileName := ExtractFileName(self.FileName);
 
     if (Execute) Then
@@ -663,7 +663,7 @@ Begin
 
  if (Reason = csrClosingCard) Then
  Begin
-  Case MessageDlg(getLangValue(ls_title_card_close), getLangValue(ls_msg_card_close), mtWarning, mbYesNoCancel, '') of
+  Case MessageDlg(Language.getText(ls_title_card_close), Language.getText(ls_dlg_card_close), mtWarning, mbYesNoCancel, '') of
    { yes }
    mrYes:
    Begin
@@ -811,7 +811,7 @@ Begin
     if (Card <> nil) Then
      CodeEditor.Tabs.ActivePageIndex := Project.CardList.IndexOf(Card);
 
-    Msg := Format(getLangValue(ls_codescan_failed), [ErrFile, Project.ParseError.Line, Project.ParseError.Char, E.Message]);
+    Msg := Language.getText(ls_codescan_failed, [ErrFile, Project.ParseError.Line, Project.ParseError.Char, E.Message]);
 
     With CompileStatusForm.CompileStatus do
     Begin
@@ -1029,7 +1029,6 @@ End;
  Creates a new card.
 }
 Function TProject.CreateCardEx(const cFileName, cCaption: String; LoadFile: Boolean): TCard;
-Var Text: String;
 Begin
  Result := TCard.Create(cFileName, cCaption, self);
 
@@ -1049,8 +1048,7 @@ Begin
   Begin
    FreeAndNil(Result);
 
-   Text := Format(getLangValue(ls_msg_file_not_found), [cFileName]);
-   Application.MessageBox(PChar(Text), PChar(getLangValue(ls_msg_error)), MB_IconError);
+   ErrorMessage(ls_msg_file_not_found, [cFileName]);
    Exit;
   End;
  End Else // just create an empty card
@@ -1115,7 +1113,7 @@ Begin
  End;
 
  if (Fail) Then
-  Application.MessageBox(PChar(getLangValue(ls_msg_compiler_or_vm_not_found)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
+  WarningMessage(ls_msg_compiler_or_vm_not_found);
 End;
 
 (* TProject.SaveIfPossible *)
@@ -1340,8 +1338,8 @@ Begin
    Log.Writeln('Project has not been named and the file name has not been specified - opening the save dialog...');
 
    Try
-    Title  := getLangValue(ls_project_saving);
-    Filter := getLangValue(ls_filter_project);
+    Title  := Language.getText(ls_project_saving);
+    Filter := Language.getText(ls_filter_project);
 
     if (Execute) Then
     Begin
@@ -1435,7 +1433,7 @@ Begin
    With CardList[I] do
    Begin
     if (not Save) Then
-     Case MessageDlg(getLangValue(ls_module_saving), getLangValue(ls_msg_module_saving), mtWarning, mbYesNo, 0) of
+     Case MessageDlg(Language.getText(ls_module_saving), Language.getText(ls_dlg_module_saving), mtWarning, mbYesNo, 0) of
       mrYes:
       Begin
        if (not Save) Then
@@ -1661,10 +1659,10 @@ Begin
   Log.Writeln('Version conflict!');
 
  if (Version < EditorVersion) Then // older than ours?
-  Application.MessageBox(PChar(getLangValue(ls_msg_version_conflict_older)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
+  WarningMessage(ls_msg_version_conflict_older);
 
  if (Version > EditorVersion) Then // newer than ours?
-  Application.MessageBox(PChar(getLangValue(ls_msg_version_conflict_newer)), PChar(getLangValue(ls_msg_warn)), MB_IconWarning);
+  WarningMessage(ls_msg_version_conflict_newer);
 
  // ... and do some other things
  With MainForm do
@@ -1733,14 +1731,14 @@ Begin
  // is the only opened card?
  if (CardList.Count <= 1) Then
  Begin
-  Application.MessageBox(PChar(getLangValue(ls_msg_close_last_card)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
+  WarningMessage(ls_msg_close_last_card);
   Exit;
  End;
 
  // is main?
  if (CardList[ID].isMain) Then
  Begin
-  Application.MessageBox(PChar(getLangValue(ls_msg_close_main_card)), PChar(getLangValue(ls_msg_info)), MB_IconInformation);
+  WarningMessage(ls_msg_close_main_card);
   Exit;
  End;
 
@@ -2009,7 +2007,7 @@ Begin
  With CompileStatusForm.CompileStatus.Items do
  Begin
   Clear; // clear previous build messages
-  AddText(Format(getLangValue(ls_compilation_started), [TimeToStr(Time)]));
+  AddText(Language.getText(ls_compilation_started, [TimeToStr(Time)]));
 
   Process            := TProcess.Create(nil);
   Process.Options    := [poUsePipes, poNoConsole];
@@ -2155,12 +2153,12 @@ Begin
 
   { check if the output file exists }
   if (not AnyError) and (not FileExists(sOutputFile)) Then
-   AddError(0, 0, Format(getLangValue(ls_output_not_found), [sOutputFile]), '', getMainCard.getFileName);
+   AddError(0, 0, Language.getText(ls_output_not_found, [sOutputFile]), '', getMainCard.getFileName);
 
   { show finish message }
   if (not AnyError) Then
-   AddText(Format(getLangValue(ls_compilation_finished), [TimeToStr(Time), OutputFile])) Else
-   AddText(Format(getLangValue(ls_compilation_stopped), [TimeToStr(Time)]));
+   AddText(Language.getText(ls_compilation_finished, [TimeToStr(Time), OutputFile])) Else
+   AddText(Language.getText(ls_compilation_stopped, [TimeToStr(Time)]));
  End;
 
  // enable components back
@@ -2299,7 +2297,7 @@ Begin
 
  // process LCL
  TmpCaption       := MainForm.Caption;
- MainForm.Caption := Format('%s [ %s ]', [BaseCaption, getLangValue(ls_vm_running)]);
+ MainForm.Caption := Format('%s [ %s ]', [BaseCaption, Language.getText(ls_vm_running)]);
 
  VMProcess.Execute;
  While (VMProcess <> nil) and (VMProcess.Running) Do
@@ -2601,10 +2599,10 @@ Var Card: TCard;
   Begin
    Ns := AddNode(nil, Namespace.getName, 0); // @TODO: nice icon
 
-   Types := AddNode(Ns, getLangValue(ls_types), 0);
-   Funcs := AddNode(Ns, getLangValue(ls_functions), 0);
-   Vars  := AddNode(Ns, getLangValue(ls_variables), 0);
-   Cnsts := AddNode(Ns, getLangValue(ls_constants), 0);
+   Types := AddNode(Ns, Language.getText(ls_types), 0);
+   Funcs := AddNode(Ns, Language.getText(ls_functions), 0);
+   Vars  := AddNode(Ns, Language.getText(ls_variables), 0);
+   Cnsts := AddNode(Ns, Language.getText(ls_constants), 0);
 
    For Tmp in Namespace.getSymbolList Do
     Case Tmp.Typ of

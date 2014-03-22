@@ -12,10 +12,17 @@ Unit mMessages;
  Procedure InfoMessage(const Msg: LString);
  Procedure InfoMessage(const Msg: LString; const Args: Array of Const);
 
+ Procedure WarningMessage(const Msg: String; Title: String='');
+ Procedure WarningMessage(const Msg: String; const Args: Array of Const; Title: String='');
+ Procedure WarningMessage(const Msg: LString);
+ Procedure WarningMessage(const Msg: LString; const Args: Array of Const);
+
  Procedure ErrorMessage(const Msg: String; Title: String='');
  Procedure ErrorMessage(const Msg: String; const Args: Array of Const; Title: String='');
+
  Procedure ErrorMessage(const Msg: LString);
  Procedure ErrorMessage(const Msg: LString; const Args: Array of Const);
+ Procedure ErrorMessage(const Msg: LString; const Args: Array of Const; const Title: LString);
 
  Implementation
 Uses mLogger, SysUtils, Forms, LCLType;
@@ -27,7 +34,7 @@ Uses mLogger, SysUtils, Forms, LCLType;
 Procedure InfoMessage(const Msg: String; Title: String);
 Begin
  if (Title = '') Then
-  Title := getLangValue(ls_msg_info);
+  Title := Language.getText(ls_msg_info);
 
  if (Log <> nil) Then
  Begin
@@ -63,7 +70,53 @@ End;
 }
 Procedure InfoMessage(const Msg: LString; const Args: Array of const);
 Begin
- InfoMessage(Format(getLangValue(Msg), Args));
+ InfoMessage(Format(Language.getText(Msg), Args));
+End;
+
+(* WarningMessage *)
+{
+ Shows a modal warning message.
+}
+Procedure WarningMessage(const Msg: String; Title: String);
+Begin
+ if (Title = '') Then
+  Title := Language.getText(ls_msg_warn);
+
+ if (Log <> nil) Then
+ Begin
+  Log.Writeln('Warning message:');
+  Log.Writeln('Title = %s', [Title]);
+  Log.Writeln('Msg = %s', [Msg]);
+ End;
+
+ Application.MessageBox(PChar(Msg), PChar(Title), MB_ICONWARNING);
+End;
+
+(* WarningMessage *)
+{
+ Shows a modal warning message.
+}
+Procedure WarningMessage(const Msg: String; const Args: Array of const; Title: String);
+Begin
+ WarningMessage(Format(Msg, Args), Title);
+End;
+
+(* WarningMessage *)
+{
+ Shows a modal warning message.
+}
+Procedure WarningMessage(const Msg: LString);
+Begin
+ WarningMessage(Msg, []);
+End;
+
+(* WarningMessage *)
+{
+ Shows a modal warning message.
+}
+Procedure WarningMessage(const Msg: LString; const Args: Array of const);
+Begin
+ WarningMessage(Format(Language.getText(Msg), Args));
 End;
 
 (* ErrorMessage *)
@@ -73,7 +126,7 @@ End;
 Procedure ErrorMessage(const Msg: String; Title: String);
 Begin
  if (Title = '') Then
-  Title := getLangValue(ls_msg_error);
+  Title := Language.getText(ls_msg_error);
 
  if (Log <> nil) Then
  Begin
@@ -107,8 +160,17 @@ End;
 {
  Shows a modal error message.
 }
-Procedure ErrorMessage(const Msg: LString; const Args: Array of const);
+Procedure ErrorMessage(const Msg: LString; const Args: Array of Const);
 Begin
- ErrorMessage(Format(getLangValue(Msg), Args));
+ ErrorMessage(Msg, Args, ls_msg_error);
+End;
+
+(* ErrorMessage *)
+{
+ Shows a modal error message
+}
+Procedure ErrorMessage(const Msg: LString; const Args: Array of Const; const Title: LString);
+Begin
+ ErrorMessage(Language.getText(Msg, Args), Language.getText(Title));
 End;
 End.

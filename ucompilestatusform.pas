@@ -72,8 +72,8 @@ begin
  // run save dialog
  With TSaveDialog.Create(self) do
   Try
-   Title  := getLangValue(ls_file_saving);
-   Filter := getLangValue(ls_filter_text_files);
+   Title  := Language.getText(ls_file_saving);
+   Filter := Language.getText(ls_filter_text_files);
 
    if (Execute) Then
     CompileStatus.SaveToFile(FileName);

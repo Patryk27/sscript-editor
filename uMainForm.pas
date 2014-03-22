@@ -42,7 +42,7 @@ type
     oGotoLine: TMenuItem;
     oFind: TMenuItem;
     oFindNext: TMenuItem;
-    oFindPrev: TMenuItem;
+    oFindPrevious: TMenuItem;
     menuSearch: TMenuItem;
     oSelectAll: TMenuItem;
     oSelectWord: TMenuItem;
@@ -55,13 +55,13 @@ type
     menuHelp: TMenuItem;
     menuEnvironment: TMenuItem;
     oRecentlyOpened: TMenuItem;
-    oNewProj_App: TMenuItem;
-    oNewProj_Library: TMenuItem;
+    oNewProject_Application: TMenuItem;
+    oNewProject_Library: TMenuItem;
     oEvSettings: TMenuItem;
     oAbout: TMenuItem;
     MainMenu: TMainMenu;
     menuFile: TMenuItem;
-    menuCompile: TMenuItem;
+    menuRun: TMenuItem;
     oProjectSettings: TMenuItem;
     oOpenProject: TMenuItem;
     MenuItem3: TMenuItem;
@@ -98,7 +98,7 @@ type
     procedure oReplaceClick(Sender: TObject);
     procedure oFindClick(Sender: TObject);
     procedure oFindNextClick(Sender: TObject);
-    procedure oFindPrevClick(Sender: TObject);
+    procedure oFindPreviousClick(Sender: TObject);
     procedure oGotoLineClick(Sender: TObject);
     procedure oResetLayoutClick(Sender: TObject);
     procedure oRunClick(Sender: TObject);
@@ -110,8 +110,8 @@ type
     procedure oCloseCurrentCardClick(Sender:TObject);
     procedure oCloseProjectClick(Sender:TObject);
     procedure oEvSettingsClick(Sender: TObject);
-    procedure oNewProj_AppClick(Sender: TObject);
-    procedure oNewProj_LibraryClick(Sender: TObject);
+    procedure oNewProject_ApplicationClick(Sender: TObject);
+    procedure oNewProject_LibraryClick(Sender: TObject);
     procedure oProjectSettingsClick(Sender: TObject);
     procedure oExitClick(Sender: TObject);
     procedure oOpenProjectClick(Sender: TObject);
@@ -211,7 +211,7 @@ Begin
   Begin
    { ask user }
    Save := False;
-   Case MessageDlg(getLangValue(ls_project_saving), getLangValue(ls_msg_unsaved_files), mtConfirmation, mbYesNoCancel, '') of
+   Case MessageDlg(Language.getText(ls_project_saving), Language.getText(ls_dlg_unsaved_files), mtConfirmation, mbYesNoCancel, '') of
     mrYes   : Save := True;
     mrNo    : Save := False;
     mrCancel: Exit(False);
@@ -226,7 +226,7 @@ Begin
 
  { ask user }
  Save := False;
- Case MessageDlg(getLangValue(ls_project_saving), getLangValue(ls_msg_unsaved_project), mtConfirmation, mbYesNoCancel, '') of
+ Case MessageDlg(Language.getText(ls_project_saving), Language.getText(ls_dlg_unsaved_project), mtConfirmation, mbYesNoCancel, '') of
   mrYes   : Save := True;
   mrNo    : Save := False;
   mrCancel: Exit(False);
@@ -406,7 +406,7 @@ begin
 
   if (not Project.Load(FileNames[0])) Then // failed
   Begin
-   Application.MessageBox(PChar(Format(getLangValue(ls_msg_project_open_failed_ex), [FileNames[0]])), PChar(getLangValue(ls_msg_error)), MB_IconError);
+   ErrorMessage(ls_msg_project_open_failed_ex, [FileNames[0]]);
    Exit;
   End;
 
@@ -416,7 +416,7 @@ begin
  // no project opened/created so far?
  if (Project = nil) Then
  Begin
-  Case MessageDlg(getLangValue(ls_file_opening), getLangValue(ls_msg_create_new_project), mtConfirmation, mbYesNo, '') of
+  Case MessageDlg(Language.getText(ls_file_opening), Language.getText(ls_dlg_create_new_project), mtConfirmation, mbYesNo, '') of
    mrNo: Exit;
    mrYes:
    Begin
@@ -515,7 +515,7 @@ begin
 end;
 
 (* TMainForm.oFindPrevClick *)
-Procedure TMainForm.oFindPrevClick(Sender: TObject);
+Procedure TMainForm.oFindPreviousClick(Sender: TObject);
 Var Prev: Integer;
 begin
  With FindForm.rgSearchDir do
@@ -540,8 +540,8 @@ begin
  LineMax := Project.getCurrentEditor.Lines.Count;
  LineStr := IntToStr(Project.getCurrentEditor.CaretY);
 
- if (InputQuery(getLangValue(ls_goto_line_title),
-                Format(getLangValue(ls_goto_line), [1, LineMax]),
+ if (InputQuery(Language.getText(ls_goto_line_title),
+                Format(Language.getText(ls_goto_line), [1, LineMax]),
                 LineStr)) Then
  Begin
   if (TryStrToInt(LineStr, Line)) Then
@@ -616,7 +616,7 @@ begin
 end;
 
 (* TMainForm.oNewProj_AppClick *)
-Procedure TMainForm.oNewProj_AppClick(Sender: TObject);
+Procedure TMainForm.oNewProject_ApplicationClick(Sender: TObject);
 begin
  if (SaveProject) Then
  Begin
@@ -625,12 +625,12 @@ begin
 
   Project.NewProject(ptApplication);
 
-  Caption := BaseCaption+' - '+getLangValue(ls_new_app);
+  Caption := Format('%s - %s', [BaseCaption, Language.getText(ls_new_app)]);
  End;
 end;
 
 (* TMainForm.oNewProj_LibraryClick *)
-Procedure TMainForm.oNewProj_LibraryClick(Sender: TObject);
+Procedure TMainForm.oNewProject_LibraryClick(Sender: TObject);
 begin
  if (SaveProject) Then
  Begin
@@ -639,7 +639,7 @@ begin
 
   Project.NewProject(ptLibrary);
 
-  Caption := BaseCaption+' - '+getLangValue(ls_new_lib);
+  Caption := Format('%s - %s', [BaseCaption, Language.getText(ls_new_lib)]);
  End;
 end;
 
@@ -722,7 +722,7 @@ Procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
  if (Project <> nil) and (Project.VMProcess <> nil) Then // if VM is running
  Begin
-  Case MessageDlg(getLangValue(ls_msg_info), getLangValue(ls_msg_stop_vm), mtConfirmation, [mbYes, mbNo], 0) of
+  Case MessageDlg(Language.getText(ls_msg_info), Language.getText(ls_dlg_stop_vm), mtConfirmation, [mbYes, mbNo], 0) of
    mrYes:
    Begin
     Project.VMProcess.Terminate(0);
@@ -759,12 +759,12 @@ begin
   Try
    if (Project = nil) Then // no project opened - show project opening dialog
    Begin
-    Title  := getLangValue(ls_project_opening);
-    Filter := getLangValue(ls_filter_project);
+    Title  := Language.getText(ls_project_opening);
+    Filter := Language.getText(ls_filter_project);
    End Else
    Begin // in other case - show module opening dialog
-    Title  := getLangValue(ls_file_opening);
-    Filter := getLangValue(ls_filter_any_file);
+    Title  := Language.getText(ls_file_opening);
+    Filter := Language.getText(ls_filter_any_file);
    End;
 
    Options := [ofPathMustExist, ofFileMustExist];

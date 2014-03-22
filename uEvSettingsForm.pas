@@ -26,7 +26,7 @@ type
     btnRenameStyle: TBitBtn;
     btnSave: TBitBtn;
     btnVMSelect: TBitBtn;
-    cAddBrackets:TCheckBox;
+    cbAddBrackets:TCheckBox;
     cbBold: TCheckBox;
     cbItalic: TCheckBox;
     cbLanguages:TComboBox;
@@ -42,7 +42,7 @@ type
     clrbFontColor: TColorBox;
     clrbBackgroundColor2: TColorBox;
     cbFontList: TComboBox;
-    cScrollPastEOL:TCheckBox;
+    cbScrollPastEOL:TCheckBox;
     btnCompilerSelect: TBitBtn;
     EXEOpen: TOpenDialog;
     FileTimer: TTimer;
@@ -54,7 +54,7 @@ type
     lblFontColor: TLabel;
     lblFontName: TLabel;
     lblMaxRecentlyOpened: TLabel;
-    Label3:TLabel;
+    lblCurrentLanguage:TLabel;
     EnvPage_Language:TPage;
     EditorPage_CodeCompletion:TPage;
     EnvPage_Files: TPage;
@@ -62,7 +62,7 @@ type
     pcCodeCompletion: TPageControl;
     Pages: TNotebook;
     EditorPage_SyntaxHighlighting: TPage;
-    Setting: TTreeView;
+    SettingList: TTreeView;
     SampleCode: TSynEdit;
     seMaxRecentlyOpened: TSpinEdit;
     seFontSize: TSpinEdit;
@@ -94,7 +94,7 @@ type
     procedure FileTimerTimer(Sender: TObject);
     Procedure lbTokenKindsSelectionChange(Sender: TObject; User: boolean);
     Procedure seFontSizeChange(Sender: TObject);
-    procedure SettingChange(Sender:TObject;Node:TTreeNode);
+    procedure SettingListChange(Sender:TObject;Node:TTreeNode);
 
   private
    DontUpdate: Boolean;
@@ -177,7 +177,7 @@ Label Again; // well, at least its better then recursion :P
 Begin
  Again:
 
- if (InputQuery(getLangValue(ls_caption_dlg_style_name), getLangValue(ls_dlg_style_name), StyleName)) Then
+ if (InputQuery(Language.getText(ls_caption_dlg_style_name), Language.getText(ls_dlg_style_name), StyleName)) Then
  Begin
   StyleFile := getStylesDir+GenerateStyleFileName(StyleName);
 
@@ -352,15 +352,15 @@ Begin
  cbRewriteLog.Checked        := Config.getBoolean(ceRewriteLog);
  eLogFile.Text               := Config.getString(ceLogFile);
 
- cScrollPastEOL.Checked := Config.getBoolean(ceScrollPastEOL);
- cAddBrackets.Checked   := Config.getBoolean(ceAddBrackets);
+ cbScrollPastEOL.Checked := Config.getBoolean(ceScrollPastEOL);
+ cbAddBrackets.Checked   := Config.getBoolean(ceAddBrackets);
 
  // search languages
  SearchLanguages;
 
  // open the first page
- Setting.Selected := Setting.Items[0].Items[0];
- Pages.PageIndex  := Setting.Selected.ImageIndex;
+ SettingList.Selected := SettingList.Items[0].Items[0];
+ Pages.PageIndex  := SettingList.Selected.ImageIndex;
 
  // show form
  CheckTime := 0;
@@ -425,8 +425,8 @@ begin
  Config.setBoolean(ceRewriteLog, cbRewriteLog.Checked);
  Config.setString(ceLogFile, eLogFile.Text);
 
- Config.setBoolean(ceScrollPastEOL, cScrollPastEOL.Checked);
- Config.setBoolean(ceAddBrackets, cAddBrackets.Checked);
+ Config.setBoolean(ceScrollPastEOL, cbScrollPastEOL.Checked);
+ Config.setBoolean(ceAddBrackets, cbAddBrackets.Checked);
 
  Config.setString(ceLanguage, Lang);
 
@@ -514,7 +514,7 @@ Begin
  // if current style has been modified, ask user if he wants to save the changes
  if (not isStyleSaved) Then
  Begin
-  Case MessageDlg(getLangValue(ls_dlg_save_style), mtConfirmation, [mbYes, mbNo], 0) of
+  Case MessageDlg(Language.getText(ls_dlg_save_style), mtConfirmation, [mbYes, mbNo], 0) of
    mrYes: SaveCurrentStyle;
   End;
  End;
@@ -627,10 +627,10 @@ Begin
 End;
 
 (* TEvSettingsForm.SettingChange *)
-Procedure TEvSettingsForm.SettingChange(Sender: TObject; Node: TTreeNode);
+Procedure TEvSettingsForm.SettingListChange(Sender: TObject; Node: TTreeNode);
 Var Page: Integer;
 begin
- With Setting do
+ With SettingList do
  Begin
   if (Node = nil) Then
    Exit;
@@ -659,7 +659,7 @@ end;
 (* TEvSettingsForm.btnDeleteStyleClick *)
 Procedure TEvSettingsForm.btnDeleteStyleClick(Sender: TObject);
 Begin
- Case MessageDlg(getLangValue(ls_dlg_remove_style), mtConfirmation, [mbYes, mbNo], 0) of
+ Case MessageDlg(Language.getText(ls_dlg_remove_style), mtConfirmation, [mbYes, mbNo], 0) of
   mrNo: Exit;
  End;
 
@@ -699,14 +699,14 @@ Begin
  // make sure that current style is saved
  if (not isStyleSaved) Then
  Begin
-  Case MessageDlg(getLangValue(ls_dlg_save_style), mtConfirmation, [mbYes, mbNo], 0) of
+  Case MessageDlg(Language.getText(ls_dlg_save_style), mtConfirmation, [mbYes, mbNo], 0) of
    mrYes: SaveCurrentStyle;
    mrNo : Exit;
   End;
  End;
 
  // ask user to choose what to do
- Case QuestionDlg(tsSyntaxHighlighting.Caption, getLangValue(ls_what_do_you_want_to_do), mtConfirmation, [mrYes, getLangValue(ls_dlg_newstyle_create), mrNo, getLangValue(ls_dlg_newstyle_clone), mrCancel, getLangValue(ls_cancel)], 0) of
+ Case QuestionDlg(tsSyntaxHighlighting.Caption, Language.getText(ls_what_do_you_want_to_do), mtConfirmation, [mrYes, Language.getText(ls_dlg_newstyle_create), mrNo, Language.getText(ls_dlg_newstyle_clone), mrCancel, Language.getText(ls_cancel)], 0) of
   mrYes:
   Begin
    if (not AskForStyleName(StyleName, StyleFile)) Then
@@ -750,7 +750,7 @@ Begin
  // save current style, if necessary
  if (not isStyleSaved) Then
  Begin
-  Case MessageDlg(getLangValue(ls_dlg_save_style), mtConfirmation, [mbYes, mbNo], 0) of
+  Case MessageDlg(Language.getText(ls_dlg_save_style), mtConfirmation, [mbYes, mbNo], 0) of
    mrNo: Exit;
   End;
  End;

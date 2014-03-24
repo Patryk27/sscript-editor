@@ -89,12 +89,20 @@ Var Section, BaseIdent: String;
 
   { FetchItemList }
   Function FetchItemList(const Suffix: String): TStringList;
+  Var I: uint32;
   Begin
    Result := TStringList.Create;
 
    Result.Delimiter       := ',';
    Result.StrictDelimiter := True;
    Result.DelimitedText   := Lang.ReadString(Section, BaseIdent+Suffix, '');
+
+   // trim each element
+   if (Result.Count > 0) Then
+   Begin
+    For I := 0 To Result.Count-1 Do
+     Result[I] := Trim(Result[I]);
+   End;
   End;
 
   { ParseItems }
@@ -113,7 +121,7 @@ Var Section, BaseIdent: String;
 
     Items.Clear;
     For Item in NewItems Do
-     Items.Add(Trim(Item));
+     Items.Add(Item);
    Finally
     NewItems.Free;
    End;

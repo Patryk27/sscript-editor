@@ -383,4 +383,7 @@ Begin
 
  Result := Format(Result, Args);
 End;
+
+finalization
+ Language.Free;
 End.

@@ -12,13 +12,15 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   ExtCtrls, VirtualTrees, SynEdit, CodeScan;
 
+  { TNodeData }
   Type PNodeData = ^TNodeData;
-       TNodeData = Record
-                    Typ    : (ndSymbol, ndText);
-                    Symbol : TSymbol;
-                    Caption: String;
-                    Removed: Boolean;
-                   End;
+       TNodeData =
+       Record
+        Typ    : (ndSymbol, ndText);
+        Symbol : TSymbol;
+        Caption: String;
+        Removed: Boolean;
+       End;
 
 type
 

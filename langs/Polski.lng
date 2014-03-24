@@ -108,7 +108,7 @@ Caption=Lista identyfikatorów
 [EvSettingsForm]
 Caption=Ustawienia środowiska
 
-SettingList.Items=Środowisko, Pliki, Język, Edytor kodu, Kolorowanie składni, Uzupełnianie kodu
+SettingList.Items=Środowisko, Pliki, Język, Edytor kodu, Ogólne, Uzupełnianie kodu, Kolorowanie składni
 btnSave.Caption=Zapisz
 btnCancel.Caption=Anuluj
 
@@ -122,6 +122,13 @@ cbRewriteLog.Caption=Nadpisuj log za każdym razem (czyść go)
 
 lblCurrentLanguage.Caption=Język:
 
+cbEnableUndoAfterSave.Caption=Cofaj po zapisie
+lblUndoLimit.Caption=Limit cofnięć:
+cbScrollPastLineLength.Caption=Umożliwiaj kursorowi wychodzenie poza linię
+
+cbEnableIntellisense.Caption=Włącz funkcję Intellisense
+cbAddBrackets.Caption=Automatycznie uzupełniaj nawiasy zamykające
+
 pcCodeCompletion.Tabs=Składnia, Czcionka
 lbTokenKinds.Items=Identyfikator, Słowo kluczowe, Ciąg znaków, Liczba, Makro, Komentarz, Typ podstawowy, Inne
 cbTextColor.Caption=Kolor tekstu
@@ -133,9 +140,6 @@ lblFontName.Caption=Czcionka:
 lblFontColor.Caption=Kolor czcionki:
 lblBackgroundColor2.Caption=Kolor tła:
 lblFontSize.Caption=Rozmiar czcionki:
-
-cbScrollPastEOL.Caption=Umożliwiaj kursorowi wychodzenie poza linię
-cbAddBrackets.Caption=Automatycznie uzupełniaj nawiasy zamykające
 
 [CompilerOutputForm]
 Caption=Wyjście kompilatora

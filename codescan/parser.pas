@@ -5,9 +5,12 @@
 Unit Parser;
 
  Interface
- Uses Classes, FGL, Scanner, Tokens;
+ Uses SysUtils, Classes, FGL, Scanner, Tokens;
 
  Type TTokenList = specialize TFPGList<PToken_P>;
+
+ { EParserException }
+ Type EParserException = Class(Exception);
 
  { TRange }
  Type TRange =
@@ -65,9 +68,7 @@ Unit Parser;
  Operator in (Token: TToken_P; Range: TRange): Boolean;
 
  Implementation
-Uses mLanguages, SysUtils;
-
-Type EParserError = Class(Exception);
+Uses Variants, mLanguages;
 
 // `TToken_P` in `TRange`
 Operator in (Token: TToken_P; Range: TRange): Boolean;
@@ -280,9 +281,9 @@ Begin
  Inc(TokenPos);
 
  Case Result.Token of
-  _INVALID_INT   : raise Exception.Create(Language.getText(ls_invalid_int_value));
-  _INVALID_FLOAT : raise Exception.Create(Language.getText(ls_invalid_float_value));
-  _INVALID_STRING: raise Exception.Create(Language.getText(ls_string_exceeds_line));
+  _INVALID_INT   : raise EParserException.Create(Language.getText(ls_invalid_int_value));
+  _INVALID_FLOAT : raise EParserException.Create(Language.getText(ls_invalid_float_value));
+  _INVALID_STRING: raise EParserException.Create(Language.getText(ls_string_exceeds_line));
  End;
 End;
 
@@ -332,7 +333,7 @@ End;
 Function TParser.read_ident: String;
 Begin
  if (next_t <> _IDENTIFIER) Then
-  raise Exception.Create(Format(Language.getText(ls_expected_identifier), [next.Value]));
+  raise EParserException.Create(Language.getText(ls_expected_identifier, [VarToStr(next.Value)]));
 
  Result := read.Value;
 End;
@@ -344,7 +345,7 @@ End;
 Function TParser.read_string: String;
 Begin
  if (next_t <> _STRING) Then
-  raise Exception.Create(Format(Language.getText(ls_expected_string), [next.Value]));
+  raise EParserException.Create(Language.getText(ls_expected_string, [VarToStr(next.Value)]));
 
  Result := read.Value;
 End;
@@ -356,7 +357,7 @@ End;
 Function TParser.read_int: Integer;
 Begin
  if (next_t <> _INT) Then
-  raise Exception.Create(Format(Language.getText(ls_expected_int), [next.Value]));
+  raise EParserException.Create(Language.getText(ls_expected_int, [VarToStr(next.Value)]));
 
  Result := StrToInt(read.Value);
 End;
@@ -369,7 +370,7 @@ End;
 Procedure TParser.eat(Token: TToken);
 Begin
  if (read_t <> Token) Then
-  raise Exception.Create(Format(Language.getText(ls_expected), [getTokenDisplay(Token), next(-1).Value]));
+  raise EParserException.Create(Language.getText(ls_expected, [getTokenDisplay(Token), VarToStr(next(-1).Value)]));
 End;
 
 (* TParser.semicolon *)

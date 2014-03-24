@@ -68,7 +68,7 @@ Unit mProject;
 
         Procedure SetFocus;
         Procedure Update;
-        Procedure RefreshControls;
+        Procedure RefreshSettings;
 
         Procedure ReCaption(const NewCaption: String);
 
@@ -181,7 +181,7 @@ Unit mProject;
         Procedure CloseCardsExcluding(ID: Integer);
         Procedure RaiseMessage(ID: Integer);
 
-        Procedure RefreshControls;
+        Procedure RefreshSettings;
 
         Function Compile: Boolean;
         Procedure Run;
@@ -273,9 +273,9 @@ End;
 Procedure TCard.Editor_OnKeyPress(Sender: TObject; var Key: Char);
 Var Str: String = '';
 Begin
- if (Key in ['(', '[', '<', '{']) Then
+ if (Config.getBoolean(ceAddBrackets)) Then
  Begin
-  if (Config.getBoolean(ceAddBrackets)) Then
+  if (Key in ['(', '[', '<', '{']) Then
   Begin
    Case Key of
     '(': Str := '()';
@@ -590,7 +590,7 @@ Begin
  With CodeEditor.Tabs do
   ActivePageIndex := PageCount-1;
 
- RefreshControls;
+ RefreshSettings;
 
  SynEdit.SetFocus;
 End;
@@ -648,6 +648,9 @@ Begin
 
  SynEdit.Lines.SaveToFile(FileName);
  SynEdit.Modified := False;
+
+ if (not Config.getBoolean(ceUndoAfterSave)) Then
+  SynEdit.ClearUndo;
 
  Exit(True);
 End;
@@ -710,11 +713,11 @@ Begin
   Tab.Caption := Caption;
 End;
 
-(* TCard.RefreshControls *)
+(* TCard.RefreshSettings *)
 {
- Refreshes card's controls.
+ Refreshes card's controls according to the settings.
 }
-Procedure TCard.RefreshControls;
+Procedure TCard.RefreshSettings;
 Var Ext: String;
 Begin
  With SynEdit do
@@ -738,7 +741,14 @@ Begin
   if (Config.getBoolean(ceScrollPastEOL)) Then
    Options := Options + [eoScrollPastEOL] Else
    Options := Options - [eoScrollPastEOL];
+
+  MaxUndo := Config.getInteger(ceUndoLimit);
  End;
+
+ // invalidate parser data
+ FreeAndNil(CodeScanner);
+ IdentifierList   := nil;
+ ShouldBeReparsed := True;
 End;
 
 (* TCard.ReCaption *)
@@ -761,6 +771,11 @@ Var Msg, ErrFile: String;
 Begin
  // @TODO: if some card doesn't have to be reparsed, let the parser use its CodeScanner instead of parsing it again.
 
+ // check config
+ if (not Config.getBoolean(ceEnableIntellisense)) Then
+  Exit;
+
+ // make sure we really have to parse this card
  if (Parsing) or ((not ForceParse) and (not ShouldBeReparsed)) or (CompareText(ExtractFileExt(getFileName), '.ss') <> 0) Then
   Exit;
 
@@ -1430,6 +1445,7 @@ Begin
 
   { save card list }
   For I := 0 To CardList.Count-1 Do
+  Begin
    With CardList[I] do
    Begin
     if (not Save) Then
@@ -1454,6 +1470,7 @@ Begin
 
     Root.AppendChild(Parent);
    End;
+  End;
 
   WriteXMLFile(Doc, FileName);
  Finally
@@ -1825,15 +1842,15 @@ Begin
  End;
 End;
 
-(* TProject.RefreshControls *)
+(* TProject.RefreshSettings *)
 {
- Refreshes each card's controls.
+ Refreshes each card's controls according to the settings.
 }
-Procedure TProject.RefreshControls;
+Procedure TProject.RefreshSettings;
 Var Card: TCard;
 Begin
  For Card in CardList Do
-  Card.RefreshControls;
+  Card.RefreshSettings;
 End;
 
 (* TProject.Compile *)
@@ -2650,11 +2667,13 @@ Begin
   MarkAllAsRemoved;
 
   if (Card.CodeScanner <> nil) Then
+  Begin
    With Card.CodeScanner do
    Begin
     For NS in getNamespaceList Do
      ParseNamespace(NS);
    End;
+  End;
 
   // @TODO: show program's dependencies (includes)
 

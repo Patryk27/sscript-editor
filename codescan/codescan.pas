@@ -253,7 +253,7 @@ Begin
   stFunction            : mFunction  := TFunction(fValue);
 
   else
-   raise Exception.CreateFmt('TSymbol.Create() -> unknown symbol type: %d', [ord(Typ)]);
+   raise EParserException.CreateFmt('TSymbol.Create() -> unknown symbol type: %d', [ord(Typ)]);
  End;
 End;
 
@@ -273,7 +273,7 @@ Begin
   stFunction            : Result := mFunction;
 
   else
-   raise Exception.CreateFmt('TSymbol.getPhysSymbol() -> unknown symbol type: %d', [ord(Typ)]);
+   raise EParserException.CreateFmt('TSymbol.getPhysSymbol() -> unknown symbol type: %d', [ord(Typ)]);
  End;
 End;
 
@@ -513,7 +513,7 @@ Begin
    _PUBLIC, _PRIVATE:; // @TODO (?)
 
    else
-    raise EParserError.CreateFmt(Language.getText(ls_unexpected), [VarToStr(Token.Value)]);
+    raise EParserException.Create(Language.getText(ls_unexpected, [VarToStr(Token.Value)]));
   End;
  End;
 End;
@@ -606,7 +606,7 @@ Begin
  End Else
 
  { unexpected token }
-  raise EParserError.CreateFmt(Language.getText(ls_unexpected), [VarToStr(Token.Value)]);
+  raise EParserException.Create(Language.getText(ls_unexpected, [VarToStr(Token.Value)]));
 
  // read optional array modifier
  With Parser do
@@ -763,28 +763,28 @@ Destructor TCodeScanner.Destroy;
 Var NSV: TNamespaceVisibility;
     NS : TNamespace;
 Begin
- { IdentifierList }
+ // identifier list
  IdentifierList.Free;
 
- { NamespaceList }
+ // namespace list
  For NS in NamespaceList Do
   NS.Free;
  NamespaceList.Free;
 
- { NamespaceVisibilityList }
+ // namespace visibility list
  For NSV in NamespaceVisibilityList Do
   NSV.Free;
  NamespaceVisibilityList.Free;
 
- { Parser }
+ // parser
  Parser.Free;
 
- { Included files }
+ // included files
  if (isMain) Then
  Begin
   //For I := 0 To ParsedFiles.Count-1 Do
   // if (ParsedFiles.Data[I] <> nil) and (ParsedFiles.Data[I] <> self) Then
-  //  TCodeScanner(ParsedFiles.Data[I]).Free; // @TODO: WHY THE FUCK THIS DOES NOT WORK?!
+  //  TCodeScanner(ParsedFiles.Data[I]).Free; // @TODO
 
   ParsedFiles.Free;
  End;
@@ -794,7 +794,7 @@ End;
 Function TCodeScanner.Parse: TIdentifierList;
 Begin
  if (ParsedFiles = nil) Then
-  raise Exception.Create('ParsedFiles = nil, this was not supposed to happen!');
+  raise EParserException.Create('ParsedFiles = nil, this was not supposed to happen!');
 
  CurrentlyParsedFile := ParsedFile;
 

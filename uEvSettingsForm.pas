@@ -20,6 +20,7 @@ type
     Bevel1: TBevel;
     Bevel2: TBevel;
     Bevel3: TBevel;
+    Bevel4: TBevel;
     btnDeleteStyle: TBitBtn;
     btnNewStyle: TBitBtn;
     btnCancel: TBitBtn;
@@ -28,21 +29,23 @@ type
     btnVMSelect: TBitBtn;
     cbAddBrackets:TCheckBox;
     cbBold: TCheckBox;
+    cbEnableUndoAfterSave: TCheckBox;
     cbItalic: TCheckBox;
     cbLanguages:TComboBox;
     cbOpenRecentProject: TCheckBox;
+    cbScrollPastLineLength: TCheckBox;
     cbStyleList: TComboBox;
     cbEnableLogging: TCheckBox;
     cbRewriteLog: TCheckBox;
     cbBackgroundColor: TCheckBox;
     cbUnderline: TCheckBox;
     cbTextColor: TCheckBox;
+    cbEnableIntellisense: TCheckBox;
     clrbBackgroundColor: TColorBox;
     clrbTextColor: TColorBox;
     clrbFontColor: TColorBox;
     clrbBackgroundColor2: TColorBox;
     cbFontList: TComboBox;
-    cbScrollPastEOL:TCheckBox;
     btnCompilerSelect: TBitBtn;
     EXEOpen: TOpenDialog;
     FileTimer: TTimer;
@@ -55,17 +58,20 @@ type
     lblFontName: TLabel;
     lblMaxRecentlyOpened: TLabel;
     lblCurrentLanguage:TLabel;
-    EnvPage_Language:TPage;
-    EditorPage_CodeCompletion:TPage;
-    EnvPage_Files: TPage;
+    Environment_Language:TPage;
+    Editor_CodeCompletion:TPage;
+    Environment_Files: TPage;
+    lblUndoLimit: TLabel;
     lbTokenKinds: TListBox;
+    Editor_Generala: TPage;
     pcCodeCompletion: TPageControl;
     Pages: TNotebook;
-    EditorPage_SyntaxHighlighting: TPage;
+    Editor_SyntaxHighlighting: TPage;
     SettingList: TTreeView;
     SampleCode: TSynEdit;
     seMaxRecentlyOpened: TSpinEdit;
     seFontSize: TSpinEdit;
+    seUndoLimit: TSpinEdit;
     tsFont: TTabSheet;
     tsSyntaxHighlighting: TTabSheet;
 
@@ -120,6 +126,9 @@ var
 implementation
 Uses mConfiguration, mStyles, mProject, mLanguages, mFunctions, mMessages,
      SynEditSScript;
+
+Const PageArray: Array[0..6] of String =
+      ('Environment_Files', 'Environment_Files', 'Environment_Language', 'Editor_General', 'Editor_General', 'Editor_CodeCompletion', 'Editor_SyntaxHighlighting');
 
 Var ConfigBackup: TConfiguration;
 
@@ -352,21 +361,25 @@ Begin
  cbRewriteLog.Checked        := Config.getBoolean(ceRewriteLog);
  eLogFile.Text               := Config.getString(ceLogFile);
 
- cbScrollPastEOL.Checked := Config.getBoolean(ceScrollPastEOL);
- cbAddBrackets.Checked   := Config.getBoolean(ceAddBrackets);
+ cbEnableUndoAfterSave.Checked  := Config.getBoolean(ceUndoAfterSave);
+ seUndoLimit.Value              := Config.getInteger(ceUndoLimit);
+ cbScrollPastLineLength.Checked := Config.getBoolean(ceScrollPastEOL);
+
+ cbEnableIntellisense.Checked := Config.getBoolean(ceEnableIntellisense);
+ cbAddBrackets.Checked        := Config.getBoolean(ceAddBrackets);
 
  // search languages
  SearchLanguages;
 
  // open the first page
- SettingList.Selected := SettingList.Items[0].Items[0];
- Pages.PageIndex  := SettingList.Selected.ImageIndex;
+ SettingList.Selected := SettingList.Items[0];
 
  // show form
  CheckTime := 0;
  FileTimer.OnTimer(FileTimer);
 
  DontUpdate := False;
+ Paint;
  ShowModal;
 
  // optionally dispose config backup
@@ -425,7 +438,11 @@ begin
  Config.setBoolean(ceRewriteLog, cbRewriteLog.Checked);
  Config.setString(ceLogFile, eLogFile.Text);
 
- Config.setBoolean(ceScrollPastEOL, cbScrollPastEOL.Checked);
+ Config.setBoolean(ceUndoAfterSave, cbEnableUndoAfterSave.Checked);
+ Config.setInteger(ceUndoLimit, seUndoLimit.Value);
+ Config.setBoolean(ceScrollPastEOL, cbScrollPastLineLength.Checked);
+
+ Config.setBoolean(ceEnableIntellisense, cbEnableIntellisense.Checked);
  Config.setBoolean(ceAddBrackets, cbAddBrackets.Checked);
 
  Config.setString(ceLanguage, Lang);
@@ -437,9 +454,9 @@ begin
  // force style reload
  StyleManager.ReloadCurrentStyle;
 
- // refresh controls, if possible
+ // refresh project, if possible
  if (Project <> nil) Then
-  Project.RefreshControls;
+  Project.RefreshSettings;
 
  // close form
  Close;
@@ -628,20 +645,20 @@ End;
 
 (* TEvSettingsForm.SettingChange *)
 Procedure TEvSettingsForm.SettingListChange(Sender: TObject; Node: TTreeNode);
-Var Page: Integer;
-begin
- With SettingList do
+Var Page: uint32;
+Begin
+ if (Node = nil) Then
+  Exit;
+
+ For Page := 0 To Pages.PageCount-1 Do
  Begin
-  if (Node = nil) Then
+  if (Pages.Page[Page].Name = PageArray[Node.AbsoluteIndex]) Then
+  Begin
+   Pages.PageIndex := Page;
    Exit;
-
-  if (Node.Count = 0) Then
-   Page := Node.ImageIndex Else
-   Page := Node.Items[0].ImageIndex;
-
-  Pages.PageIndex := Page;
+  End;
  End;
-end;
+End;
 
 (* TEvSettingsForm.btnCancelClick *)
 Procedure TEvSettingsForm.btnCancelClick(Sender: TObject);

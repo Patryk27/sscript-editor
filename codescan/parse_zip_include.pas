@@ -60,7 +60,7 @@ Var Process    : TProcess;
 
      if (Line = 'libinfo exception') Then
      Begin
-      raise EParserError.CreateFmt('Compiler crashed: %s', [Output[Output.indexOf(Line)+1]]);
+      raise EParserException.CreateFmt('Compiler crashed: %s', [Output[Output.indexOf(Line)+1]]);
      End;
 
      if (not Scan) Then
@@ -80,7 +80,7 @@ Var Process    : TProcess;
      End Else
      Begin // parse symbol
       if (Namespace = nil) Then
-       raise EParserError.Create('Compiler output is corrupted (#1).');
+       raise EParserException.Create('Compiler output is corrupted (#1).');
 
       Data.Delimiter       := ';';
       Data.StrictDelimiter := True;
@@ -150,7 +150,7 @@ Var Process    : TProcess;
       End;
 
       if (Length(SymbolName) = 0) Then
-       raise EParserError.Create('Compiler output is corrupted (#2)');
+       raise EParserException.Create('Compiler output is corrupted (#2)');
 
       // sync symbol name
       if (Data[0] = 'function') Then
@@ -177,7 +177,7 @@ Var Process    : TProcess;
        'type'    : Namespace.SymbolList.Add(TSymbol.Create(stType, TType.Create(Token, Range, SymbolName, True)));
 
        else
-        raise EParserError.CreateFmt('Compiled output is corrupted (#3: %s)', [Data[0]]);
+        raise EParserException.CreateFmt('Compiled output is corrupted (#3: %s)', [Data[0]]);
       End;
      End;
     End;
@@ -188,7 +188,7 @@ Var Process    : TProcess;
 
 Begin
  if (not FileExists(Config.getString(ceCompilerExecutable))) Then // error: compiler executable not found
-  raise EParserError.Create('SScript Compiler is required to parse SScript libraries - but no such found.');
+  raise EParserException.Create('SScript Compiler is required to parse SScript libraries - but no such found.');
 
  Token := Parser.next(-2);
  Inc(Token.Char);

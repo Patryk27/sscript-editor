@@ -11,20 +11,34 @@ Unit mConfiguration;
  Type TConfigEnum =
       (
        ceCompilerExecutable, ceVMExecutable,
-       ceRecentlyOpened, ceMaxRecentlyOpened, ceLoadRecentProject, ceRecentProject,
-       ceAddBrackets, ceScrollPastEOL,
        ceEnableLogging, ceRewriteLog,
-       ceLanguage, ceLayoutFile, ceStyleFile, ceLogFile,
+       ceLayoutFile, ceStyleFile, ceLogFile,
+       ceRecentlyOpened, ceMaxRecentlyOpened, ceLoadRecentProject, ceRecentProject,
+
+       ceLanguage,
+
+       ceUndoAfterSave, ceUndoLimit,
+       ceScrollPastEOL,
+
+       ceEnableIntellisense, ceAddBrackets,
+
        ceIntellisenseWidth, ceIntellisenseHeight
       );
 
  Const DefaultSettings: Array[TConfigEnum] of String =
  (
   'compiler\compiler.exe', 'compiler\vm.exe',
-  '', '8', 'false', '',
-  'false', 'false',
   'true', 'false',
-  '', 'default.xml', 'default.xml', 'editor.log',
+  'default.xml', 'default.xml', 'editor.log',
+  '', '8', 'false', '',
+
+  '',
+
+  'true', '32000',
+  'true',
+
+  'true', 'false',
+
   '350', '300'
  );
 

@@ -34,7 +34,7 @@ Begin
   eat(_BRACKET1_CL); // `)`
 
   if (not findFile(FileName, RealFile)) Then // if file not found
-   raise EParserError.CreateFmt(Language.getText(ls_unknown_file), [FileName]);
+   raise EParserException.Create(Language.getText(ls_unknown_file, [FileName]));
 
   if (ParsedFiles.indexOf(RealFile) > -1) Then // file has been already parsed
    Exit;

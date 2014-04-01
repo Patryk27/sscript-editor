@@ -481,19 +481,6 @@ Begin
   Exit;
  End;
 
- if (Token.Token = _AT) and (Parser.next.Value = 'visibility') Then // `@visibility` macro
- Begin
-  With Parser do
-  Begin
-   read_ident;
-   eat(_BRACKET1_OP);
-   read_string;
-   eat(_BRACKET1_CL);
-  End;
-
-  Exit;
- End;
-
  if (inFunction) Then
  Begin
   { in local scope }
@@ -641,7 +628,11 @@ Begin
    Exit;
 
   if (Token.Value <> null) and (not (Token.Token in TokenUntil)) Then
-   Result += VarToStr(Token.Value);
+  Begin
+   if (Token.Token = _STRING) Then
+    Result += '"'+VarToStr(Token.Value)+'"' Else
+    Result += VarToStr(Token.Value);
+  End;
 
   Case Token.Token of
    _BRACKET1_OP, _BRACKET2_OP, _BRACKET3_OP: Inc(BrDeep);

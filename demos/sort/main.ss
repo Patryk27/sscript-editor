@@ -1,8 +1,11 @@
 /*
- This is demo of quicksort.
+ This is a demo of the quicksort algorithm.
 */
 
 @("stdlib/stdio.ss")
+@("stdlib/random.ss")
+
+const size = 10;
 
 use std;
 
@@ -29,20 +32,23 @@ function<void> swap(var int a, var int b)
 
 /*
  @name: sort
- @desc: sorts an array of ints.
+ @desc: (quick)sorts an array of ints.
 */
 function<void> sort(int[] tab, int l, int r)
 {
  if (l < r)
  {
   var<int> m = l;
+ 
   for (var<int> i=l+1; i<=r; i++)
+  {
    if (tab[i] < tab[l])
    {
     ++m;
 
     swap(tab[m], tab[i]);
    }
+  }
 
   swap(tab[l], tab[m]);
 
@@ -53,10 +59,17 @@ function<void> sort(int[] tab, int l, int r)
 
 function<int> main()
 {
- var<int[]> tab(10, 3, 14, 20, 9, 0);
+ randomize();
+
+ var<int[]> tab = new int[size];
+
+ for (var<int> i=0; i<size; i++)
+  tab[i] = random_8();
 
  display(tab);
  println("------------");
+
  sort(tab, 0, tab.length()-1);
+
  display(tab);
 }

@@ -149,16 +149,16 @@ lblFind.Caption=Znajdź:
 cbReplace.Caption=Zamień na:
 
 cgOptions.Caption=Opcje
-cbOptions.Items=Uwzględniaj wielkość liter, Tylko całe słowa, Wyrażenie regularne, Wieloliniowe wyrażenie regularne
+cgOptions.Items=Uwzględniaj wielkość liter, Tylko całe słowa, Wyrażenie regularne, Wieloliniowe wyrażenie regularne
 
 rgSearchPosition.Caption=Pozycja szukania
-rgSearchPositon.Items=Od kursora, Od początku pliku
+rgSearchPosition.Items=Od kursora, Od początku pliku
 
 rgSearchIn.Caption=Szukaj wewnątrz
 rgSearchIn.Items=Zaznaczonego tekstu, Całego pliku
 
 rgSearchDir.Caption=Kierunek szukania
-rgSearchDir.Items=W górę, w dół
+rgSearchDir.Items=W górę, W dół
 
 btnFind.Caption=Szukaj
 btnReplaceAll.Caption=Zamień wszystko

@@ -199,6 +199,12 @@ Var Section, BaseIdent: String;
      ParseItems(TRadioGroup(Component).Items);
     End Else
 
+    // TCheckGroup
+    if (Component is TCheckGroup) Then
+    Begin
+     ParseItems(TCheckGroup(Component).Items);
+    End Else
+
     // TComboBox
     if (Component is TComboBox) Then
     Begin

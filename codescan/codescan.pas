@@ -435,12 +435,17 @@ End;
 (* TCodeScanner.findFile *)
 Function TCodeScanner.findFile(const FName: String; out FoundFile: String): Boolean;
 Var Path: String;
+    I   : int32;
 Begin
- For Path in SearchPaths Do
+ For I := 0 To SearchPaths.Count-1 Do
  Begin
+  Path := SearchPaths[I];
+
   if (Length(Path) > 0) Then
-   if not (Path[Length(Path)] in ['\', '/']) Then
+  Begin
+   if (not (Path[Length(Path)] in ['\', '/'])) Then
     Path += DirectorySeparator;
+  End;
 
   if (FileExists(Path+FName)) Then
   Begin

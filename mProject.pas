@@ -245,6 +245,44 @@ Begin
  Result := False;
 End;
 
+(* ParseSwitches *)
+Procedure ParseSwitches(const Input: String; const Process: TProcess);
+Var Switches, Switch: String;
+    SwitchesList    : TStringList;
+    I               : int32;
+Label LoopEnd;
+Begin
+ SwitchesList      := TStringList.Create;
+ SwitchesList.Text := StringReplace(Input, '|', sLineBreak, [rfReplaceAll]); // get user switches
+
+ Try
+  For Switches in SwitchesList Do
+  Begin
+   I      := 1;
+   Switch := '';
+
+   Repeat
+    if (I > Length(Switches)) or (Switches[I] = ' ') Then
+    Begin
+     if (Length(Switch) = 0) Then
+      goto LoopEnd;
+
+     Process.Parameters.Add(Switch);
+     Switch := '';
+    End Else
+    Begin
+     Switch += Switches[I];
+    End;
+
+    LoopEnd:
+    Inc(I);
+   Until (I > Length(Switches)+1);
+  End;
+ Finally
+  SwitchesList.Free;
+ End;
+End;
+
 // -------------------------------------------------------------------------- //
 (* TCard.PrepareItemData *)
 Procedure TCard.PrepareItemData(const Data: String);
@@ -1257,7 +1295,7 @@ Begin
  Begin
   if (ProjectType = ptApplication) Then
   Begin
-   Add('@("stdlib\\stdio.ss")');
+   Add('@("stdlib/stdio.ss")');
    Add('');
    Add('use std;');
    Add('');
@@ -1879,37 +1917,6 @@ Var sOutputFile: String;
     AnyError: Boolean = False;
     TmpBool : Boolean;
 
-  { AddUserSwitches }
-  Procedure AddUserSwitches;
-  Var SwitchesList    : TStringList;
-      Switches, Switch: String;
-      I               : uint32;
-  Begin
-   SwitchesList      := TStringList.Create;
-   SwitchesList.Text := StringReplace(OtherCompilerSwitches, '|', sLineBreak, [rfReplaceAll]); // get user switches
-
-   Try
-    For Switches in SwitchesList Do
-    Begin
-     Switches += ' ';
-     Switch   := '';
-
-     For I := 1 To Length(Switches) Do
-      if (Switches[I] = ' ') Then
-      Begin
-       if (Length(Switch) = 0) Then
-        Continue;
-
-       Process.Parameters.Add(Switch);
-       Switch := '';
-      End Else
-       Switch += Switches[I];
-    End;
-   Finally
-    SwitchesList.Free;
-   End;
-  End;
-
   { AddText }
   Procedure AddText(const Str: String; const Icon: TMessageIcon=miNone; const DataInt: Integer=0);
   Begin
@@ -2058,7 +2065,7 @@ Begin
   For Switch in CompilerSwitches Do
    Process.Parameters.Add(getCompilerSwitchName(Switch, True));
 
-  AddUserSwitches;
+  ParseSwitches(OtherCompilerSwitches, Process);
 
   { run compiler }
   Log.Writeln('> Process.Execute()');
@@ -2215,38 +2222,6 @@ Const GCMemoryLimitUnits: Array[0..2] of String = ('', 'M', 'G');
 Var TmpCaption, sOutputFile: String;
     Switch                 : TVMSwitch;
     Tries                  : Integer = 0;
-
-  { AddUserSwitches }
-  Procedure AddUserSwitches;
-  Var SwitchesList    : TStringList;
-      Switches, Switch: String;
-      I               : uint32;
-  Begin
-   SwitchesList      := TStringList.Create;
-   SwitchesList.Text := StringReplace(OtherVMSwitches, '|', sLineBreak, [rfReplaceAll]); // get user switches
-
-   Try
-    For Switches in SwitchesList Do
-    Begin
-     Switches += ' ';
-     Switch   := '';
-
-     For I := 1 To Length(Switches) Do
-      if (Switches[I] = ' ') Then
-      Begin
-       if (Length(Switch) = 0) Then
-        Continue;
-
-       VMProcess.Parameters.Add(Switch);
-       Switch := '';
-      End Else
-       Switch += Switches[I];
-    End;
-   Finally
-    SwitchesList.Free;
-   End;
-  End;
-
 Begin
  Log.Writeln('TProject.Run()');
 
@@ -2310,7 +2285,7 @@ Begin
 
  VMProcess.Parameters.AddStrings(['-gc', IntToStr(GCMemoryLimit)+GCMemoryLimitUnits[GCMemoryLimitUnit]]);
 
- AddUserSwitches;
+ ParseSwitches(OtherVMSwitches, VMProcess);
 
  // process LCL
  TmpCaption       := MainForm.Caption;

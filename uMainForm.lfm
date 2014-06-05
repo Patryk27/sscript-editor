@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 1952
+  Left = 508
   Height = 54
-  Top = 118
+  Top = 180
   Width = 566
   AllowDropFiles = True
   Caption = 'SScript Editor'
@@ -14,7 +14,7 @@ object MainForm: TMainForm
   OnCreate = FormCreate
   OnDropFiles = FormDropFiles
   Position = poScreenCenter
-  LCLVersion = '1.2.0.3'
+  LCLVersion = '1.2.2.0'
   WindowState = wsMaximized
   object bbNewModule: TBitBtn
     Tag = 1

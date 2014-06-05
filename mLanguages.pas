@@ -20,6 +20,13 @@ Unit mLanguages;
   ls_msg_module_open_failed, ls_msg_version_conflict_older, ls_msg_version_conflict_newer,
   ls_msg_layout_name, ls_msg_nothing_is_selected, ls_msg_layout_already_exists, ls_msg_style_already_exists,
 
+  // information messages
+  ls_info_editor_has_been_associated,
+
+  // errors
+  ls_err_cannot_associate_editor,
+
+  // dialogs
   ls_dlg_card_close, ls_dlg_module_saving, ls_dlg_unsaved_files, ls_dlg_unsaved_project, ls_dlg_create_new_project,
   ls_dlg_stop_vm, ls_dlg_replace_layout, ls_dlg_layout_remove, ls_dlg_save_style, ls_dlg_style_name, ls_dlg_remove_style,
   ls_dlg_newstyle_create, ls_dlg_newstyle_clone, ls_caption_dlg_style_name,
@@ -299,6 +306,10 @@ Begin
    ls_msg_nothing_is_selected     : Result := 'Nothing is selected!';
    ls_msg_layout_already_exists   : Result := 'Layout with that name already exists!';
    ls_msg_style_already_exists    : Result := 'Style with that name already exists!';
+
+   ls_info_editor_has_been_associated: Result := 'Editor has been associated!';
+
+   ls_err_cannot_associate_editor: Result := 'Cannot associate editor with *.ssp/*.ss files! (try running program as administrator.)';
 
    ls_dlg_card_close        : Result := 'You''re about to close an unsaved card.%newline%Save it?';
    ls_dlg_module_saving     : Result := 'To save a project, each module has to be named and has to have a corresponding file on disk.%newline%Open the save dialog again?%newline%(if you choose `No`, you''ll stop saving the project)';

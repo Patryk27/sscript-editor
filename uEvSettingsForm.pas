@@ -9,8 +9,12 @@ unit uEvSettingsForm;
 interface
 
 uses
+  {$IF defined(Windows)}
+   Windows, ShellApi,
+  {$ENDIF}
+
   Classes, LCLType, SysUtils, FileUtil, SynEdit, Forms, Controls, Graphics, Dialogs,
-  ComCtrls, ExtCtrls, StdCtrls, Buttons, EditBtn, Spin, ColorBox;
+  ComCtrls, ExtCtrls, StdCtrls, Buttons, EditBtn, Spin, ColorBox, Registry;
 
 type
 
@@ -21,12 +25,14 @@ type
     Bevel2: TBevel;
     Bevel3: TBevel;
     Bevel4: TBevel;
+    Bevel5: TBevel;
     btnDeleteStyle: TBitBtn;
     btnNewStyle: TBitBtn;
     btnCancel: TBitBtn;
     btnRenameStyle: TBitBtn;
     btnSave: TBitBtn;
     btnVMSelect: TBitBtn;
+    btnAssociateEditor: TButton;
     cbAddBrackets:TCheckBox;
     cbBold: TCheckBox;
     cbEnableUndoAfterSave: TCheckBox;
@@ -47,6 +53,7 @@ type
     clrbBackgroundColor2: TColorBox;
     cbFontList: TComboBox;
     btnCompilerSelect: TBitBtn;
+    Editor_General: TPage;
     EXEOpen: TOpenDialog;
     FileTimer: TTimer;
     eCompilerExecutable: TLabeledEdit;
@@ -75,6 +82,7 @@ type
     tsFont: TTabSheet;
     tsSyntaxHighlighting: TTabSheet;
 
+    Procedure btnAssociateEditorClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
     Procedure btnDeleteStyleClick(Sender: TObject);
     Procedure btnNewStyleClick(Sender: TObject);
@@ -672,6 +680,55 @@ begin
  // close form
  Close;
 end;
+
+(* TEvSettingsForm.btnAssociateEditorClick *)
+Procedure TEvSettingsForm.btnAssociateEditorClick(Sender: TObject);
+Var Reg: TRegistry;
+
+ { AssociateExtension }
+ Procedure AssociateExtension(const Ext: String);
+ Var App: String;
+ Begin
+  App := ParamStr(0);
+
+  Reg.OpenKey('.'+Ext, True);
+  Reg.WriteString('', Ext + 'file');
+  Reg.CloseKey;
+
+  Reg.CreateKey(Ext + 'file');
+  Reg.OpenKey(Ext + 'file\DefaultIcon', True);
+  Reg.WriteString('', App + ',0');
+  Reg.CloseKey;
+
+  Reg.OpenKey(Ext + 'file\shell\open\command', True);
+  Reg.WriteString('', App + ' "%1"');
+  Reg.CloseKey;
+ End;
+
+Begin
+ Reg := TRegistry.Create;
+
+ Try
+  Try
+   Reg.RootKey := HKEY_CLASSES_ROOT;
+
+   {$IF defined(Windows)}
+    AssociateExtension('ssp');
+    AssociateExtension('ss');
+
+    SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil);
+   {$ELSE}
+    raise Exception.Create('Unsupported.');
+   {$ENDIF}
+
+   InfoMessage(ls_info_editor_has_been_associated);
+  Finally
+   Reg.Free;
+  End;
+ Except
+  ErrorMessage(ls_err_cannot_associate_editor);
+ End;
+End;
 
 (* TEvSettingsForm.btnDeleteStyleClick *)
 Procedure TEvSettingsForm.btnDeleteStyleClick(Sender: TObject);

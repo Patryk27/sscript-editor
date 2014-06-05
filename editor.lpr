@@ -43,6 +43,9 @@ Begin
 
  DefaultFormatSettings.DecimalSeparator := '.';
 
+ // set working directory (in case we're loading project by double-click (paramstr(1)) from a directory other than the editor's)
+ SetCurrentDir(ExtractFilePath(ParamStr(0)));
+
  // load configuration
  Config := TConfiguration.Create;
 

@@ -119,6 +119,7 @@ eVMExecutable.Caption=Plik maszyny wirtualnej:
 eLogFile.Caption=Plik zdarzeń:
 cbEnableLogging.Caption=Loguj zdarzenia IDE do pliku
 cbRewriteLog.Caption=Nadpisuj log za każdym razem (czyść go)
+btnAssociateEditor.Caption=Powiąż edytor z plikami *.ssp i *.ss
 
 lblCurrentLanguage.Caption=Język:
 
@@ -197,6 +198,10 @@ msg_layout_name=Nazwa układu:
 msg_nothing_is_selected=Nic nie zostało wybrane!
 msg_layout_already_exists=Układ o takiej nazwie już istnieje!
 msg_style_already_exists=Styl o takiej nazwie już istnieje!
+
+info_editor_has_been_associated=Edytor został powiązany!
+
+err_cannot_associate_editor=Nie udało się powiązać edytora z plikami *.ssp/*.ss. (spróbuj uruchomić program jako administrator.)
 
 dlg_card_close=Zamierzasz zamknąć niezapisaną kartę.%newline%Zapisać?
 dlg_module_saving=Aby projekt został zapisany, każdy moduł musi mieć swoją nazwę oraz odpowiadający mu plik na dysku.%newline%Otworzyć dialog zapisywania ponownie?%newline%(wybierając 'Nie' przerwiesz zapisywanie całego projektu)

@@ -1,7 +1,7 @@
 object EvSettingsForm: TEvSettingsForm
-  Left = 1975
+  Left = 316
   Height = 527
-  Top = 221
+  Top = 145
   Width = 727
   BorderStyle = bsSizeToolWin
   Caption = 'Environment settings'
@@ -9,7 +9,7 @@ object EvSettingsForm: TEvSettingsForm
   ClientWidth = 727
   FormStyle = fsSystemStayOnTop
   Position = poScreenCenter
-  LCLVersion = '1.2.0.3'
+  LCLVersion = '1.2.2.0'
   object SettingList: TTreeView
     Left = 0
     Height = 488
@@ -45,7 +45,7 @@ object EvSettingsForm: TEvSettingsForm
     Height = 492
     Top = 0
     Width = 486
-    PageIndex = 4
+    PageIndex = 1
     Anchors = [akTop, akLeft, akRight, akBottom]
     TabOrder = 1
     TabStop = True
@@ -489,6 +489,7 @@ object EvSettingsForm: TEvSettingsForm
             ShortCut = 57379
           end>
         MouseActions = <>
+        MouseTextActions = <>
         MouseSelActions = <>
         Lines.Strings = (
           '@("stdlib\\stdio.ss")'
@@ -1062,7 +1063,7 @@ object EvSettingsForm: TEvSettingsForm
       object cbEnableLogging: TCheckBox
         Left = 4
         Height = 19
-        Top = 232
+        Top = 264
         Width = 198
         Caption = 'Enable logging IDE events to a file'
         OnChange = cbEnableLoggingChange
@@ -1071,8 +1072,8 @@ object EvSettingsForm: TEvSettingsForm
       object eLogFile: TLabeledEdit
         Left = 4
         Height = 23
-        Top = 296
-        Width = 480
+        Top = 328
+        Width = 478
         Anchors = [akTop, akLeft, akRight]
         EditLabel.AnchorSideLeft.Control = eLogFile
         EditLabel.AnchorSideRight.Control = eLogFile
@@ -1080,8 +1081,8 @@ object EvSettingsForm: TEvSettingsForm
         EditLabel.AnchorSideBottom.Control = eLogFile
         EditLabel.Left = 4
         EditLabel.Height = 15
-        EditLabel.Top = 278
-        EditLabel.Width = 480
+        EditLabel.Top = 310
+        EditLabel.Width = 478
         EditLabel.Caption = 'Log file:'
         EditLabel.ParentColor = False
         TabOrder = 7
@@ -1089,10 +1090,27 @@ object EvSettingsForm: TEvSettingsForm
       object cbRewriteLog: TCheckBox
         Left = 4
         Height = 19
-        Top = 248
+        Top = 280
         Width = 180
         Caption = 'Rewrite log each time (clear it)'
         TabOrder = 8
+      end
+      object Bevel5: TBevel
+        Left = -8
+        Height = 2
+        Top = 256
+        Width = 518
+        Anchors = [akTop, akLeft, akRight]
+      end
+      object btnAssociateEditor: TButton
+        Left = 4
+        Height = 25
+        Top = 224
+        Width = 478
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        Caption = 'Associate editor with *.ssp and *.ss files'
+        OnClick = btnAssociateEditorClick
+        TabOrder = 9
       end
     end
     object Editor_CodeCompletion: TPage

@@ -1,8 +1,7 @@
 /*
  This is a demo of Reverse Polish Notation (RPN).
  RPN is used to calculate values of mathematical expressions like "2+2*2", "1+2+3*4+5-10/6" and so on.
- Current implementation doesn't support parentheses, unary "-" operator and
- works only on ints.
+ Current implementation doesn't support parentheses, unary "-" operator and works only on ints.
 */
 
 @("stdlib/stdio.ss")

@@ -2,8 +2,8 @@
  This program computes n-th Fibonacci number (where "n" is specified by user) using a loop.
 */
 
-@("stdlib\\stdio.ss")
-@("stdlib\\numbers.ss")
+@("stdlib/stdio.ss")
+@("stdlib/numbers.ss")
 
 use std;
 
@@ -37,4 +37,6 @@ function<int> main()
  var<int> n = read_int_t("Which Fibonacci's sequence number compute? ");
 
  println("fibonacci(" + intstr(n) + ") = "+fltstr(fib(n)));
+
+ return 0;
 }

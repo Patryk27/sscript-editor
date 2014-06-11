@@ -1,9 +1,5 @@
-/*
- Demo of SScript's input.
-*/
-
-@("stdlib\\stdio.ss")
-@("stdlib\\numbers.ss")
+@("stdlib/stdio.ss")
+@("stdlib/numbers.ss")
 
 use std;
 

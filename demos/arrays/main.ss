@@ -3,8 +3,8 @@
  It basically "explodes" (splits into tokens) by space (' ') string entered by user and displays it.
 */
 
-@("stdlib\\stdio.ss")
-@("stdlib\\string.ss")
+@("stdlib/stdio.ss")
+@("stdlib/string.ss")
 
 use std;
 

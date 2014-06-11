@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   <config>
-    <version>33</version>
+    <version>34</version>
     <project_type>0</project_type>
     <card_count>1</card_count>
     <opened_card>0</opened_card>
     <output_file>project.ssc</output_file>
-    <header_file></header_file>
     <bytecode_output></bytecode_output>
   </config>
   <compiler>
     <switches></switches>
     <include_path>$file;$compiler</include_path>
     <optimization_level>2</optimization_level>
-    <_initcode>0</_initcode>
-    <_Cconst>0</_Cconst>
+    <cs__internal_const>0</cs__internal_const>
   </compiler>
   <vm>
     <switches></switches>
     <gc_memory_limit>128</gc_memory_limit>
     <gc_memory_limit_unit>1</gc_memory_limit_unit>
-    <c_time>0</c_time>
-    <c_wait>1</c_wait>
+    <vm_time>0</vm_time>
+    <vm_wait>1</vm_wait>
+    <vm_jit>0</vm_jit>
   </vm>
   <card_0>
     <caption>main.ss</caption>
     <file>main.ss</file>
-    <caret_x>8</caret_x>
-    <caret_y>9</caret_y>
+    <caret_x>11</caret_x>
+    <caret_y>5</caret_y>
     <is_main>1</is_main>
   </card_0>
 </project>

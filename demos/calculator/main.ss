@@ -3,8 +3,8 @@
  It can add, subtract, multiply and divide two numbers entered by user.
 */
 
-@("stdlib\\stdio.ss")
-@("stdlib\\numbers.ss")
+@("stdlib/stdio.ss")
+@("stdlib/numbers.ss")
 
 use std;
 
@@ -12,7 +12,7 @@ function<int> main()
 {
  while (true)
  {
-  var<char> ch = read_char_t("Enter operation (+ - * / e): ");
+  var<char> ch = read_char_t("Enter operation (+ - * / e(xit)): ");
   newline();
 
   if (ch == 'e')

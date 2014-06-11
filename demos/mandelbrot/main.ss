@@ -3,7 +3,7 @@
  It renders The Mandelbrot set.
 */
 
-@("stdlib\\stdio.ss")
+@("stdlib/stdio.ss")
 
 use std;
 

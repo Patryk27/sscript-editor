@@ -159,7 +159,7 @@ type
  Procedure AddRecentlyOpened(const FileName: String);
 
  Implementation
-Uses mProject, mLanguages, mFunctions, mLayouts, mStyles, mMessages,
+Uses mProject, mLanguages, mFunctions, mLayouts, mStyles, mMessages, mLogger,
      ClipBrd,
      uProjectSettings, uEvSettingsForm, uAboutForm, uCompilerOutput, uFindForm, uIdentifierListForm,
      uCompileStatusForm, uCodeEditor, uLayoutManagerForm;
@@ -169,6 +169,8 @@ Uses mProject, mLanguages, mFunctions, mLayouts, mStyles, mMessages,
 (* AddRecentlyOpened *)
 Procedure AddRecentlyOpened(const FileName: String);
 Begin
+ Log.Writeln('Adding new file to the ''recently opened'' list: %s', [FileName]);
+
  With RecentlyOpened do
  Begin
   if (IndexOf(FileName) = -1) Then
@@ -181,12 +183,13 @@ Begin
    Exchange(IndexOf(FileName), 0);
   End;
 
-  // remove the first elements, until no more than specified number of items are lying on the list
+  // remove the last elements, until no more than specified number of items are lying on the list
   While (Count > Config.getInteger(ceMaxRecentlyOpened)) Do
-   Delete(0);
+   Delete(Count-1);
  End;
 
  Config.setRecentlyOpened(RecentlyOpened);
+ MainForm.UpdateRecentlyOpened;
 End;
 
 (* getProjectPnt *)
@@ -312,7 +315,10 @@ Procedure TMainForm.OnLanguageLoaded;
 
    // try to open
    if (Project.Load(FileName)) Then
+   Begin
+    AddRecentlyOpened(FileName);
     Exit(True);
+   End;
 
    // if failed, display error message
    ErrorMessage(ls_msg_project_open_failed_ex, [FileName]);

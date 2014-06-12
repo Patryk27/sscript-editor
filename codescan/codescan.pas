@@ -210,7 +210,7 @@ Unit CodeScan;
         Function findSymbol(const NamespaceName, SymbolName: String): TPhysicalSymbol;
 
         Function read_type: String;
-        Function read_and_mark(const TokenUntil: TTokenSet): String;
+        Function read_and_mark(const TokenUntil: TTokenSet; const ParseConstructions: Boolean=True): String;
 
         Procedure AddIdentifier(const Identifier: TIdentifier);
         Procedure AddIdentifier(const RefTo: TPhysicalSymbol; const Token: TToken_P);
@@ -588,12 +588,11 @@ Begin
   if (Parser.next_t = _LOWER) Then
   Begin
    Parser.eat(_LOWER);
-   read_type();
+   Result += '<'+read_type()+'>';
    Parser.eat(_GREATER);
 
-   if (Parser.next_t <> _BRACKET1_OP) Then
-    Parser.eat(_BRACKET1_OP);
-   read_and_mark([_BRACKET1_CL]);
+   Parser.eat(_BRACKET1_OP);
+   Result += '('+read_and_mark([_BRACKET1_CL], False)+')';
   End;
  End Else
 
@@ -614,34 +613,39 @@ Begin
 End;
 
 (* TCodeScanner.read_and_mark *)
-Function TCodeScanner.read_and_mark(const TokenUntil: TTokenSet): String;
-Var BrDeep: Integer;
-    Token : TToken_P;
+Function TCodeScanner.read_and_mark(const TokenUntil: TTokenSet; const ParseConstructions: Boolean): String;
+Var Current, Previous: TToken_P;
+    BracketDeep      : Integer;
 
     NamespaceName, IdentifierName: String;
 Begin
  Result := '';
- BrDeep := 0;
+
+ BracketDeep    := 0;
+ Previous.Token := noToken;
 
  Repeat
-  Token := Parser.read;
+  Current := Parser.read;
 
-  if (BrDeep < 0) Then
+  if (BracketDeep < 0) Then
    Exit;
 
-  if (Token.Token in TokenUntil) and (Token.Token in [_BRACKET1_OP, _BRACKET2_OP, _BRACKET3_OP, _BRACKET1_CL, _BRACKET2_CL, _BRACKET3_CL]) and (BrDeep = 0) Then
+  if (Current.Token in TokenUntil) and (Current.Token in [_BRACKET1_OP, _BRACKET2_OP, _BRACKET3_OP, _BRACKET1_CL, _BRACKET2_CL, _BRACKET3_CL]) and (BracketDeep = 0) Then
    Exit;
 
-  if (Token.Value <> null) and (not (Token.Token in TokenUntil)) Then
+  if (Current.Value <> null) and (not (Current.Token in TokenUntil)) Then
   Begin
-   if (Token.Token = _STRING) Then
-    Result += '"'+VarToStr(Token.Value)+'"' Else
-    Result += VarToStr(Token.Value);
+   if (isKeyword(VarToStr(Previous.Value))) Then
+    Result += ' ';
+
+   if (Current.Token = _STRING) Then
+    Result += '"'+VarToStr(Current.Value)+'"' Else
+    Result += VarToStr(Current.Value);
   End;
 
-  Case Token.Token of
-   _BRACKET1_OP, _BRACKET2_OP, _BRACKET3_OP: Inc(BrDeep);
-   _BRACKET1_CL, _BRACKET2_CL, _BRACKET3_CL: Dec(BrDeep);
+  Case Current.Token of
+   _BRACKET1_OP, _BRACKET2_OP, _BRACKET3_OP: Inc(BracketDeep);
+   _BRACKET1_CL, _BRACKET2_CL, _BRACKET3_CL: Dec(BracketDeep);
 
    { identifier }
    _IDENTIFIER:
@@ -650,32 +654,42 @@ Begin
     Begin
      Parser.eat(_DOUBLE_COLON); // `::`
 
-     NamespaceName  := Token.Value;
+     NamespaceName  := Current.Value;
      IdentifierName := Parser.read_ident;
 
      AddIdentifier(findNamespace(NamespaceName), Parser.next(-3));
      AddIdentifier(findSymbol(NamespaceName, IdentifierName), Parser.next(-1));
     End Else
     Begin
-     AddIdentifier(findSymbol(Token.Value), Parser.next(-1));
+     AddIdentifier(findSymbol(Current.Value), Parser.next(-1));
     End;
    End;
 
    { type }
-   _TYPE: ParseType;
+   _TYPE:
+   if (ParseConstructions) Then
+    ParseType;
 
    { var }
-   _VAR: ParseVar;
+   _VAR:
+   if (ParseConstructions) Then
+    ParseVar;
 
    { const }
-   _CONST: ParseConst;
+   _CONST:
+   if (ParseConstructions) Then
+    ParseConst;
 
    { use }
-   _USE: ParseUse;
+   _USE:
+   if (ParseConstructions) Then
+    ParseUse;
   End;
 
-  if (Token.Token in TokenUntil) and (BrDeep = 0) Then
+  if (Current.Token in TokenUntil) and (BracketDeep = 0) Then
    Exit;
+
+  Previous := Current;
  Until (False);
 End;
 

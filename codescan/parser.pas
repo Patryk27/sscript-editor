@@ -145,6 +145,14 @@ Begin
   End;
  End;
 
+ New(PToken);
+ PToken^.Token    := _EOF;
+ PToken^.Position := 0;
+ PToken^.Line     := 0;
+ PToken^.Char     := 0;
+ PToken^.FileName := TokenFileName;
+ TokenList.Add(PToken);
+
  TokenPos      := 0;
  CurrentDeep   := 0;
  DontFailOnEOF := False;
@@ -203,6 +211,7 @@ Begin
   Begin
    Result.PBegin := TokenList.Last^;
    Result.PEnd   := TokenList.Last^;
+
    Exit;
   End;
 
@@ -274,7 +283,7 @@ End;
 }
 Function TParser.read: TToken_P;
 Begin
- if (TokenPos < 0) or (TokenPos >= TokenList.Count) Then
+ if (TokenPos >= TokenList.Count) Then
   raise EParserError.Create(Language.getText(ls_parser_eof));
 
  Result := TokenList[TokenPos]^;
@@ -313,7 +322,6 @@ Function TParser.next_pnt(const I: Integer=0): PToken_P;
 Begin
  if (TokenPos+I >= TokenList.Count) Then
   Result := TokenList.Last Else
-
   Result := TokenList[TokenPos+I];
 End;
 

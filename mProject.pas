@@ -850,19 +850,22 @@ Begin
      ErrFile := FileName;
     End;
 
-    if (AnsiCompareFileName(ErrFile, getFileName) = 0) Then
+    if (ForceParse) Then
     Begin
-     Card := self;
-    End Else
-    Begin
-     Card := Project.FindCard(ErrFile);
+     if (AnsiCompareFileName(ErrFile, getFileName) = 0) Then
+     Begin
+      Card := self;
+     End Else
+     Begin
+      Card := Project.FindCard(ErrFile);
 
-     if (Card = nil) Then
-      Card := Project.OpenCard(ErrFile);
+      if (Card = nil) Then
+       Card := Project.OpenCard(ErrFile);
+     End;
+
+     if (Card <> nil) Then
+      CodeEditor.Tabs.ActivePageIndex := Project.CardList.IndexOf(Card);
     End;
-
-    if (Card <> nil) Then
-     CodeEditor.Tabs.ActivePageIndex := Project.CardList.IndexOf(Card);
 
     Msg := Language.getText(ls_codescan_failed, [ErrFile, Project.ParseError.Line, Project.ParseError.Char, E.Message]);
 

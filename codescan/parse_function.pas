@@ -11,9 +11,15 @@ Begin
  With Parser do
  Begin
   // read return type
-  eat(_LOWER);
-  Return := read_type;
-  eat(_GREATER);
+  if (next_t = _LOWER) Then
+  Begin
+   eat(_LOWER);
+   Return := read_type;
+   eat(_GREATER);
+  End Else
+  Begin
+   Return := 'void';
+  End;
 
   // prepare class instance
   Func            := TFunction.Create(next, getCurrentRange, '');

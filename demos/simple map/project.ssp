@@ -12,7 +12,7 @@
     <switches></switches>
     <include_path>$file;$compiler</include_path>
     <optimization_level>2</optimization_level>
-    <cs__internal_const>0</cs__internal_const>
+    <cs__internal_const>1</cs__internal_const>
   </compiler>
   <vm>
     <switches></switches>
@@ -25,8 +25,8 @@
   <card_0>
     <caption>main.ss</caption>
     <file>main.ss</file>
-    <caret_x>2</caret_x>
-    <caret_y>75</caret_y>
+    <caret_x>1</caret_x>
+    <caret_y>1</caret_y>
     <is_main>1</is_main>
   </card_0>
 </project>

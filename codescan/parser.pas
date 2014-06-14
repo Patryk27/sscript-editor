@@ -147,8 +147,8 @@ Begin
 
  New(PToken);
  PToken^.Token    := _EOF;
- PToken^.Position := 0;
- PToken^.Line     := 0;
+ PToken^.Position := High(PToken^.Position);
+ PToken^.Line     := High(PToken^.Line);
  PToken^.Char     := 0;
  PToken^.FileName := TokenFileName;
  TokenList.Add(PToken);

@@ -39,7 +39,9 @@ uses
 
 Begin
  RequireDerivedFormResource := True;
+
  Application.Initialize;
+ Application.Title := 'SScript Editor';
 
  DefaultFormatSettings.DecimalSeparator := '.';
 
@@ -77,9 +79,6 @@ Begin
   Language := TLanguage.Create(getLanguagesDir+Config.getString(ceLanguage));
   MainForm.OnLanguageLoaded;
 
-  // run application
-  Application.Title := 'SScript Editor';
-
   Log.Writeln('-- starting application main thread --');
   Application.Run;
 
@@ -87,7 +86,7 @@ Begin
   With LayoutManager.getCurrentLayout do
   Begin
    Update;
-   SaveToFile(getApplicationDir+Config.getString(ceLayoutFile));
+   SaveToFile(getLayoutsDir+Config.getString(ceLayoutFile));
   End;
  Except
   On E: Exception Do

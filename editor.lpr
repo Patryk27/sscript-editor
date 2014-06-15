@@ -41,7 +41,6 @@ Begin
  RequireDerivedFormResource := True;
 
  Application.Initialize;
- Application.Title := 'SScript Editor';
 
  DefaultFormatSettings.DecimalSeparator := '.';
 

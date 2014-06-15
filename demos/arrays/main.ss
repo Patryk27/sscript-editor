@@ -14,8 +14,8 @@ function<int> main()
  var<string[]> words = strexplode(input, ' ');
 
  println("You entered:");
- for (var<int> i=0; i<words.length(); i++)
-  println(words[i]);
+ foreach (var<string> word in words)
+  println(word);
 
  return 0;
 }

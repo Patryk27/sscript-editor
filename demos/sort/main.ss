@@ -72,4 +72,6 @@ function<int> main()
  sort(tab, 0, tab.length()-1);
 
  display(tab);
+
+ return 0;
 }

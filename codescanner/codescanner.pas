@@ -670,7 +670,7 @@ Begin
  Repeat
   Current := Parser.read;
 
-  if (BracketDeep < 0) Then
+  if (BracketDeep < 0) or (Current.Token = _EOF) Then
    Exit;
 
   if (Current.Token in TokenUntil) and (Current.Token in [_BRACKET1_OP, _BRACKET2_OP, _BRACKET3_OP, _BRACKET1_CL, _BRACKET2_CL, _BRACKET3_CL]) and (BracketDeep = 0) Then

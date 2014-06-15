@@ -30,6 +30,7 @@ oGotoLine.Caption=Idź do wiersza
 menuCode.Caption=Kod
 oCommentSelected.Caption=Zakomentuj zaznaczony fragment
 oUncommentSelected.Caption=Odkomentuj zaznaczony fragment
+oPurgeScannerCache.Caption=Wyczyść cache skanera kodu
 
 menuProject.Caption=Projekt
 oNewProject.Caption=Nowy

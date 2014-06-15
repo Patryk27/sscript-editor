@@ -22,11 +22,19 @@ Begin
     CurrentFunction.SymbolList.Add(TSymbol.Create(stVariable, Vari)) Else
     CurrentNamespace.SymbolList.Add(TSymbol.Create(stVariable, Vari));
 
+   // var<foo> xyz = ...;
    if (next_t = _EQUAL) THen
    Begin
     eat(_EQUAL);
     read_and_mark([_SEMICOLON, _COMMA]);
     StepBack; // 'read_and_mark' eats previous token
+   End Else
+
+   // var<foo[]> xyz(...);
+   if (next_t = _BRACKET1_OP) Then
+   Begin
+    eat(_BRACKET1_OP);
+    read_and_mark([_BRACKET1_CL]);
    End;
 
    if (next_t in [_SEMICOLON, _IN]) Then

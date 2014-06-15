@@ -151,7 +151,7 @@ type
 
        EditorVersion: Single = 100*vMajor+vMinor; // this is saved into the `version` field in project files.
 
-       StringVersion = '0.3.4 nightly';
+       StringVersion = '0.3.4';
        BaseCaption   = 'SScript Editor v'+StringVersion;
 
  // variables

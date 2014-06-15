@@ -639,6 +639,12 @@ Begin
   End;
  End Else
 
+ { enum }
+ if (Token.Token = _ENUM) Then
+ Begin
+  Result := 'enum';
+ End Else
+
  { unexpected token }
   raise EParserException.Create(Language.getText(ls_unexpected, [VarToStr(Token.Value)]));
 

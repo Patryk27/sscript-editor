@@ -391,6 +391,9 @@ Procedure TMainForm.FormCreate(Sender: TObject);
 begin
  ShowHint := True;
 
+ // set taskbar name
+ Application.Title := 'SScript Editor';
+
  // set some values
  Application.OnIdle := @AppIdle;
  DoubleBuffered     := True;

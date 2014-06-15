@@ -293,9 +293,8 @@ End;
 (* TCard.PrepareItemData *)
 Procedure TCard.PrepareItemData(const Data: String);
 Begin
- ItemData.Delimiter       := IntellisenseDelimiter;
- ItemData.StrictDelimiter := True;
- ItemData.DelimitedText   := Data;
+ ItemData.Clear;
+ ExtractStrings([IntellisenseDelimiter], [], PChar(Data), ItemData);
 End;
 
 (* TCard.UpdateIntellisense *)
@@ -487,7 +486,8 @@ begin
   if (ItemData[0] = 'const') Then
   Begin
    // constant value
-   TextOut(TmpX, Rect.Top, ' -> '+ItemData[3]);
+   if (ItemData.Count > 3) Then
+    TextOut(TmpX, Rect.Top, ' -> '+ItemData[3]);
   End;
 
   Font.Style := [];

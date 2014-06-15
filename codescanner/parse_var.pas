@@ -29,12 +29,14 @@ Begin
     StepBack; // 'read_and_mark' eats previous token
    End;
 
-   if (next_t = _SEMICOLON) Then
+   if (next_t in [_SEMICOLON, _IN]) Then
    Begin
-    eat(_SEMICOLON);
+    eat(next_t);
     Break;
    End Else
+   Begin
     eat(_COMMA);
+   End;
   End;
  End;
 End;

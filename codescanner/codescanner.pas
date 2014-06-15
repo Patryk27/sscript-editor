@@ -4,10 +4,10 @@
 *)
 {$H+}
 {$MODESWITCH ADVANCEDRECORDS}
-Unit CodeScan;
+Unit CodeScanner;
 
  Interface
- Uses FGL, Classes, Parser, Tokens;
+ Uses FGL, Classes, CodeScannerCache, Parser, Tokens;
 
  { TIdentifier }
  Type TIdentifier =
@@ -56,6 +56,8 @@ Unit CodeScan;
         Constructor Create(const fType: TSymbolType; const fValue: TPhysicalSymbol);
         Destructor Destroy; override;
 
+        Function Clone: TSymbol;
+
         Function getPhysSymbol: TPhysicalSymbol;
         Function getName: String;
         Function getToken: TToken_P;
@@ -66,22 +68,28 @@ Unit CodeScan;
  Type TPhysicalSymbol =
       Class
        Private
+        // basic data
         Name : String;
         Token: TToken_P;
         Range: TRange;
 
+        // associated scanner
+        Scanner: TCodeScanner;
+
+        // is it a symbol imported from a library?
         LibrarySymbol: Boolean;
 
        Private
         Procedure SymbolCreate; virtual; // called by TPhysicalSymbol.Create() at the end of routine
 
        Public
-        Constructor Create(const fToken: TToken_P; const fRange: TRange; const fName: String; const fLibrarySymbol: Boolean=False);
+        Constructor Create(const fScanner: TCodeScanner; const fToken: TToken_P; const fRange: TRange; const fName: String; const fLibrarySymbol: Boolean=False);
 
        Public
         Property getName: String read Name;
         Property getToken: TToken_P read Token;
         Property getRange: TRange read Range;
+        Property getScanner: TCodeScanner read Scanner;
         Property isLibrarySymbol: Boolean read LibrarySymbol;
        End;
 
@@ -139,13 +147,12 @@ Unit CodeScan;
         Procedure SymbolCreate; override;
 
        Public
-        DisposeSymbols: Boolean;
-
-       Public
         Destructor Destroy; override;
 
         Function findSymbol(const SymbolName: String): TSymbol;
         Function findPhysSymbol(const SymbolName: String): TPhysicalSymbol;
+
+        Function Clone: TNamespace;
 
        Public
         Property getSymbolList: TSymbolList read SymbolList;
@@ -173,30 +180,51 @@ Unit CodeScan;
  Type TCodeScanner =
       Class
        Private
-        Parser        : TParser;
-        SearchPaths   : TStringList;
-        SearchPathsStr: String;
+        // parser
+        Parser: TParser;
+
+        // include paths
+        IncludePaths   : TStringList;
+        IncludePathsStr: String;
+
+        // identifier list
         IdentifierList: TIdentifierList;
 
+        // files
         ParsedFile, MainFile, CompilerFile: String;
 
+        // are we the main file
         isMain: Boolean;
 
-        inFunction   : Boolean;
+        // global/local scope
+        inFunction: Boolean;
+
+        // current scope
+        CurrentNamespace: TNamespace;
+        CurrentFunction : TFunction;
+
+        // list of namespaces
         NamespaceList: TNamespaceList;
 
-        DefaultNamespace, CurrentNamespace: TNamespace;
-        NamespaceVisibilityList           : TNamespaceVisibilityList;
-        CurrentFunction                   : TFunction;
+        // default (self) namespace
+        DefaultNamespace: TNamespace;
 
+        // namespace visibility list
+        NamespaceVisibilityList: TNamespaceVisibilityList;
+
+        // map of parsed files
         ParsedFiles: TParsedFilesMap;
+
+        // code scanner cache instance (should be one per TProject)
+        CSCache: TCodeScannerCache;
 
        Private
         Function findNamespace(const Name: String): TNamespace;
         Function findFile(const FName: String; out FoundFile: String): Boolean;
 
+        Function ParseZipInclude(const FileName: String): TCodeScanner;
+
         Procedure ParseInclude;
-        Procedure ParseZipInclude(const FileName: String);
         Procedure ParseUse;
         Procedure ParseNamespace;
         Procedure ParseType;
@@ -219,9 +247,11 @@ Unit CodeScan;
         CurrentlyParsedFile: String;
 
        Public
-        Constructor Create(const Code: TStrings; const fFileName, fMainFile, fCompilerFile, fSearchPaths: String; const fIsMain: Boolean);
-        Constructor Create(const fFileName, fMainFile, fCompilerFile, fSearchPaths: String; const fIsMain: Boolean);
+        Constructor Create(const Code: TStrings; const fFileName, fMainFile, fCompilerFile, fIncludePaths: String; const fIsMain: Boolean);
+        Constructor Create(const fFileName, fMainFile, fCompilerFile, fIncludePaths: String; const fIsMain: Boolean);
         Destructor Destroy; override;
+
+        Procedure EnableCache(const fCSCache: TCodeScannerCache);
 
         Function Parse: TIdentifierList;
 
@@ -261,6 +291,12 @@ End;
 Destructor TSymbol.Destroy;
 Begin
  getPhysSymbol.Free;
+End;
+
+(* TSymbol.Clone *)
+Function TSymbol.Clone: TSymbol;
+Begin
+ Result := TSymbol.Create(Typ, getPhysSymbol);
 End;
 
 (* TSymbol.getPhysSymbol *)
@@ -303,8 +339,9 @@ End;
 
 // -------------------------------------------------------------------------- //
 (* TPhysicalSymbol.Create *)
-Constructor TPhysicalSymbol.Create(const fToken: TToken_P; const fRange: TRange; const fName: String; const fLibrarySymbol: Boolean);
+Constructor TPhysicalSymbol.Create(const fScanner: TCodeScanner; const fToken: TToken_P; const fRange: TRange; const fName: String; const fLibrarySymbol: Boolean);
 Begin
+ Scanner       := fScanner;
  Token         := fToken;
  Range         := fRange;
  Name          := fName;
@@ -375,20 +412,16 @@ End;
 (* TNamespace.SymbolCreate *)
 Procedure TNamespace.SymbolCreate;
 Begin
- SymbolList     := TSymbolList.Create;
- DisposeSymbols := True;
+ SymbolList := TSymbolList.Create;
 End;
 
 (* TNamespace.Destroy *)
 Destructor TNamespace.Destroy;
 Var Symbol: TSymbol;
 Begin
- if (DisposeSymbols) Then
- Begin
-  For Symbol in SymbolList Do
-   Symbol.Free;
-  SymbolList.Free;
- End;
+ For Symbol in SymbolList Do
+  Symbol.Free;
+ SymbolList.Free;
 End;
 
 (* TNamespace.findSymbol *)
@@ -410,6 +443,16 @@ Begin
  if (Symbol = nil) Then
   Result := nil Else
   Result := Symbol.getPhysSymbol;
+End;
+
+(* TNamespace.Clone *)
+Function TNamespace.Clone: TNamespace;
+Var Symbol: TSymbol;
+Begin
+ Result := TNamespace.Create(Scanner, Token, Range, Name, LibrarySymbol);
+
+ For Symbol in SymbolList Do
+  Result.SymbolList.Add(Symbol.Clone());
 End;
 
 // -------------------------------------------------------------------------- //
@@ -437,9 +480,9 @@ Function TCodeScanner.findFile(const FName: String; out FoundFile: String): Bool
 Var Path: String;
     I   : int32;
 Begin
- For I := 0 To SearchPaths.Count-1 Do
+ For I := 0 To IncludePaths.Count-1 Do
  Begin
-  Path := SearchPaths[I];
+  Path := IncludePaths[I];
 
   if (Length(Path) > 0) Then
   Begin
@@ -457,8 +500,8 @@ Begin
  Exit(False);
 End;
 
-{$I parse_include.pas}
 {$I parse_zip_include.pas}
+{$I parse_include.pas}
 {$I parse_use.pas}
 {$I parse_namespace.pas}
 {$I parse_type.pas}
@@ -721,48 +764,70 @@ End;
 
 // -------------------------------------------------------------------------- //
 (* TCodeScanner.Create *)
-Constructor TCodeScanner.Create(const Code: TStrings; const fFileName, fMainFile, fCompilerFile, fSearchPaths: String; const fIsMain: Boolean);
+Constructor TCodeScanner.Create(const Code: TStrings; const fFileName, fMainFile, fCompilerFile, fIncludePaths: String; const fIsMain: Boolean);
 Var Str: String;
     I  : uint16;
 Begin
- Parser         := TParser.Create(TStringList(Code), fFileName);
- ParsedFile     := fFileName;
- MainFile       := fMainFile;
- CompilerFile   := fCompilerFile;
- SearchPathsStr := fSearchPaths;
+ // create parser
+ Parser := TParser.Create(TStringList(Code), fFileName);
+
+ // assign parameters
+ ParsedFile      := fFileName;
+ MainFile        := fMainFile;
+ CompilerFile    := fCompilerFile;
+ IncludePathsStr := fIncludePaths;
 
  isMain := fIsMain;
  if (isMain) Then
   ParsedFiles := TParsedFilesMap.Create Else
   ParsedFiles := nil; // should be set manually then
 
- SearchPaths               := TStringList.Create;
- SearchPaths.Delimiter     := ';';
- SearchPaths.DelimitedText := SearchPathsStr;
+ // parse include paths
+ IncludePaths               := TStringList.Create;
+ IncludePaths.Delimiter     := ';';
+ IncludePaths.DelimitedText := IncludePathsStr;
 
- if (SearchPaths.Count > 0) Then
+ if (IncludePaths.Count > 0) Then
  Begin
-  For I := 0 To SearchPaths.Count-1 Do
+  For I := 0 To IncludePaths.Count-1 Do
   Begin
-   Str := SearchPaths[I];
+   Str := IncludePaths[I];
 
    Str := StringReplace(Str, '$file', ExtractFilePath(fFileName), [rfReplaceAll]);
    Str := StringReplace(Str, '$main', ExtractFilePath(fMainFile), [rfReplaceAll]);
    Str := StringReplace(Str, '$compiler', ExtractFilePath(fCompilerFile), [rfReplaceAll]);
 
-   SearchPaths[I] := Str;
+   IncludePaths[I] := Str;
   End;
  End;
+
+ // create primary classes
+ IdentifierList          := TIdentifierList.Create;
+ NamespaceVisibilityList := TNamespaceVisibilityList.Create;
+ NamespaceList           := TNamespaceList.Create;
+
+ // create defalut namespace
+ DefaultNamespace := TNamespace.Create(self, Parser.next, Parser.getCurrentRange, 'self');
+ NamespaceList.Add(DefaultNamespace);
+
+ CurrentNamespace := DefaultNamespace;
+ NamespaceVisibilityList.Add(TNamespaceVisibility.Create(Parser.getCurrentRange, DefaultNamespace));
+
+ NamespaceVisibilityList.Add(TNamespaceVisibility.Create(Parser.getCurrentRange, DefaultNamespace));
+
+ // reset scope
+ inFunction      := False;
+ CurrentFunction := nil;
 End;
 
 (* TCodeScanner.Create *)
-Constructor TCodeScanner.Create(const fFileName, fMainFile, fCompilerFile, fSearchPaths: String; const fIsMain: Boolean);
+Constructor TCodeScanner.Create(const fFileName, fMainFile, fCompilerFile, fIncludePaths: String; const fIsMain: Boolean);
 Var Code: TStringList;
 Begin
  Code := TStringList.Create;
  Code.LoadFromFile(fFileName);
  Try
-  Create(Code, fFileName, fMainFile, fCompilerFile, fSearchPaths, fIsMain);
+  Create(Code, fFileName, fMainFile, fCompilerFile, fIncludePaths, fIsMain);
  Finally
   Code.Free;
  End;
@@ -773,12 +838,23 @@ Destructor TCodeScanner.Destroy;
 Var NSV: TNamespaceVisibility;
     NS : TNamespace;
 Begin
+ // check cache
+ if (CSCache = nil) Then
+  raise ECodeScannerCacheException.Create('CSCache = nil');
+
  // identifier list
  IdentifierList.Free;
 
  // namespace list
  For NS in NamespaceList Do
+ Begin
+  // before freeing a namespace, check if it doesn't belong to a cached scanner (most likely it will)
+  if (CSCache.findCodeScanner(NS.getScanner)) Then
+   Continue;
+
   NS.Free;
+ End;
+
  NamespaceList.Free;
 
  // namespace visibility list
@@ -792,12 +868,17 @@ Begin
  // included files
  if (isMain) Then
  Begin
-  //For I := 0 To ParsedFiles.Count-1 Do
-  // if (ParsedFiles.Data[I] <> nil) and (ParsedFiles.Data[I] <> self) Then
-  //  TCodeScanner(ParsedFiles.Data[I]).Free; // @TODO
-
   ParsedFiles.Free;
  End;
+End;
+
+(* TCodeScanner.EnableCache *)
+{
+ Sets CSCache field to given fCSCache which enables use of the CodeScanner cache feature.
+}
+Procedure TCodeScanner.EnableCache(const fCSCache: TCodeScannerCache);
+Begin
+ CSCache := fCSCache;
 End;
 
 (* TCodeScanner.Parse *)
@@ -808,27 +889,15 @@ Begin
 
  CurrentlyParsedFile := ParsedFile;
 
- IdentifierList := TIdentifierList.Create;
- Result         := IdentifierList;
-
- NamespaceVisibilityList := TNamespaceVisibilityList.Create;
- NamespaceList           := TNamespaceList.Create;
+ Result := IdentifierList;
 
  if (Parser.getTokenList.Count = 0) Then
   Exit;
 
- DefaultNamespace := TNamespace.Create(Parser.next, Parser.getCurrentRange, 'self');
- NamespaceList.Add(DefaultNamespace);
-
- CurrentNamespace := DefaultNamespace;
- NamespaceVisibilityList.Add(TNamespaceVisibility.Create(Parser.getCurrentRange, DefaultNamespace));
-
- inFunction      := False;
- CurrentFunction := nil;
-
- NamespaceVisibilityList.Add(TNamespaceVisibility.Create(Parser.getCurrentRange, DefaultNamespace));
-
+ // parse file
  While (Parser.Can) Do
+ Begin
   ParseToken;
+ End;
 End;
 End.

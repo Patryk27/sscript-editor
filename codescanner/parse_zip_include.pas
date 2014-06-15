@@ -1,7 +1,9 @@
 (* TCodeScanner.ParseZipInclude *)
-Procedure TCodeScanner.ParseZipInclude(const FileName: String);
+Function TCodeScanner.ParseZipInclude(const FileName: String): TCodeScanner;
 Const ChunkSize = 1024;
-Var Process    : TProcess;
+Var Scanner: TCodeScanner;
+
+    Process    : TProcess;
     OutputChunk: Array[0..ChunkSize] of Char;
     OutputData : String = '';
     Output     : TStringList;
@@ -66,19 +68,21 @@ Var Process    : TProcess;
      if (not Scan) Then
       Continue;
 
-     if (Copy(Line, 1, Pos(' ', Line)-1) = 'namespace') Then // change namespace
+     // namespace change
+     if (Copy(Line, 1, Pos(' ', Line)-1) = 'namespace') Then
      Begin
       Delete(Line, 1, Pos(' ', Line));
 
-      Namespace := findNamespace(Line);
+      Namespace := Scanner.findNamespace(Line);
 
       if (Namespace = nil) Then
       Begin
-       Namespace := TNamespace.Create(Token, Parser.getCurrentRange, Line, True);
-       NamespaceList.Add(Namespace);
+       Namespace := TNamespace.Create(Scanner, Token, Parser.getCurrentRange, Line, True);
+       Scanner.NamespaceList.Add(Namespace);
       End;
      End Else
-     Begin // parse symbol
+     Begin
+      // parsing symbol
       if (Namespace = nil) Then
        raise EParserException.Create('Compiler output is corrupted (#1).');
 
@@ -87,7 +91,7 @@ Var Process    : TProcess;
       Data.DelimitedText   := Line;
 
       if (Data[0] = 'function') Then
-       mFunc := TFunction.Create(Token, Range, '', True);
+       mFunc := TFunction.Create(Scanner, Token, Range, '', True);
 
       // look for properties
       SymbolName := '';
@@ -173,8 +177,8 @@ Var Process    : TProcess;
       Case Data[0] of
        'function': Namespace.SymbolList.Add(TSymbol.Create(stFunction, mFunc));
        'var'     : Namespace.SymbolList.Add(TSymbol.Create(stVariable, mVar));
-       'const'   : Namespace.SymbolList.Add(TSymbol.Create(stConstant, TVariable.Create(Token, Range, SymbolName, True)));
-       'type'    : Namespace.SymbolList.Add(TSymbol.Create(stType, TType.Create(Token, Range, SymbolName, True)));
+       'const'   : Namespace.SymbolList.Add(TSymbol.Create(stConstant, TVariable.Create(Scanner, Token, Range, SymbolName, True)));
+       'type'    : Namespace.SymbolList.Add(TSymbol.Create(stType, TType.Create(Scanner, Token, Range, SymbolName, True)));
 
        else
         raise EParserException.CreateFmt('Compiled output is corrupted (#3: %s)', [Data[0]]);
@@ -187,17 +191,25 @@ Var Process    : TProcess;
   End;
 
 Begin
- if (not FileExists(Config.getString(ceCompilerExecutable))) Then // error: compiler executable not found
+ // error: compiler executable not found
+ if (not FileExists(Config.getString(ceCompilerExecutable))) Then
   raise EParserException.Create('SScript Compiler is required to parse SScript libraries - but no such found.');
 
+ // create scanner
+ Scanner := TCodeScanner.Create(FileName, MainFile, CompilerFile, IncludePathsStr, False);
+ Scanner.EnableCache(CSCache);
+
+ // prepare token
  Token := Parser.next(-2);
  Inc(Token.Char);
 
  Range.PBegin := Token;
  Range.PEnd   := Token;
 
- OutputChunk[0] := #0; // just for the compiler to stop complaining about "uninitialized variable"
+ // just for the FPC compiler to stop complaining about "uninitialized variable"
+ OutputChunk[0] := #0;
 
+ // create process
  Process := TProcess.Create(nil);
 
  Try
@@ -238,4 +250,12 @@ Begin
  Finally
   Process.Free;
  End;
+
+ // update cache
+ if (CSCache <> nil) Then
+ Begin
+  CSCache.AddOrUpdate(FileName, Scanner);
+ End;
+
+ Result := Scanner;
 End;

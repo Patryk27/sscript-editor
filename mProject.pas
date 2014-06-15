@@ -7,7 +7,7 @@
 Unit mProject;
 
  Interface
- Uses uMainForm, CodeScan, Tokens, LCLType, FileUtil, Classes, ComCtrls, Controls, Graphics, SynEdit, FGL,
+ Uses uMainForm, CodeScanner, CodeScannerCache, Tokens, LCLType, FileUtil, Classes, ComCtrls, Controls, Graphics, SynEdit, FGL,
       SynEditMiscClasses, VirtualTrees,
       SynEditSScript, SynHighlighterPas, SynHighlighterCpp, SynHighlighterJava, SynHighlighterHTML, SynHighlighterCSS,
       SynCompletion, mIntellisense, Process;
@@ -162,6 +162,9 @@ Unit mProject;
 
         VMProcess: TProcess;
 
+        // code scanner
+        CSCache: TCodeScannerCache;
+
        Public
         Constructor Create;
         Destructor Destroy; override;
@@ -195,6 +198,9 @@ Unit mProject;
         Procedure JumpToDeclaration(const Identifier: TIdentifier);
 
         Procedure UpdateIdentifierList;
+
+       Public
+        Property getCodeScannerCache: TCodeScannerCache read CSCache;
        End;
 
  Function getCompilerSwitchName(const Switch: TCompilerSwitch; const ChangeToRealSwitch: Boolean): String;
@@ -349,8 +355,11 @@ Begin
  if (Shift = [ssCtrl]) and (Key = VK_SPACE) Then // Intellisense shortcut; @TODO: this should be configurable from settings
  Begin
   Key := 0;
+
+  // parse
   Parse;
 
+  // show intellisense window
   if (CodeScanner <> nil) Then
   Begin
    if (Project.ParseError.Any) Then // cannot open Intellisense if parsing wasn't successful
@@ -369,9 +378,13 @@ Begin
    End Else
    Begin
     UpdateIntellisense;
-    Intellisense.Execute('',
-                         CodeEditor.Left+SynEdit.Left+SynEdit.CaretXPix+12,
-                         CodeEditor.Top+SynEdit.CaretYPix+SynEdit.Font.Size+CodeEditor.Panel1.Height+64);
+
+    if (Intellisense.ItemList.Count > 0) Then
+    Begin
+     Intellisense.Execute('',
+                          CodeEditor.Left+SynEdit.Left+SynEdit.CaretXPix+12,
+                          CodeEditor.Top+SynEdit.CaretYPix+SynEdit.Font.Size+CodeEditor.Panel1.Height+64);
+    End;
    End;
   End;
  End;
@@ -807,8 +820,6 @@ Var Msg, ErrFile: String;
     null_token: TToken_P;
     null_range: TRange;
 Begin
- // @TODO: if some card doesn't have to be reparsed, let the parser use its CodeScanner instead of parsing it again.
-
  // check config
  if (not Config.getBoolean(ceEnableIntellisense)) Then
   Exit;
@@ -836,6 +847,7 @@ Begin
 
  Try
   Try
+   CodeScanner.EnableCache(Project.CSCache);
    IdentifierList := CodeScanner.Parse;
   Except
    On E: Exception Do
@@ -905,14 +917,14 @@ Begin
    null_range.PEnd.Char := High(LongWord);
    null_range.PEnd.Line := High(LongWord);
 
-   Add(TSymbol.Create(stConstant, TVariable.Create(null_token, null_range, 'null')));
-   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'any')));
-   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'void')));
-   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'bool')));
-   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'char')));
-   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'int')));
-   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'float')));
-   Add(TSymbol.Create(stType, TVariable.Create(null_token, null_range, 'string')));
+   Add(TSymbol.Create(stConstant, TVariable.Create(CodeScanner, null_token, null_range, 'null')));
+   Add(TSymbol.Create(stType, TVariable.Create(CodeScanner, null_token, null_range, 'any')));
+   Add(TSymbol.Create(stType, TVariable.Create(CodeScanner, null_token, null_range, 'void')));
+   Add(TSymbol.Create(stType, TVariable.Create(CodeScanner, null_token, null_range, 'bool')));
+   Add(TSymbol.Create(stType, TVariable.Create(CodeScanner, null_token, null_range, 'char')));
+   Add(TSymbol.Create(stType, TVariable.Create(CodeScanner, null_token, null_range, 'int')));
+   Add(TSymbol.Create(stType, TVariable.Create(CodeScanner, null_token, null_range, 'float')));
+   Add(TSymbol.Create(stType, TVariable.Create(CodeScanner, null_token, null_range, 'string')));
   End;
  End;
 End;
@@ -1225,6 +1237,8 @@ Begin
  ParseError.Any := False;
 
  VMProcess := nil;
+
+ CSCache := TCodeScannerCache.Create;
 End;
 
 (* TProject.Destroy *)
@@ -1252,6 +1266,7 @@ Begin
 
  CardList.Free;
  MessageList.Free;
+ CSCache.Free;
 
  // restore form caption
  MainForm.Caption := uMainForm.BaseCaption;

@@ -10,7 +10,7 @@ Begin
   eat(_GREATER); // `>`
 
   Name := read_ident;
-  Typ  := TType.Create(next(-1), getCurrentRange, Name);
+  Typ  := TType.Create(self, next(-1), getCurrentRange, Name);
 
   if (inFunction) Then
    CurrentFunction.SymbolList.Add(TSymbol.Create(stType, Typ)) Else

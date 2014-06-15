@@ -13,7 +13,7 @@ Begin
   Begin
    Name := read_ident;
 
-   Vari     := TVariable.Create(next(-1), getCurrentRange, Name);
+   Vari     := TVariable.Create(self, next(-1), getCurrentRange, Name);
    Vari.Typ := TypeStr;
 
    AddIdentifier(Vari, next(-1));
@@ -49,7 +49,7 @@ Begin
   While (true) Do
   Begin
    Name := read_ident;
-   Cnst := TVariable.Create(next(-1), getCurrentRange, Name);
+   Cnst := TVariable.Create(self, next(-1), getCurrentRange, Name);
 
    if (inFunction) Then
     CurrentFunction.SymbolList.Add(TSymbol.Create(stConstant, Cnst)) Else

@@ -10,7 +10,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, VirtualTrees, SynEdit, CodeScan;
+  ExtCtrls, VirtualTrees, SynEdit, CodeScanner;
 
   { TNodeData }
   Type PNodeData = ^TNodeData;

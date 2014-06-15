@@ -928,6 +928,13 @@ object MainForm: TMainForm
         ShortCut = 24661
         OnClick = oUncommentSelectedClick
       end
+      object MenuItem10: TMenuItem
+        Caption = '-'
+      end
+      object oPurgeScannerCache: TMenuItem
+        Caption = 'Purge code scanner cache'
+        OnClick = oPurgeScannerCacheClick
+      end
     end
     object menuProject: TMenuItem
       Caption = 'Project'

@@ -22,7 +22,7 @@ Begin
   End;
 
   // prepare class instance
-  Func            := TFunction.Create(next, getCurrentRange, '');
+  Func            := TFunction.Create(self, next, getCurrentRange, '');
   Func.Name       := read_ident;
   Func.ReturnType := Return;
 
@@ -48,7 +48,7 @@ Begin
    // read parameter name
    if (next_t = _IDENTIFIER) Then
    Begin
-    Vari      := TVariable.Create(next, Parser.getCurrentRange(0), '');
+    Vari      := TVariable.Create(self, next, Parser.getCurrentRange(0), '');
     Vari.Name := read_ident;
     Vari.Typ  := ParamType;
 

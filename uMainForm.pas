@@ -26,6 +26,8 @@ type
     bbRun: TBitBtn;
     menuCode: TMenuItem;
     MenuItem1: TMenuItem;
+    MenuItem10: TMenuItem;
+    oPurgeScannerCache: TMenuItem;
     oStopProgram: TMenuItem;
     MenuItem7: TMenuItem;
     oRun: TMenuItem;
@@ -95,6 +97,7 @@ type
     procedure oCompileStatusClick(Sender: TObject);
     procedure oIdentifierListClick(Sender: TObject);
     procedure oLayoutManagerClick(Sender: TObject);
+    Procedure oPurgeScannerCacheClick(Sender: TObject);
     procedure oReplaceClick(Sender: TObject);
     procedure oFindClick(Sender: TObject);
     procedure oFindNextClick(Sender: TObject);
@@ -501,6 +504,12 @@ Procedure TMainForm.oLayoutManagerClick(Sender: TObject);
 begin
  LayoutManagerForm.Run;
 end;
+
+(* TMainForm.oPurgeScannerCacheClick *)
+Procedure TMainForm.oPurgeScannerCacheClick(Sender: TObject);
+Begin
+ Project.getCodeScannerCache.PurgeMemory;
+End;
 
 (* TMainForm.oReplaceClick *)
 Procedure TMainForm.oReplaceClick(Sender: TObject);

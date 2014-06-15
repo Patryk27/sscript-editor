@@ -168,8 +168,8 @@
       <Filename Value="editor"/>
     </Target>
     <SearchPaths>
-      <IncludeFiles Value="$(ProjOutDir);codescan"/>
-      <OtherUnitFiles Value="codescan"/>
+      <IncludeFiles Value="$(ProjOutDir);codescanner"/>
+      <OtherUnitFiles Value="codescanner"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
@@ -188,7 +188,7 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="6">
+    <Exceptions Count="7">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -207,6 +207,9 @@
       <Item6>
         <Name Value="EXMLReadError"/>
       </Item6>
+      <Item7>
+        <Name Value="EParserException"/>
+      </Item7>
     </Exceptions>
   </Debugging>
 </CONFIG>

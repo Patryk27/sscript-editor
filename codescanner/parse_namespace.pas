@@ -12,7 +12,7 @@ Begin
 
   if (Namespace = nil) Then // new namespace
   Begin
-   Namespace := TNamespace.Create(next(-1), getCurrentRange, Name);
+   Namespace := TNamespace.Create(self, next(-1), getCurrentRange, Name);
    NamespaceList.Add(Namespace);
   End Else
   Begin

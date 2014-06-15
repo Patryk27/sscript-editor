@@ -59,7 +59,7 @@ var
   CodeEditor: TCodeEditor;
 
 implementation
-Uses uMainForm, mProject, mFunctions, mLanguages, mMessages, CodeScan;
+Uses uMainForm, mProject, mFunctions, mLanguages, mMessages, CodeScanner;
 
 {$R *.lfm}
 

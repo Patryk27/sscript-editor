@@ -5,7 +5,7 @@
 Unit mIntellisense;
 
  Interface
- Uses Classes, CodeScan;
+ Uses Classes, CodeScanner;
 
  Const IntellisenseDelimiter = #10;
 
